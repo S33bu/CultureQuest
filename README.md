@@ -1,7 +1,7 @@
 # CultureQuest
 Mobile game where the player needs to guess the country by getting hints (Random location, random pictures of food of said culture and so on)
 
-### Team Members:
+Team Members:
 <br/>
 **Armin Liiv** - Project Leader / Manager
 <br/>
@@ -15,10 +15,20 @@ Mobile game where the player needs to guess the country by getting hints (Random
 <br/>
 <br/>
 
-### Planned features
-<ul><li>Random Google street view pictures</li><li>High Score Counter</li><li>Profile authentication ()</li></ul>
+## Planned features
+<ul>
+  <li>Random Google street view pictures</li>
+  <li>High Score Counter</li>
+  <li>Profile authentication ()</li>
+</ul>
 <br/>
 
-### Tools & Frameworks:
+## Tools & Frameworks:
 <br/>
-Github, Jira, Android Studio, Kotlin, Figma
+<ul>
+  <li>Android Studio</li>
+  <li>Kotlin</li>
+  <li>Github itself.</li>
+  <li>Figma</li>
+  <li>Jira</li>
+</ul>
