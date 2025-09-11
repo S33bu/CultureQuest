@@ -19,7 +19,7 @@ Team Members:
 <ul>
   <li>Random Google street view pictures</li>
   <li>High Score Counter</li>
-  <li>Profile authentication ()</li>
+  <li>Profile authentication</li>
 </ul>
 <br/>
 
