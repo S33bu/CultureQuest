@@ -13,5 +13,12 @@ Team Members:
 <br/>
 **Sebastian Mais** - Lead Developer / Builder
 <br/>
+<br/>
 
-<ul><li>Random Google street view pictures</li><li>High Score Counter</li></ul>
+Planned features
+<ul><li>Random Google street view pictures</li><li>High Score Counter</li><li>Profile authentication ()</li></ul>
+<br/>
+
+Tools & Frameworks:
+<br/>
+Github, Jira, Android Studio, Kotlin, Figma
