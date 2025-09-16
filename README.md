@@ -35,4 +35,6 @@ For more detailed view and planned features, here is our wiki page https://githu
   <li>Github itself.</li>
   <li>Figma</li>
   <li>Jira</li>
+  <li>Google Maps SDK for Android (+Street View Panorama)</li>
+  <li>Firebase Authentication</li>
 </ul>
