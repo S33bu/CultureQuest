@@ -1,5 +1,5 @@
 # CultureQuest
-Mobile game where the player needs to guess the country by getting hints (Random location, random pictures of food of said culture and so on)
+CultureQuest is a mobile game where players guess the country based on a real-world panorama image from Google Street View. To help them along, players can use cultural hints, and their performance is tracked on a leaderboard to keep the experience competitive and engaging.
 
 Team Members:
 <br/>
