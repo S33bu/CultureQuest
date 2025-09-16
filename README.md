@@ -23,10 +23,6 @@ Team Members:
 </ul>
 <br/>
 
-## Design prototype
-https://www.figma.com/design/JwdXXM536tv3NMc9ouiwgb/CultureQuest?node-id=0-1&t=6fDQWc04dzcWQ8th-1
-<br/>
-<br/>
 
 ## Tools & Frameworks:
 <br/>
