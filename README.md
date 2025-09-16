@@ -22,7 +22,7 @@ Team Members:
   <li>Profile authentication</li>
 </ul>
 <br/>
-
+For more detailed view, here is our [Wiki](https://github.com/S33bu/CultureQuest/wiki)
 
 ## Tools & Frameworks:
 <br/>
