@@ -15,14 +15,16 @@ Team Members:
 <br/>
 <br/>
 
+
 ## Planned features
 <ul>
-  <li>Random Google street view pictures</li>
-  <li>High Score Counter</li>
-  <li>Profile authentication</li>
+  <li>Game Page: the core experience, powered by Google Street View</li>
+  <li>A hint system, to help the user</li>
+  <li>Sign In / Log In: user authentication to track scores</li>
+  <li>And so on...</li>
 </ul>
 <br/>
-For more detailed view, here is our wiki page https://github.com/S33bu/CultureQuest/wiki
+For more detailed view and planned features, here is our wiki page https://github.com/S33bu/CultureQuest/wiki
 
 
 ## Tools & Frameworks:
