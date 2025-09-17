@@ -3,15 +3,15 @@ CultureQuest is a mobile game where players guess the country based on a real-wo
 
 Team Members:
 <br/>
-**Armin Liiv** - Project Leader / Manager
+  **Armin Liiv** - Project Leader / Manager
 <br/>
-**Caroline Markov** - Researcher
+  **Caroline Markov** - Researcher
 <br/>
-**Kaspar Aednik** - Presenter
+  **Kaspar Aednik** - Presenter
 <br/>
-**Riika Seeba** - Editor
+  **Riika Seeba** - Editor
 <br/>
-**Sebastian Mais** - Lead Developer / Builder
+  **Sebastian Mais** - Lead Developer / Builder
 <br/>
 <br/>
 
