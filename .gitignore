@@ -1,0 +1,43 @@
+# Default ignored files
+/shelf/
+/.idea/workspace.xml
+.idea/
+*.iml
+*.iws
+*.ipr
+*.swp
+*.swo
+*~
+
+# Gradle
+.gradle/
+build/
+
+# Android
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# Local configuration file
+local.properties
+
+# Log Files
+*.log
+
+# External native build folder
+.externalNativeBuild/
+.cxx/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Backup files
+*.backup
+*.bak
