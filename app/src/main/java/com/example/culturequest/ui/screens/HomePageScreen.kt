@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.Dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(onAboutClick: () -> Unit) {  // Add onAboutClick parameter
     Scaffold { padding ->
         Column(
             modifier = Modifier
@@ -34,7 +34,8 @@ fun HomeScreen() {
             TopSemicircleHeader(
                 height = 300.dp,
                 background = com.example.culturequest.ui.theme.Green80,
-                iconSize = 50.dp
+                iconSize = 50.dp,
+                onAboutClick = onAboutClick // Pass the click handler
             )
 
             //between empty for now, need to put game score
@@ -54,7 +55,8 @@ fun HomeScreen() {
 private fun TopSemicircleHeader(
     height: Dp,
     background: Color,
-    iconSize: Dp
+    iconSize: Dp,
+    onAboutClick: () -> Unit = {}   // Add onAboutClick parameter
 ) {
     Box(
         // Content inside the semicircle
@@ -82,7 +84,7 @@ private fun TopSemicircleHeader(
         {
             // Left: About icon
             IconButton(
-                onClick = {},
+                onClick = onAboutClick, // Pass the click handler
                 modifier = Modifier.align(Alignment.TopStart)
             ) {
                 Icon(

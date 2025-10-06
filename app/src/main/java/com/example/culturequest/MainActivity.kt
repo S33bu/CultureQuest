@@ -14,7 +14,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.culturequest.ui.screens.HomeScreen
+import com.example.culturequest.ui.screens.AboutPageScreen
 import com.example.culturequest.ui.theme.CultureQuestTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.*
+
+
 import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import com.example.culturequest.data.*
@@ -25,6 +30,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CultureQuestTheme(dynamicColor = false) {
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    AppNavigation()
+                }
+                //HomeScreen()
+            }
                 HomeScreen()
             }
         }
@@ -61,6 +71,20 @@ class MainActivity : ComponentActivity() {
             val randomQ = questionDao.getRandomQuestion()
             println("Database test: Random question = ${randomQ?.questionText}")
         }
+    }
+}
+
+@Composable
+fun AppNavigation() {
+    var currentScreen by remember { mutableStateOf("home") }
+
+    when (currentScreen) {
+        "home" -> HomeScreen(
+            onAboutClick = { currentScreen = "about" }
+        )
+        "about" -> AboutPageScreen(
+            onBackClick = { currentScreen = "home" }
+        )
     }
 }
 

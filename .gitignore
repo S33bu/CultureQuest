@@ -41,3 +41,8 @@ Thumbs.db
 # Backup files
 *.backup
 *.bak
+
+/app/build/
+/*/build/
+*.keystore
+*.jks
