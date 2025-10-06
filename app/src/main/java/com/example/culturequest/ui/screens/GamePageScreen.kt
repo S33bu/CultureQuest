@@ -18,7 +18,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.culturequest.R
 import androidx.compose.ui.unit.sp
-import kotlin.random.Random
 
 @Composable
 fun GamePageScreen(onBackClick: () -> Unit) {
@@ -39,11 +38,37 @@ fun GamePageScreen(onBackClick: () -> Unit) {
     var answer by remember { mutableStateOf(TextFieldValue("")) }
     var showDialog by remember { mutableStateOf(false) }
     var isCorrect by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     fun nextImage() {
         val newImage = images.filter { it != currentImage }.random()
         currentImage = newImage
         answer = TextFieldValue("")
+    }
+
+    //Validation logic
+    fun validateAnswer(input: String): String? {
+        val trimmed = input.trim()
+
+        return when {
+            trimmed.isEmpty() -> "Please enter something!"
+            trimmed.length > 30 -> "Your answer is too long (max 30 characters)."
+            trimmed.any { it.isDigit() } -> "The answer cannot contain numbers."
+            trimmed.any { !it.isLetter() && it != ' ' && it != '-' } ->
+                "Only letters, spaces, and hyphens are allowed."
+            else -> null
+        }
+    }
+
+    fun handleSubmit() {
+        val validationError = validateAnswer(answer.text)
+        if (validationError != null) {
+            errorMessage = validationError
+            return
+        }
+
+        isCorrect = answer.text.trim().equals(currentImage.first, ignoreCase = true)
+        showDialog = true
     }
 
     Scaffold(
@@ -55,7 +80,6 @@ fun GamePageScreen(onBackClick: () -> Unit) {
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            // Full background image
             Image(
                 painter = painterResource(id = currentImage.second),
                 contentDescription = null,
@@ -63,7 +87,6 @@ fun GamePageScreen(onBackClick: () -> Unit) {
                 modifier = Modifier.fillMaxSize()
             )
 
-            // Floating input area
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -80,7 +103,13 @@ fun GamePageScreen(onBackClick: () -> Unit) {
                     OutlinedTextField(
                         value = answer,
                         onValueChange = { answer = it },
-                        placeholder = { Text("What country is it?", color = Color.Black.copy(alpha = 0.6f), fontSize = 18.sp) },
+                        placeholder = {
+                            Text(
+                                "What country is it?",
+                                color = Color.Black.copy(alpha = 0.6f),
+                                fontSize = 18.sp
+                            )
+                        },
                         textStyle = LocalTextStyle.current.copy(fontSize = 20.sp),
                         singleLine = true,
                         shape = RoundedCornerShape(50),
@@ -88,28 +117,20 @@ fun GamePageScreen(onBackClick: () -> Unit) {
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color.White,
                             unfocusedBorderColor = Color.White,
-                            focusedContainerColor = Color(0xAA99FF99), // soft greenish translucent
+                            focusedContainerColor = Color(0xAA99FF99),
                             unfocusedContainerColor = Color(0xAA99FF99),
                             focusedTextColor = Color.Black,
                             unfocusedTextColor = Color.Black,
                             cursorColor = Color.Black
                         ),
                         keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                isCorrect = answer.text.trim().equals(currentImage.first, ignoreCase = true)
-                                showDialog = true
-                            }
-                        )
+                        keyboardActions = KeyboardActions(onDone = { handleSubmit() })
                     )
 
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Button(
-                        onClick = {
-                            isCorrect = answer.text.trim().equals(currentImage.first, ignoreCase = true)
-                            showDialog = true
-                        },
+                        onClick = { handleSubmit() },
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
                         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp)
@@ -119,7 +140,6 @@ fun GamePageScreen(onBackClick: () -> Unit) {
                 }
             }
 
-            // Back button
             IconButton(
                 onClick = onBackClick,
                 modifier = Modifier
@@ -131,6 +151,20 @@ fun GamePageScreen(onBackClick: () -> Unit) {
                     painter = painterResource(id = R.drawable.backbutton),
                     contentDescription = "Back",
                     modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            // ✅ Error message dialog
+            errorMessage?.let { msg ->
+                AlertDialog(
+                    onDismissRequest = { errorMessage = null },
+                    title = { Text("⚠️ Invalid Input") },
+                    text = { Text(msg) },
+                    confirmButton = {
+                        TextButton(onClick = { errorMessage = null }) {
+                            Text("OK")
+                        }
+                    }
                 )
             }
 
