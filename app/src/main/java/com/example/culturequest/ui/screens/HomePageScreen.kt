@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.Dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(onAboutClick: () -> Unit) {  // Add onAboutClick parameter
+fun HomeScreen(onAboutClick: () -> Unit, onGameClick: () -> Unit) {  // Add onAboutClick parameter
     Scaffold { padding ->
         Column(
             modifier = Modifier
@@ -44,7 +44,8 @@ fun HomeScreen(onAboutClick: () -> Unit) {  // Add onAboutClick parameter
             //lighter green bottom half circle
             BottomSemiCircle(
                 height = 180.dp,
-                background = com.example.culturequest.ui.theme.GreenYellow80
+                background = com.example.culturequest.ui.theme.GreenYellow80,
+                onGameClick = onGameClick
             )
             Spacer(Modifier.height(16.dp))
         }
@@ -126,6 +127,7 @@ private fun TopSemicircleHeader(
 private fun BottomSemiCircle(
     height: Dp,
     background: Color,
+    onGameClick: () -> Unit
 ) {
     Box(
         // Content inside the semicircle
@@ -154,7 +156,7 @@ private fun BottomSemiCircle(
     {
 //button for starting the game
         Button(
-            onClick = {},
+            onClick = onGameClick,
             modifier = Modifier
                 .padding(bottom = 16.dp),
             colors = ButtonDefaults.buttonColors(
