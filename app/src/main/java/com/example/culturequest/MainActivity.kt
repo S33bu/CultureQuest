@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.culturequest.ui.screens.HomeScreen
 import com.example.culturequest.ui.screens.AboutPageScreen
+import com.example.culturequest.ui.screens.GamePageScreen
 import com.example.culturequest.ui.theme.CultureQuestTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
@@ -41,9 +42,13 @@ fun AppNavigation() {
 
     when (currentScreen) {
         "home" -> HomeScreen(
-            onAboutClick = { currentScreen = "about" }
+            onAboutClick = { currentScreen = "about" },
+            onGameClick = { currentScreen = "game" }
         )
         "about" -> AboutPageScreen(
+            onBackClick = { currentScreen = "home" }
+        )
+        "game" -> GamePageScreen(
             onBackClick = { currentScreen = "home" }
         )
     }
