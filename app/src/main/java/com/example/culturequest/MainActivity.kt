@@ -20,6 +20,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 
 
+import androidx.lifecycle.lifecycleScope
+import androidx.room.Room
+import com.example.culturequest.data.*
+import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +35,41 @@ class MainActivity : ComponentActivity() {
                 }
                 //HomeScreen()
             }
+                HomeScreen()
+            }
+        }
+
+        // ------------------------
+        // Temporary database test
+        // ------------------------
+        val db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java,
+            "culturequest-db"
+        ).build()
+
+        val userDao = db.userDao()
+        val questionDao = db.questionDao()
+
+        lifecycleScope.launch {
+            // Insert a test user
+            userDao.insertUser(UserProfile(username = "Kaspar", score = 100))
+
+            // Insert a test question
+            questionDao.insertQuestion(
+                QuizQuestion(
+                    questionText = "What is the capital of Estonia?",
+                    correctAnswer = "Tallinn"
+                )
+            )
+
+            // Read back user
+            val user = userDao.getUser()
+            println("Database test: User = ${user?.username}, Score = ${user?.score}")
+
+            // Read back a random question
+            val randomQ = questionDao.getRandomQuestion()
+            println("Database test: Random question = ${randomQ?.questionText}")
         }
     }
 }
