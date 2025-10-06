@@ -16,40 +16,41 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.culturequest.R
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.culturequest.ui.viewmodel.GameViewModel
+import kotlinx.coroutines.launch
 
 @Composable
-fun GamePageScreen(onBackClick: () -> Unit) {
-    val images = listOf(
-        "australia" to R.drawable.australia,
-        "china" to R.drawable.china,
-        "egypt" to R.drawable.egypt,
-        "estonia" to R.drawable.estonia,
-        "france" to R.drawable.france,
-        "india" to R.drawable.india,
-        "indonesia" to R.drawable.indonesia,
-        "italy" to R.drawable.italy,
-        "uk" to R.drawable.uk,
-        "usa" to R.drawable.usa
-    )
+fun GamePageScreen(
+    onBackClick: () -> Unit,
+    onGameEnd: () -> Unit, // Navigate back to HomeScreen
+    viewModel: GameViewModel = viewModel()
+) {
+    val allQuestions by viewModel.questions.collectAsState()
+    val currentIndex by viewModel.currentIndex.collectAsState()
+    val user by viewModel.user.collectAsState()
+    val isGameFinished by viewModel.isGameFinished.collectAsState()
 
-    var currentImage by remember { mutableStateOf(images.random()) }
+    val currentQuestion = if (allQuestions.isNotEmpty()) allQuestions.getOrNull(currentIndex) else null
+
     var answer by remember { mutableStateOf(TextFieldValue("")) }
     var showDialog by remember { mutableStateOf(false) }
     var isCorrect by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    fun nextImage() {
-        val newImage = images.filter { it != currentImage }.random()
-        currentImage = newImage
-        answer = TextFieldValue("")
+    val coroutineScope = rememberCoroutineScope()
+
+    // Navigate back when game finishes
+    LaunchedEffect(isGameFinished) {
+        if (isGameFinished) {
+            onGameEnd()
+            viewModel.resetGame()
+        }
     }
 
-    //Validation logic
     fun validateAnswer(input: String): String? {
         val trimmed = input.trim()
-
         return when {
             trimmed.isEmpty() -> "Please enter something!"
             trimmed.length > 30 -> "Your answer is too long (max 30 characters)."
@@ -67,7 +68,7 @@ fun GamePageScreen(onBackClick: () -> Unit) {
             return
         }
 
-        isCorrect = answer.text.trim().equals(currentImage.first, ignoreCase = true)
+        isCorrect = viewModel.submitAnswer(answer.text)
         showDialog = true
     }
 
@@ -80,13 +81,39 @@ fun GamePageScreen(onBackClick: () -> Unit) {
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            Image(
-                painter = painterResource(id = currentImage.second),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
+            // Display question image or loading
+            if (currentQuestion != null) {
+                Image(
+                    painter = painterResource(id = currentQuestion.imageResId),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Loading...", color = Color.White)
+                }
+            }
 
+            // Live Score at top center
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                contentAlignment = Alignment.TopCenter
+            ) {
+                Text(
+                    text = "Score: ${user?.score ?: 0}",
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            // Answer input row at bottom
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -140,6 +167,7 @@ fun GamePageScreen(onBackClick: () -> Unit) {
                 }
             }
 
+            // Back button
             IconButton(
                 onClick = onBackClick,
                 modifier = Modifier
@@ -148,13 +176,13 @@ fun GamePageScreen(onBackClick: () -> Unit) {
                     .size(50.dp)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.backbutton),
+                    painter = painterResource(id = com.example.culturequest.R.drawable.backbutton),
                     contentDescription = "Back",
                     modifier = Modifier.fillMaxSize()
                 )
             }
 
-            // ✅ Error message dialog
+            // Error dialog
             errorMessage?.let { msg ->
                 AlertDialog(
                     onDismissRequest = { errorMessage = null },
@@ -168,12 +196,13 @@ fun GamePageScreen(onBackClick: () -> Unit) {
                 )
             }
 
-            // Feedback popup
+            // Feedback dialog
             if (showDialog) {
                 AlertDialog(
                     onDismissRequest = {
                         showDialog = false
-                        nextImage()
+                        answer = TextFieldValue("")
+                        coroutineScope.launch { viewModel.moveToNextQuestion() }
                     },
                     title = {
                         Text(
@@ -184,7 +213,8 @@ fun GamePageScreen(onBackClick: () -> Unit) {
                     confirmButton = {
                         TextButton(onClick = {
                             showDialog = false
-                            nextImage()
+                            answer = TextFieldValue("")
+                            coroutineScope.launch { viewModel.moveToNextQuestion() }
                         }) {
                             Text("Next")
                         }

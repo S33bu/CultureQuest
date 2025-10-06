@@ -4,12 +4,15 @@ import androidx.room.*
 
 @Dao
 interface QuestionDao {
+    @Query("SELECT * FROM quiz_questions")
+    suspend fun getAllQuestions(): List<QuizQuestion>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertQuestion(question: QuizQuestion)
 
-    @Query("SELECT * FROM quiz_question")
-    suspend fun getAllQuestions(): List<QuizQuestion>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(questions: List<QuizQuestion>)
 
-    @Query("SELECT * FROM quiz_question ORDER BY RANDOM() LIMIT 1")
-    suspend fun getRandomQuestion(): QuizQuestion?
+    @Query("DELETE FROM quiz_questions")
+    suspend fun clearAll()
 }
