@@ -17,6 +17,11 @@ import androidx.compose.ui.unit.dp
 import com.example.culturequest.R
 
 @OptIn(ExperimentalMaterial3Api::class)
+/**
+ * Composable function that displays the "About" page of the application.
+ * It includes a description of the app, its features, and a header with navigation.
+ * @param onBackClick A lambda function to be invoked when the back button is clicked.
+ */
 @Composable
 fun AboutPageScreen(onBackClick: () -> Unit) {
     Scaffold { padding ->
@@ -90,7 +95,11 @@ fun AboutPageScreen(onBackClick: () -> Unit) {
         }
     }
 }
-// New component for feature items for consistent styling
+
+/**
+ * A private composable function to display a single feature item with a bullet point.
+ * @param text The string content of the feature to display.
+ */
 @Composable
 private fun FeatureItem(text: String) {
     Row(
@@ -111,6 +120,16 @@ private fun FeatureItem(text: String) {
         )
     }
 }
+
+/**
+ * A private composable function that creates a semi-circular header.
+ * It can optionally display a back button and always shows a profile icon.
+ * @param height The height of the header box.
+ * @param background The background color of the semi-circle.
+ * @param iconSize The size for the icons in the header.
+ * @param showBackButton A boolean to determine if the back button should be shown.
+ * @param onBackClick A lambda function to be executed when the back button is pressed.
+ */
 @Composable
 private fun TopSemicircleHeader(
     height: Dp,
@@ -124,12 +143,14 @@ private fun TopSemicircleHeader(
             .fillMaxWidth()
             .height(height)
             .drawBehind {
+                // Complex logic to draw a semi-circle that adapts to the screen width.
                 val w = size.width
                 val h = size.height
-                val d = minOf(w, 2f * h)
-                val left = (w - d) / 2f
-                val top = -d / 2f
+                val d = minOf(w, 2f * h) // Calculate the diameter for the circle
+                val left = (w - d) / 2f // Center the arc horizontally
+                val top = -d / 2f // Position the arc's top half above the visible area
 
+                // Draw the arc to form the semi-circle
                 drawArc(
                     color = background,
                     startAngle = 0f,
