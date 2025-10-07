@@ -5,7 +5,7 @@ Team Members:
 <br/>
   **Armin Liiv** - Project Leader / Manager
 <br/>
-  **Caroline Markov** - Researcher
+  **Caroline Markov** - Researcher, Github handle: https://github.com/CarolineMarkov
 <br/>
   **Kaspar Aednik** - Presenter
 <br/>
