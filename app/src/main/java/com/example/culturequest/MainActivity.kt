@@ -23,42 +23,50 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.culturequest.ui.viewmodel.GameViewModel
 
 
+// Main activity of the app, entry point for the Compose UI
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Enable full-screen edge-to-edge content
         enableEdgeToEdge()
+
+        // Set the Compose content
         setContent {
+            // Apply custom theme to the whole app
             CultureQuestTheme(dynamicColor = false) {
+                // Surface provides a background for Compose content
                 Surface(modifier = Modifier.fillMaxSize()) {
+                    // Launch the navigation composable to switch between screens
                     AppNavigation()
                 }
-                //HomeScreen()
             }
         }
     }
 }
 
+// Composable to handle app navigation between Home, About, and Game screens
 @Composable
 fun AppNavigation() {
+    // Track the current screen: "home", "about", or "game"
     var currentScreen by remember { mutableStateOf("home") }
+
+    // Create a single instance of GameViewModel for sharing state across screens
     val gameViewModel: GameViewModel = viewModel()
 
-
+    // Display the appropriate screen based on currentScreen
     when (currentScreen) {
         "home" -> HomeScreen(
-            onAboutClick = { currentScreen = "about" },
-            onGameClick = { currentScreen = "game" },
-            gameViewModel = gameViewModel
+            onAboutClick = { currentScreen = "about" }, // Navigate to About page
+            onGameClick = { currentScreen = "game" },   // Navigate to Game page
+            gameViewModel = gameViewModel               // Pass ViewModel for score updates
         )
         "about" -> AboutPageScreen(
-            onBackClick = { currentScreen = "home" }
+            onBackClick = { currentScreen = "home" }    // Navigate back to Home
         )
         "game" -> GamePageScreen(
-            onBackClick = { currentScreen = "home" },
-            onGameEnd = { currentScreen = "home" },
-            viewModel = gameViewModel
-
+            onBackClick = { currentScreen = "home" },  // Navigate back to Home manually
+            onGameEnd = { currentScreen = "home" },    // Navigate back automatically when game ends
+            viewModel = gameViewModel                   // Pass the shared GameViewModel
         )
     }
 }
-
