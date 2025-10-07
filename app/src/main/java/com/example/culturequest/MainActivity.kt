@@ -19,6 +19,8 @@ import com.example.culturequest.ui.screens.GamePageScreen
 import com.example.culturequest.ui.theme.CultureQuestTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.culturequest.ui.viewmodel.GameViewModel
 
 
 class MainActivity : ComponentActivity() {
@@ -39,17 +41,23 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation() {
     var currentScreen by remember { mutableStateOf("home") }
+    val gameViewModel: GameViewModel = viewModel()
+
 
     when (currentScreen) {
         "home" -> HomeScreen(
             onAboutClick = { currentScreen = "about" },
-            onGameClick = { currentScreen = "game" }
+            onGameClick = { currentScreen = "game" },
+            gameViewModel = gameViewModel
         )
         "about" -> AboutPageScreen(
             onBackClick = { currentScreen = "home" }
         )
         "game" -> GamePageScreen(
-            onBackClick = { currentScreen = "home" }
+            onBackClick = { currentScreen = "home" },
+            onGameEnd = { currentScreen = "home" },
+            viewModel = gameViewModel
+
         )
     }
 }
