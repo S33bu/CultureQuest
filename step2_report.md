@@ -1,35 +1,32 @@
-#Step 2 report
+# Step 2 Report
 
-#What data is stored locally
-Using Room: 
-- User Profile:
-  - id (Int)
-  - username (String)
-  - score (Int)
+## What Data Is Stored Locally
 
--QuizQuestion (quizquestion table)
-  - id (Int)
-  - questionText (String)
-  - correctAnswer (String)
-  - imageResId (Int)
+Using **Room**:
 
-Persistence & Access
-- Database AppDatabase with entities = UserProfile, QuizQuestion
+### UserProfile (user_profile table)
+- id (Int, primary key, autogen)
+- username (String)
+- score (Int)
 
-- DAO UserDao for UserProfile 
-  - insertUser(REPLACE on conflict)
-  - getUser() (single, nullable)
-  - getUserFlow() (reactive Flow<UserProfile?>)
-  - updateUser(user)
-  
-- QuestionDao for QuizQuestion
-  - getAllQuestions() (list)
-  - insertQuestion(question) (REPLACE)
-  - insertAll(questions) (REPLACE)
-  - clearAll()
+### QuizQuestion (quiz_questions table)
+- id (Int, primary key, autogen)
+- questionText (String)
+- correctAnswer (String)
+- imageResId (Int, drawable resource ID)
 
-#Basic form & validation (implementation note)
-Validation (e.g. user must enter text before saving) is enforced in the UI layer
-before calling DAO methods
+---
 
-#Challenges and solutions
+## Persistence & Access
+
+- **Database:** AppDatabase with entities [UserProfile, QuizQuestion]
+
+- **DAOs:**
+  - **UserDao** for UserProfile
+    - insertUser() — replaces on conflict  
+    - getUser() — returns single or null  
+    - getUserFlow() — returns reactive Flow<UserProfile?>  
+    - updateUser(user)
+  - **QuestionDao** for QuizQuestion
+    - getAllQuestions() — returns all questions  
+    - insertQue
