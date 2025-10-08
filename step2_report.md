@@ -79,5 +79,6 @@ Using **Room**:
       This ensures that whenever the score in the database changes (such as after answering a question correctly or incorrectly in the game), the HomeScreen will automatically update with the new score.
 
   - Setting up the Room Database and fixing database intergrity where control codes did not match
-      Solution was we had to literally go to the virtual android phone app settings and delete cache for it to creata a new database
+
+    Solution was we had to literally go to the virtual android phone app settings and delete cache for it to creata a new database
     
