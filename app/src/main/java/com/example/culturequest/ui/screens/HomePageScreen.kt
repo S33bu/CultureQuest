@@ -22,13 +22,13 @@ import com.example.culturequest.ui.viewmodel.HomeViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onAboutClick: () -> Unit,
-    onGameClick: () -> Unit,
-    gameViewModel: GameViewModel = viewModel(),
+    onAboutClick: () -> Unit, //what happens when "About" is clicked
+    onGameClick: () -> Unit,    //what happens when "Play now" is clicked
+    gameViewModel: GameViewModel = viewModel(), // gets the GameViewModel
 ) {
-    val user by gameViewModel.user.collectAsState()
-    val score = user?.score ?: 0
-
+    val user by gameViewModel.user.collectAsState() //observe user data
+    val score = user?.score ?: 0 //if user exists, get score, else 0
+    //Scaffold gives layout structure (top, bottom, main content)
     Scaffold { padding ->
         Column(
             modifier = Modifier
@@ -72,15 +72,14 @@ fun HomeScreen(
 
 @Composable
 private fun TopSemicircleHeader(
-    height: Dp,
-    background: Color,
-    iconSize: Dp,
-    onAboutClick: () -> Unit = {}
+    height: Dp, background: Color, iconSize: Dp, onAboutClick: () -> Unit = {}
 ) {
+    //Box draws the semicircle background and places icons/text inside it
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(height)
+            //draw top semicircle
             .drawBehind {
                 val w = size.width
                 val h = size.height
@@ -96,12 +95,11 @@ private fun TopSemicircleHeader(
                     topLeft = Offset(left, top),
                     size = Size(d, d)
                 )
-            },
-        contentAlignment = Alignment.TopCenter
+            }, contentAlignment = Alignment.TopCenter
     ) {
+        //About button
         IconButton(
-            onClick = onAboutClick,
-            modifier = Modifier.align(Alignment.TopStart)
+            onClick = onAboutClick, modifier = Modifier.align(Alignment.TopStart)
         ) {
             Icon(
                 painter = painterResource(R.drawable.about_us),
@@ -110,10 +108,9 @@ private fun TopSemicircleHeader(
                 tint = Color.White
             )
         }
-
+        //Profile button
         IconButton(
-            onClick = {},
-            modifier = Modifier.align(Alignment.TopEnd)
+            onClick = {}, modifier = Modifier.align(Alignment.TopEnd)
         ) {
             Icon(
                 painter = painterResource(R.drawable.profile_icon),
@@ -122,7 +119,7 @@ private fun TopSemicircleHeader(
                 tint = Color.White
             )
         }
-
+        //Title in the middle
         Text(
             text = "Culture\nQuest",
             style = MaterialTheme.typography.titleLarge,
@@ -138,10 +135,9 @@ private fun TopSemicircleHeader(
 
 @Composable
 private fun BottomSemiCircle(
-    height: Dp,
-    background: Color,
-    onGameClick: () -> Unit
+    height: Dp, background: Color, onGameClick: () -> Unit
 ) {
+    //Box draws the bottom semicircle and places the button inside it
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -162,8 +158,7 @@ private fun BottomSemiCircle(
                     topLeft = Offset(left, top),
                     size = Size(d, d)
                 )
-            },
-        contentAlignment = Alignment.Center
+            }, contentAlignment = Alignment.Center
     ) {
         Button(
             onClick = onGameClick,

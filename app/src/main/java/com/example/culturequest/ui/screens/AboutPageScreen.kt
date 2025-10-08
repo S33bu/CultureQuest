@@ -62,7 +62,9 @@ fun AboutPageScreen(onBackClick: () -> Unit) {
                     text = "CultureQuest is an engaging educational game that helps you learn about different cultures around the world through fun quizzes and interactive content.",
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
-                    lineHeight = androidx.compose.ui.unit.TextUnit(24f, androidx.compose.ui.unit.TextUnitType.Sp)
+                    lineHeight = androidx.compose.ui.unit.TextUnit(
+                        24f, androidx.compose.ui.unit.TextUnitType.Sp
+                    )
                 )
 
                 //Spacer(modifier = Modifier.height(16.dp))
@@ -71,11 +73,11 @@ fun AboutPageScreen(onBackClick: () -> Unit) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                Text(
-                    text = "Features:",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = com.example.culturequest.ui.theme.Green80
-                )
+                    Text(
+                        text = "Features:",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = com.example.culturequest.ui.theme.Green80
+                    )
 
                     // Features list with proper spacing
                     Column(
@@ -114,9 +116,7 @@ private fun FeatureItem(text: String) {
             modifier = Modifier.padding(end = 12.dp)
         )
         Text(
-            text = text,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.weight(1f)
+            text = text, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f)
         )
     }
 }
@@ -159,14 +159,12 @@ private fun TopSemicircleHeader(
                     topLeft = Offset(left, top),
                     size = Size(d, d)
                 )
-            },
-        contentAlignment = Alignment.TopCenter
+            }, contentAlignment = Alignment.TopCenter
     ) {
         // Left: Back button or empty space
         if (showBackButton) {
             IconButton(
-                onClick = onBackClick,
-                modifier = Modifier.align(Alignment.TopStart)
+                onClick = onBackClick, modifier = Modifier.align(Alignment.TopStart)
             ) {
                 Icon(
                     painter = painterResource(R.drawable.about_us), // You might want a back icon
@@ -186,8 +184,7 @@ private fun TopSemicircleHeader(
 
         // Right: Profile icon (consistent with homepage)
         IconButton(
-            onClick = {},
-            modifier = Modifier.align(Alignment.TopEnd)
+            onClick = {}, modifier = Modifier.align(Alignment.TopEnd)
         ) {
             Icon(
                 painter = painterResource(R.drawable.profile_icon),
