@@ -32,7 +32,8 @@ fun GamePageScreen(
     val user by viewModel.user.collectAsState()
     val isGameFinished by viewModel.isGameFinished.collectAsState()
 
-    val currentQuestion = if (allQuestions.isNotEmpty()) allQuestions.getOrNull(currentIndex) else null
+    val currentQuestion =
+        if (allQuestions.isNotEmpty()) allQuestions.getOrNull(currentIndex) else null
 
     var answer by remember { mutableStateOf(TextFieldValue("")) }
     var showDialog by remember { mutableStateOf(false) }
@@ -57,6 +58,7 @@ fun GamePageScreen(
             trimmed.any { it.isDigit() } -> "The answer cannot contain numbers."
             trimmed.any { !it.isLetter() && it != ' ' && it != '-' } ->
                 "Only letters, spaces, and hyphens are allowed."
+
             else -> null
         }
     }
