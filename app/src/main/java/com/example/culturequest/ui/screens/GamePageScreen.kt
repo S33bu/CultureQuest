@@ -10,16 +10,66 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.culturequest.R
 import com.example.culturequest.ui.viewmodel.GameViewModel
+import com.google.android.gms.maps.StreetViewPanoramaView
 import kotlinx.coroutines.launch
+import com.google.android.gms.maps.model.LatLng
+
+@Composable
+fun StreetViewPanoramaComposable(location: LatLng, modifier: Modifier = Modifier) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    // See tulevikuks, kui asukohad hakkavad muutuma
+    val onUpdate: (StreetViewPanoramaView) -> Unit = { view ->
+        view.getStreetViewPanoramaAsync { panorama ->
+            panorama.setPosition(location)
+        }
+    }
+
+    // Use AndroidView to host the classic view
+    AndroidView(
+        factory = { context ->
+            val streetView = StreetViewPanoramaView(context).apply {
+                // See siin fixis mingi igavese bugi
+                val observer = LifecycleEventObserver { _, event ->
+                    when (event) {
+                        Lifecycle.Event.ON_CREATE -> this.onCreate(null)
+                        Lifecycle.Event.ON_START -> this.onStart()
+                        Lifecycle.Event.ON_RESUME -> this.onResume()
+                        Lifecycle.Event.ON_PAUSE -> this.onPause()
+                        Lifecycle.Event.ON_STOP -> this.onStop()
+                        Lifecycle.Event.ON_DESTROY -> this.onDestroy()
+                        else -> {}
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+
+                //
+                this.getStreetViewPanoramaAsync { panorama ->
+                    panorama.isUserNavigationEnabled = false //et ei saaks ringi liikuda v.a ringi vaadata
+                    panorama.setPosition(location) // see võtab parameetrina koordinaadid
+                }
+            }
+            streetView
+        },
+        update = onUpdate, // Pass the update lambda here
+        modifier = modifier
+    )
+}
+
+
 
 @Composable
 fun GamePageScreen(
@@ -83,12 +133,10 @@ fun GamePageScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            // Display question image or loading
+            // Kutsutakse siin välja, hiljem kergem implementida, et muuta asukohta
             if (currentQuestion != null) {
-                Image(
-                    painter = painterResource(id = currentQuestion.imageResId),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
+                StreetViewPanoramaComposable(
+                    location = LatLng(37.769263, -122.450727),
                     modifier = Modifier.fillMaxSize()
                 )
             } else {
@@ -178,7 +226,7 @@ fun GamePageScreen(
                     .size(50.dp)
             ) {
                 Image(
-                    painter = painterResource(id = com.example.culturequest.R.drawable.backbutton),
+                    painter = painterResource(id = R.drawable.backbutton),
                     contentDescription = "Back",
                     modifier = Modifier.fillMaxSize()
                 )
