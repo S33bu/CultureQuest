@@ -26,50 +26,59 @@ import com.example.culturequest.ui.viewmodel.GameViewModel
 import com.google.android.gms.maps.StreetViewPanoramaView
 import kotlinx.coroutines.launch
 import com.google.android.gms.maps.model.LatLng
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun StreetViewPanoramaComposable(location: LatLng, modifier: Modifier = Modifier) {
+    //hella ai muudatusi siin sest muidu ei suutnud mitme asukohaga pilti vahetada
     val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
 
-    // See tulevikuks, kui asukohad hakkavad muutuma
-    val onUpdate: (StreetViewPanoramaView) -> Unit = { view ->
-        view.getStreetViewPanoramaAsync { panorama ->
-            panorama.setPosition(location)
+    // 1. Remember the view instance so it's not recreated on every recomposition.
+    val streetView = remember {
+        StreetViewPanoramaView(context)
+    }
+
+    // 2. Use DisposableEffect to safely manage the view's lifecycle.
+    // This correctly forwards lifecycle events (create, resume, destroy) to the view.
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_CREATE -> streetView.onCreate(null)
+                Lifecycle.Event.ON_START -> streetView.onStart()
+                Lifecycle.Event.ON_RESUME -> streetView.onResume()
+                Lifecycle.Event.ON_PAUSE -> streetView.onPause()
+                Lifecycle.Event.ON_STOP -> streetView.onStop()
+                Lifecycle.Event.ON_DESTROY -> streetView.onDestroy()
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        // Clean up the observer when the composable is removed from the screen
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
-    // Use AndroidView to host the classic view
-    AndroidView(
-        factory = { context ->
-            val streetView = StreetViewPanoramaView(context).apply {
-                // See siin fixis mingi igavese bugi
-                val observer = LifecycleEventObserver { _, event ->
-                    when (event) {
-                        Lifecycle.Event.ON_CREATE -> this.onCreate(null)
-                        Lifecycle.Event.ON_START -> this.onStart()
-                        Lifecycle.Event.ON_RESUME -> this.onResume()
-                        Lifecycle.Event.ON_PAUSE -> this.onPause()
-                        Lifecycle.Event.ON_STOP -> this.onStop()
-                        Lifecycle.Event.ON_DESTROY -> this.onDestroy()
-                        else -> {}
-                    }
-                }
-                lifecycleOwner.lifecycle.addObserver(observer)
+    // 3. Use LaunchedEffect to react to changes in the 'location' parameter
+    // This coroutine will re-run *only* when the 'location' value changes.
+    LaunchedEffect(location) {
+        streetView.getStreetViewPanoramaAsync { panorama ->
+            // Using a radius helps find the nearest available panorama,
+            // preventing a black screen if the exact LatLng has no imagery.
+            panorama.setPosition(location, 50)
+            panorama.isUserNavigationEnabled = false // et mängija liikuda ei saaks
+            panorama.isStreetNamesEnabled = false //et mitte kogemata hinte anda :p
+        }
+    }
 
-                //
-                this.getStreetViewPanoramaAsync { panorama ->
-                    panorama.isUserNavigationEnabled = false //et ei saaks ringi liikuda v.a ringi vaadata
-                    panorama.setPosition(location) // see võtab parameetrina koordinaadid
-                }
-            }
-            streetView
-        },
-        update = onUpdate, // Pass the update lambda here
+    // 4. Host the remembered view.
+    AndroidView(
+        factory = { streetView },
         modifier = modifier
     )
 }
-
-
 
 @Composable
 fun GamePageScreen(
@@ -133,10 +142,25 @@ fun GamePageScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            // Kutsutakse siin välja, hiljem kergem implementida, et muuta asukohta
+            //Siin mässame street viewga
             if (currentQuestion != null) {
+                val locations = mapOf(
+                    "australia" to LatLng(-33.856784, 151.215297),
+                    "china" to LatLng(40.431908, 116.570374),         // Great Wall of China
+                    "egypt" to LatLng(29.979234, 31.134202),          // Pyramids of Giza
+                    "estonia" to LatLng(59.436962, 24.753574),         // Tallinn Old Town
+                    "france" to LatLng(48.858844, 2.294351),          // Eiffel Tower, Paris
+                    "india" to LatLng(27.175149, 78.042145),          // Taj Mahal, Agra
+                    "indonesia" to LatLng(-7.607874, 110.203751),     // Borobudur Temple
+                    "italy" to LatLng(41.89021, 12.492231),           // Colosseum, Rome
+                    "uk" to LatLng(51.500729, -0.124625),             // Big Ben, London
+                    "usa" to LatLng(40.689247, -74.044502)
+                )
+
+                val location = locations[currentQuestion.correctAnswer.lowercase()] ?: LatLng(0.0, 0.0)
+
                 StreetViewPanoramaComposable(
-                    location = LatLng(37.769263, -122.450727),
+                    location = location,
                     modifier = Modifier.fillMaxSize()
                 )
             } else {
