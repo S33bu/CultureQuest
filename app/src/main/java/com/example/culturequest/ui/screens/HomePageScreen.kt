@@ -24,10 +24,13 @@ import com.example.culturequest.ui.viewmodel.HomeViewModel
 fun HomeScreen(
     onAboutClick: () -> Unit, //what happens when "About" is clicked
     onGameClick: () -> Unit,    //what happens when "Play now" is clicked
+    lastGameScore: Int = 0,
     gameViewModel: GameViewModel = viewModel(), // gets the GameViewModel
+    homeViewModel: HomeViewModel = viewModel() // gets the HomeViewModel
 ) {
-    val user by gameViewModel.user.collectAsState() //observe user data
-    val score = user?.score ?: 0 //if user exists, get score, else 0
+    val user by gameViewModel.user.collectAsState()
+    val score by homeViewModel.score.collectAsState()
+
     //Scaffold gives layout structure (top, bottom, main content)
     Scaffold { padding ->
         Column(
@@ -49,12 +52,21 @@ fun HomeScreen(
                     .padding(top = 16.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "Score: $score",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.Black,
-                    textAlign = TextAlign.Center
-                )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "Last Game Score: $lastGameScore",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.Black,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Best Score: ${user?.bestScore ?: 0}",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.Black,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
 
             Spacer(Modifier.weight(1f))

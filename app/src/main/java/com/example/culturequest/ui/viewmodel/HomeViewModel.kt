@@ -23,12 +23,16 @@ class HomeViewModel : ViewModel() {
     private val _score = MutableStateFlow(0)
     val score: StateFlow<Int> = _score
 
+    private val _bestScore = MutableStateFlow(0)
+    val bestScore: StateFlow<Int> = _bestScore
+
     init {
         viewModelScope.launch {
             // Collect the user profile Flow from the database
             // Updates _score whenever user's score changes
             db.userDao().getUserFlow().collect { user ->
                 _score.value = user?.score ?: 0
+                _bestScore.value = user?.bestScore ?: 0
             }
         }
     }
