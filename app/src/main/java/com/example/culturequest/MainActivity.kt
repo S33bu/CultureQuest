@@ -55,16 +55,12 @@ fun AppNavigation() {
         "home" -> HomeScreen(
             onAboutClick = { currentScreen = "about" }, // Navigate to About page
             onProfileClick = { currentScreen = "profile" },
-            onGameClick = { currentScreen = "game" },   // Navigate to Game page
-            gameViewModel = gameViewModel               // Pass ViewModel for score updates
-            onAboutClick = { currentScreen = "about" },
             onGameClick = {
                 // Start a fresh game when "Play now" is clicked
                 gameViewModel.resetGame(resetUserScore = true)
                 currentScreen = "game"
             },
-            lastGameScore = lastGameScore,
-            gameViewModel = gameViewModel
+            lastGameScore = lastGameScore
         )
         "about" -> AboutPageScreen(
             onBackClick = { currentScreen = "home" }    // Navigate back to Home
