@@ -56,6 +56,10 @@ class GameViewModel : ViewModel() {
     private val _tierShown = MutableStateFlow(0)
     val tierShown: StateFlow<Int> = _tierShown
 
+    private val _lastGameScore = MutableStateFlow(0)
+    val lastGameScore: StateFlow<Int> = _lastGameScore
+
+
 
 
     // Initialization block
@@ -156,14 +160,18 @@ class GameViewModel : ViewModel() {
         // Check if the answer is correct (case-insensitive)
         val isCorrect = answer.trim().equals(current.correctAnswer, ignoreCase = true)
 
-        // Calculate the new score (never negative)
-        val newScore = if (isCorrect) user.score + 1 else (user.score - 1).coerceAtLeast(0)
+        if (isCorrect) {
+            // Calculate score based on hints used
+            val pointsEarned = (4 - _tierShown.value).coerceAtLeast(1)
+            val newScore = user.score + pointsEarned
+            val newBest = maxOf(user.bestScore, newScore)
 
-        // Update user in DB and StateFlow
-        viewModelScope.launch {
-            val updatedUser = user.copy(score = newScore)
-            db.userDao().insertUser(updatedUser)
-            _user.value = updatedUser
+            // Update user in DB and StateFlow
+            viewModelScope.launch {
+                val updatedUser = user.copy(score = newScore, bestScore = newBest)
+                db.userDao().insertUser(updatedUser)
+                _user.value = updatedUser
+            }
         }
 
         return isCorrect
@@ -204,15 +212,25 @@ class GameViewModel : ViewModel() {
         if (nextIndex < _questions.value.size) {
             _currentIndex.value = nextIndex
         } else {
+            _user.value?.let { _lastGameScore.value = it.score }
             _isGameFinished.value = true // signal that game has ended
         }
     }
 
     // Reset game state: start over
-    fun resetGame() {
+    fun resetGame(resetUserScore: Boolean = true) {
         _currentIndex.value = 0
         _isGameFinished.value = false
+        _tierShown.value = 0
+
         viewModelScope.launch {
+            if (resetUserScore) {
+                _user.value?.let { user ->
+                    val resetUser = user.copy(score = 0)
+                    db.userDao().insertUser(resetUser)
+                    _user.value = resetUser
+                }
+            }
             _questions.value = db.questionDao().getAllQuestions().shuffled()
             resetHints()
             prepareHintsForCurrent()
@@ -242,17 +260,8 @@ class GameViewModel : ViewModel() {
     fun revealNextTierAndPenalize() {
         if (_tierShown.value >= 3) return
         android.util.Log.d("HintDebug", "Initial _tierShown: ${_tierShown.value}")
-        _tierShown.value = _tierShown.value +1
+        _tierShown.value = _tierShown.value + 1
         android.util.Log.d("Hints", "tierShown=${_tierShown.value}")
-
-        val user = _user.value ?: return
-        val oldScore = user.score
-        val updated = user.copy(score = (user.score - 1))
-        _user.value = updated
-        android.util.Log.d("HintDebug", "User score penalized synchronously: $oldScore -> ${updated.score}")
-
-        viewModelScope.launch {
-            db.userDao().insertUser(updated) }
     }
 
     fun visibleHintsForTier(): List<Hint> = when (_tierShown.value) {

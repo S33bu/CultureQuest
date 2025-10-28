@@ -48,6 +48,8 @@ fun AppNavigation() {
     // Create a single instance of GameViewModel for sharing state across screens
     val gameViewModel: GameViewModel = viewModel()
 
+    var lastGameScore by remember { mutableIntStateOf(0) }
+
     // Display the appropriate screen based on currentScreen
     when (currentScreen) {
         "home" -> HomeScreen(
@@ -55,13 +57,33 @@ fun AppNavigation() {
             onProfileClick = { currentScreen = "profile" },
             onGameClick = { currentScreen = "game" },   // Navigate to Game page
             gameViewModel = gameViewModel               // Pass ViewModel for score updates
+            onAboutClick = { currentScreen = "about" },
+            onGameClick = {
+                // Start a fresh game when "Play now" is clicked
+                gameViewModel.resetGame(resetUserScore = true)
+                currentScreen = "game"
+            },
+            lastGameScore = lastGameScore,
+            gameViewModel = gameViewModel
         )
         "about" -> AboutPageScreen(
             onBackClick = { currentScreen = "home" }    // Navigate back to Home
         )
         "game" -> GamePageScreen(
-            onBackClick = { currentScreen = "home" },  // Navigate back to Home manually
-            onGameEnd = { currentScreen = "home" },    // Navigate back automatically when game ends
+            onBackClick = {
+                // Capture last score when user backs out mid-game
+                lastGameScore = gameViewModel.user.value?.score ?: 0
+                currentScreen = "home"
+                // Reset game for next session but keep last score
+                gameViewModel.resetGame(resetUserScore = false)
+            },
+            onGameEnd = {
+                // Capture final score at the end of the game
+                lastGameScore = it
+                currentScreen = "home"
+                // Reset game for next session but keep last score
+                gameViewModel.resetGame(resetUserScore = false)
+            },
             viewModel = gameViewModel                   // Pass the shared GameViewModel
         )
         "profile" -> ProfilePageScreen(
