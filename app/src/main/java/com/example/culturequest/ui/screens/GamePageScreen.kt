@@ -11,18 +11,78 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.culturequest.R
+import com.example.culturequest.ui.viewmodel.GameViewModel
+import com.google.android.gms.maps.StreetViewPanoramaView
 import com.example.culturequest.data.HintTier
 import com.example.culturequest.ui.viewmodel.GameViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.google.android.gms.maps.model.LatLng
+import androidx.compose.ui.platform.LocalContext
+
+@Composable
+fun StreetViewPanoramaComposable(location: LatLng, modifier: Modifier = Modifier) {
+    //hella ai muudatusi siin sest muidu ei suutnud mitme asukohaga pilti vahetada
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
+
+    // 1. Remember the view instance so it's not recreated on every recomposition.
+    val streetView = remember {
+        StreetViewPanoramaView(context)
+    }
+
+    // 2. Use DisposableEffect to safely manage the view's lifecycle.
+    // This correctly forwards lifecycle events (create, resume, destroy) to the view.
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_CREATE -> streetView.onCreate(null)
+                Lifecycle.Event.ON_START -> streetView.onStart()
+                Lifecycle.Event.ON_RESUME -> streetView.onResume()
+                Lifecycle.Event.ON_PAUSE -> streetView.onPause()
+                Lifecycle.Event.ON_STOP -> streetView.onStop()
+                Lifecycle.Event.ON_DESTROY -> streetView.onDestroy()
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        // Clean up the observer when the composable is removed from the screen
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    // 3. Use LaunchedEffect to react to changes in the 'location' parameter
+    // This coroutine will re-run *only* when the 'location' value changes.
+    LaunchedEffect(location) {
+        streetView.getStreetViewPanoramaAsync { panorama ->
+            // Using a radius helps find the nearest available panorama,
+            // preventing a black screen if the exact LatLng has no imagery.
+            panorama.setPosition(location, 50)
+            panorama.isUserNavigationEnabled = false // et mängija liikuda ei saaks
+            panorama.isStreetNamesEnabled = false //et mitte kogemata hinte anda :p
+        }
+    }
+
+    // 4. Host the remembered view.
+    AndroidView(
+        factory = { streetView },
+        modifier = modifier
+    )
+}
 
 @Composable
 fun GamePageScreen(
@@ -182,12 +242,25 @@ fun GamePageScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            // Display question image or loading
+            //Siin mässame street viewga
             if (currentQuestion != null) {
-                Image(
-                    painter = painterResource(id = currentQuestion.imageResId),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
+                val locations = mapOf(
+                    "australia" to LatLng(-33.856784, 151.215297),
+                    "china" to LatLng(40.431908, 116.570374),         // Great Wall of China
+                    "egypt" to LatLng(29.979234, 31.134202),          // Pyramids of Giza
+                    "estonia" to LatLng(59.436962, 24.753574),         // Tallinn Old Town
+                    "france" to LatLng(48.858844, 2.294351),          // Eiffel Tower, Paris
+                    "india" to LatLng(27.175149, 78.042145),          // Taj Mahal, Agra
+                    "indonesia" to LatLng(-7.607874, 110.203751),     // Borobudur Temple
+                    "italy" to LatLng(41.89021, 12.492231),           // Colosseum, Rome
+                    "uk" to LatLng(51.500729, -0.124625),             // Big Ben, London
+                    "usa" to LatLng(40.689247, -74.044502)
+                )
+
+                val location = locations[currentQuestion.correctAnswer.lowercase()] ?: LatLng(0.0, 0.0)
+
+                StreetViewPanoramaComposable(
+                    location = location,
                     modifier = Modifier.fillMaxSize()
                 )
             } else {
@@ -299,7 +372,7 @@ fun GamePageScreen(
                     .size(50.dp)
             ) {
                 Image(
-                    painter = painterResource(id = com.example.culturequest.R.drawable.backbutton),
+                    painter = painterResource(id = R.drawable.backbutton),
                     contentDescription = "Back",
                     modifier = Modifier.fillMaxSize()
                 )

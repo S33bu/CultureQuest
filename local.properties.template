@@ -1,0 +1,54 @@
+# This is a template file for local development properties.
+
+#Follow these steps to get the app running on your machine.
+#
+#
+# ### Step 1: Create a Google Maps API Key ###
+#
+# 1.  Go to the Google Cloud Console: https://console.cloud.google.com/
+# 2.  Create a new project (or select an existing one).
+# 3.  In the navigation menu, go to "APIs & Services" > "Library".
+# 4.  Search for "Maps SDK for Android" and enable it for your project.
+# 5.  Go to "APIs & Services" > "Credentials".
+# 6.  Click "Create Credentials" > "API key".
+# 7.  Copy the new API key. You will need it in Step 4.
+#
+#
+# ### Step 2: Get Your Machine's Debug SHA-1 Fingerprint ###
+#
+# The API key must be restricted for security. This links the key to your specific computer.
+#
+# 1.  Open this project in Android Studio.
+# 2.  Open the "Terminal" panel at the bottom of the IDE.
+# 3.  Run the following command:
+#
+#     On Windows:   gradlew signingReport
+#     On Mac/Linux: ./gradlew signingReport
+#
+# 4.  Wait for the report to generate. In the output, find the "debug" variant
+#     and copy its "SHA-1" certificate fingerprint.
+#     It will look like: A1:B2:C3:D4:E5:F6:A1:B2:C3:D4:E5:F6:A1:B2:C3:D4:E5:F6:A1:B2
+#
+#
+# ### Step 3: Restrict the API Key ###
+#
+# 1.  Go back to the Google Cloud Console "Credentials" page.
+# 2.  Click on the name of the API key you created in Step 1.
+# 3.  Under "Application restrictions", select "Android apps".
+# 4.  Click "ADD AN ITEM".
+# 5.  Enter the following details:
+#     - Package name: com.example.culturequest
+#     - SHA-1 certificate fingerprint: Paste the SHA-1 key you copied in Step 2.
+# 6.  Click "Save". The key is now ready.
+#
+#
+# ### Step 4: Create Your `local.properties` File ###
+#
+# 1.  Make a copy of this template file (`local.properties.template`).
+# 2.  Rename the copy to `local.properties`.
+# 3.  In the new `local.properties` file, replace "ENTER_YOUR_API_KEY_HERE"
+#     with the actual Google Maps API Key you created in Step 1.
+#
+# The "local.properties" file is ignored by Git and will not be committed to version control.
+
+MAPS_API_KEY=ENTER_YOUR_API_KEY_HERE
