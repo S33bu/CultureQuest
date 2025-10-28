@@ -24,6 +24,7 @@ import com.example.culturequest.ui.viewmodel.HomeViewModel
 fun HomeScreen(
     onAboutClick: () -> Unit, //what happens when "About" is clicked
     onGameClick: () -> Unit,    //what happens when "Play now" is clicked
+    onProfileClick: () -> Unit,
     gameViewModel: GameViewModel = viewModel(), // gets the GameViewModel
 ) {
     val user by gameViewModel.user.collectAsState() //observe user data
@@ -39,7 +40,8 @@ fun HomeScreen(
                 height = 300.dp,
                 background = com.example.culturequest.ui.theme.Green80,
                 iconSize = 50.dp,
-                onAboutClick = onAboutClick
+                onAboutClick = onAboutClick,
+                onProfileClick = onProfileClick
             )
 
             // Display the score below the top semicircle
@@ -72,7 +74,7 @@ fun HomeScreen(
 
 @Composable
 private fun TopSemicircleHeader(
-    height: Dp, background: Color, iconSize: Dp, onAboutClick: () -> Unit = {}
+    height: Dp, background: Color, iconSize: Dp, onAboutClick: () -> Unit = {}, onProfileClick: () -> Unit = {}
 ) {
     //Box draws the semicircle background and places icons/text inside it
     Box(
@@ -110,7 +112,8 @@ private fun TopSemicircleHeader(
         }
         //Profile button
         IconButton(
-            onClick = {}, modifier = Modifier.align(Alignment.TopEnd)
+            onClick = onProfileClick,
+            modifier = Modifier.align(Alignment.TopEnd)
         ) {
             Icon(
                 painter = painterResource(R.drawable.profile_icon),

@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import com.example.culturequest.ui.screens.HomeScreen
 import com.example.culturequest.ui.screens.AboutPageScreen
 import com.example.culturequest.ui.screens.GamePageScreen
+import com.example.culturequest.ui.screens.ProfilePageScreen
 import com.example.culturequest.ui.theme.CultureQuestTheme
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -51,6 +52,7 @@ fun AppNavigation() {
     when (currentScreen) {
         "home" -> HomeScreen(
             onAboutClick = { currentScreen = "about" }, // Navigate to About page
+            onProfileClick = { currentScreen = "profile" },
             onGameClick = { currentScreen = "game" },   // Navigate to Game page
             gameViewModel = gameViewModel               // Pass ViewModel for score updates
         )
@@ -61,6 +63,9 @@ fun AppNavigation() {
             onBackClick = { currentScreen = "home" },  // Navigate back to Home manually
             onGameEnd = { currentScreen = "home" },    // Navigate back automatically when game ends
             viewModel = gameViewModel                   // Pass the shared GameViewModel
+        )
+        "profile" -> ProfilePageScreen(
+            onBackClick = { currentScreen = "home" }
         )
     }
 }
