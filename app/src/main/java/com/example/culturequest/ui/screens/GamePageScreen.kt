@@ -1,6 +1,7 @@
 package com.example.culturequest.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -115,7 +116,8 @@ fun GamePageScreen(
 
     var timeLeft by remember { mutableStateOf(60) }
 
-
+    val isLoadingData by viewModel.isLoadingData.collectAsState()
+    val loadErrorMessage by viewModel.loadErrorMessage.collectAsState()
 
     //show hints
     LaunchedEffect(currentIndex, countriesLoaded) {
@@ -271,6 +273,33 @@ fun GamePageScreen(
                 }
             }
 
+            if (isLoadingData) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.7f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator(color = Color.White)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Loading data...", color = Color.White)
+                    }
+                }
+            }
+            // Show load error dialog if loading fails
+            loadErrorMessage?.let { error ->
+                AlertDialog(
+                    onDismissRequest = { viewModel.clearLoadError() },
+                    title = { Text("⚠️ Error") },
+                    text = { Text(error) },
+                    confirmButton = {
+                        TextButton(onClick = { viewModel.clearLoadError() }) {
+                            Text("OK")
+                        }
+                    }
+                )
+            }
             // Live Score at top center
             Box(
                 modifier = Modifier

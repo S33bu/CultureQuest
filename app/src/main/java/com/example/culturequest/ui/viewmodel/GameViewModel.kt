@@ -60,29 +60,37 @@ class GameViewModel : ViewModel() {
     val lastGameScore: StateFlow<Int> = _lastGameScore
 
 
+    private val _isLoadingData = MutableStateFlow(false)
+    val isLoadingData: StateFlow<Boolean> = _isLoadingData
+
+    private val _loadErrorMessage = MutableStateFlow<String?>(null)
+    val loadErrorMessage: StateFlow<String?> = _loadErrorMessage
 
 
     // Initialization block
     init {
         //launch everything in the background (IO thread)
         viewModelScope.launch(Dispatchers.IO) {
-            //load country data - used for hints
-            CountryRepository.loadCountries(MyApp.context) {
-                _countriesLoaded.value = true
-            }
-            preloadQuestionsIfNeeded() // insert starter questions if DB empty
-            _questions.value =
-                db.questionDao().getAllQuestions().shuffled() // shuffle for random order
+            _isLoadingData.value = true
+            try {
+                CountryRepository.loadCountries(MyApp.context) {
+                    _countriesLoaded.value = true
+                }
+                preloadQuestionsIfNeeded()
+                _questions.value = db.questionDao().getAllQuestions().shuffled()
 
-            //load or create user profile
-            val userDao = db.userDao()
-            var user = userDao.getUser()
-            if (user == null) {
-                // Create a default user if none exists
-                user = UserProfile(username = "Player", score = 0)
-                userDao.insertUser(user)
+                val userDao = db.userDao()
+                var user = userDao.getUser()
+                if (user == null) {
+                    user = UserProfile(username = "Player", score = 0)
+                    userDao.insertUser(user)
+                }
+                _user.value = user
+            } catch (e: Exception) {
+                _loadErrorMessage.value = "Failed to load game data: ${e.message}"
+            } finally {
+                _isLoadingData.value = false
             }
-            _user.value = user
         }
     }
 
@@ -340,5 +348,9 @@ class GameViewModel : ViewModel() {
         return allHints
     }
 
+
+    fun clearLoadError() {
+        _loadErrorMessage.value = null
+    }
 
 }
