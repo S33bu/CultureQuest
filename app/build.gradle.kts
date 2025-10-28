@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    alias(libs.plugins.kotlin.serialization)   // ← add this
+
 }
 
 android {
@@ -77,6 +79,9 @@ dependencies {
     // Google Maps
     implementation("com.google.maps.android:maps-compose:6.12.1")
     implementation("com.google.android.gms:play-services-maps:19.2.0")
+    //JSON parser
+    implementation(libs.kotlinx.serialization.json)
+
 
 
 

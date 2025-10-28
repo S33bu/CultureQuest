@@ -2,6 +2,7 @@ package com.example.culturequest.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -24,6 +25,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.culturequest.R
 import com.example.culturequest.ui.viewmodel.GameViewModel
 import com.google.android.gms.maps.StreetViewPanoramaView
+import com.example.culturequest.data.HintTier
+import com.example.culturequest.ui.viewmodel.GameViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.google.android.gms.maps.model.LatLng
 import androidx.compose.ui.platform.LocalContext
@@ -83,7 +87,7 @@ fun StreetViewPanoramaComposable(location: LatLng, modifier: Modifier = Modifier
 @Composable
 fun GamePageScreen(
     onBackClick: () -> Unit,
-    onGameEnd: () -> Unit, // Navigate back to HomeScreen
+    onGameEnd: (lastScore: Int) -> Unit, // Navigate back to HomeScreen
     viewModel: GameViewModel = viewModel()
 ) {
     val allQuestions by viewModel.questions.collectAsState()
@@ -101,10 +105,29 @@ fun GamePageScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
+    //FOR HINTS
+    var showHintsDialog by remember { mutableStateOf(false)}
+    val countriesLoaded by viewModel.countriesLoaded.collectAsState()
+    val tierShown by viewModel.tierShown.collectAsState()
+    val visibleHints by remember(tierShown) {
+        derivedStateOf { viewModel.visibleHintsForTier() }
+    }
+
+
+    var timeLeft by remember { mutableStateOf(60) }
+
+
+
+    //show hints
+    LaunchedEffect(currentIndex, countriesLoaded) {
+        if (countriesLoaded) viewModel.prepareHintsForCurrent()
+    }
+
+
     // Navigate back when game finishes
     LaunchedEffect(isGameFinished) {
         if (isGameFinished) {
-            onGameEnd()
+            onGameEnd(viewModel.lastGameScore.value)
             viewModel.resetGame()
         }
     }
@@ -131,6 +154,83 @@ fun GamePageScreen(
 
         isCorrect = viewModel.submitAnswer(answer.text)
         showDialog = true
+    }
+
+
+    // Start countdown when the question is loaded
+    LaunchedEffect(Unit) {
+        while (timeLeft > 0 && !isGameFinished) {
+            delay(1000)
+            timeLeft -= 1
+        }
+        if (!isGameFinished) {
+            val finalScore = viewModel.user.value?.score ?: 0
+            onGameEnd(finalScore)
+            viewModel.resetGame(resetUserScore = false) // keep last game score intact
+        }
+    }
+
+
+
+
+
+    //if clicked on the lightbulb icon
+    if (showHintsDialog) {
+
+        AlertDialog(
+            onDismissRequest = { showHintsDialog = false },
+            //different title headings based on tiers
+            title = {
+                Text(
+                    text = when (tierShown) {
+                        1 -> "Hints: Hard"
+                        2 -> "Hints: Hard + Medium"
+                        3 -> "Hints: Hard + Medium + Easy"
+                        else -> "Hints"
+                    },
+                    style = MaterialTheme.typography.titleMedium
+                )
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (visibleHints.isEmpty()) {
+                        Text("No hints yet.")
+                    } else {
+                        // Display each hint
+                        visibleHints.forEach { hint ->
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = when (hint.tier) {
+                                    HintTier.HARD -> Color(0x332196F3)
+                                    HintTier.MEDIUM -> Color(0x334CAF50)
+                                    HintTier.EASY -> Color(0x33FFC107)
+                                }
+                            ) {
+                                Text(
+                                    text = hint.text,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    modifier = Modifier.padding(10.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    //if the tier is below 3, then it is shown also show more hints
+                    if (tierShown < 3) {
+                        TextButton(onClick = { viewModel.revealNextTierAndPenalize() }) {
+                            Text("Show more hints (−1)", style = MaterialTheme.typography.titleMedium)
+                        }
+                    }
+                    //always show close
+                    TextButton(onClick = { showHintsDialog = false }) {
+                        Text("Close", style = MaterialTheme.typography.titleMedium)
+                    }
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -168,7 +268,7 @@ fun GamePageScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Loading...", color = Color.White)
+                    Text("Loading...", color = Color.White, fontSize = MaterialTheme.typography.labelMedium.fontSize)
                 }
             }
 
@@ -176,15 +276,37 @@ fun GamePageScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp),
+                    .padding(top = 30.dp),
                 contentAlignment = Alignment.TopCenter
             ) {
                 Text(
-                    text = "Score: ${user?.score ?: 0}",
+                    text = "Time left: $timeLeft s | Score: ${user?.score ?: 0}",
                     color = Color.White,
-                    fontSize = 24.sp,
+                    fontSize = MaterialTheme.typography.labelSmall.fontSize,
                     textAlign = TextAlign.Center
                 )
+
+                IconButton(
+                    onClick = {
+                        //only first click on the lightbulb will make tier+1
+                        if (tierShown == 0) viewModel.revealNextTierAndPenalize()
+                        showHintsDialog = true
+                        //otherwise the hints that are chosen based on the
+                        //button "show more hints -1" will be displayed
+                        if (tierShown <= 3) showHintsDialog = true
+                    },
+
+                    enabled = tierShown <= 3,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(16.dp)
+                        .size(56.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = com.example.culturequest.R.drawable.hint_icon),
+                        contentDescription = "Hint"
+                    )
+                }
             }
 
             // Answer input row at bottom

@@ -4,20 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.culturequest.ui.screens.HomeScreen
 import com.example.culturequest.ui.screens.AboutPageScreen
 import com.example.culturequest.ui.screens.GamePageScreen
+import com.example.culturequest.ui.screens.ProfilePageScreen
 import com.example.culturequest.ui.theme.CultureQuestTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.culturequest.ui.viewmodel.GameViewModel
@@ -53,20 +48,42 @@ fun AppNavigation() {
     // Create a single instance of GameViewModel for sharing state across screens
     val gameViewModel: GameViewModel = viewModel()
 
+    var lastGameScore by remember { mutableIntStateOf(0) }
+
     // Display the appropriate screen based on currentScreen
     when (currentScreen) {
         "home" -> HomeScreen(
             onAboutClick = { currentScreen = "about" }, // Navigate to About page
-            onGameClick = { currentScreen = "game" },   // Navigate to Game page
-            gameViewModel = gameViewModel               // Pass ViewModel for score updates
+            onProfileClick = { currentScreen = "profile" },
+            onGameClick = {
+                // Start a fresh game when "Play now" is clicked
+                gameViewModel.resetGame(resetUserScore = true)
+                currentScreen = "game"
+            },
+            lastGameScore = lastGameScore
         )
         "about" -> AboutPageScreen(
             onBackClick = { currentScreen = "home" }    // Navigate back to Home
         )
         "game" -> GamePageScreen(
-            onBackClick = { currentScreen = "home" },  // Navigate back to Home manually
-            onGameEnd = { currentScreen = "home" },    // Navigate back automatically when game ends
+            onBackClick = {
+                // Capture last score when user backs out mid-game
+                lastGameScore = gameViewModel.user.value?.score ?: 0
+                currentScreen = "home"
+                // Reset game for next session but keep last score
+                gameViewModel.resetGame(resetUserScore = false)
+            },
+            onGameEnd = {
+                // Capture final score at the end of the game
+                lastGameScore = it
+                currentScreen = "home"
+                // Reset game for next session but keep last score
+                gameViewModel.resetGame(resetUserScore = false)
+            },
             viewModel = gameViewModel                   // Pass the shared GameViewModel
+        )
+        "profile" -> ProfilePageScreen(
+            onBackClick = { currentScreen = "home" }
         )
     }
 }

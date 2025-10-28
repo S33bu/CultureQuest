@@ -24,10 +24,14 @@ import com.example.culturequest.ui.viewmodel.HomeViewModel
 fun HomeScreen(
     onAboutClick: () -> Unit, //what happens when "About" is clicked
     onGameClick: () -> Unit,    //what happens when "Play now" is clicked
+    onProfileClick: () -> Unit,
+    lastGameScore: Int = 0,
     gameViewModel: GameViewModel = viewModel(), // gets the GameViewModel
+    homeViewModel: HomeViewModel = viewModel() // gets the HomeViewModel
 ) {
-    val user by gameViewModel.user.collectAsState() //observe user data
-    val score = user?.score ?: 0 //if user exists, get score, else 0
+    val user by gameViewModel.user.collectAsState()
+    val score by homeViewModel.score.collectAsState()
+
     //Scaffold gives layout structure (top, bottom, main content)
     Scaffold { padding ->
         Column(
@@ -39,7 +43,8 @@ fun HomeScreen(
                 height = 300.dp,
                 background = com.example.culturequest.ui.theme.Green80,
                 iconSize = 50.dp,
-                onAboutClick = onAboutClick
+                onAboutClick = onAboutClick,
+                onProfileClick = onProfileClick
             )
 
             // Display the score below the top semicircle
@@ -49,12 +54,21 @@ fun HomeScreen(
                     .padding(top = 16.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "Score: $score",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.Black,
-                    textAlign = TextAlign.Center
-                )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "Last Game Score: $lastGameScore",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.Black,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Best Score: ${user?.bestScore ?: 0}",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.Black,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
 
             Spacer(Modifier.weight(1f))
@@ -72,7 +86,7 @@ fun HomeScreen(
 
 @Composable
 private fun TopSemicircleHeader(
-    height: Dp, background: Color, iconSize: Dp, onAboutClick: () -> Unit = {}
+    height: Dp, background: Color, iconSize: Dp, onAboutClick: () -> Unit = {}, onProfileClick: () -> Unit = {}
 ) {
     //Box draws the semicircle background and places icons/text inside it
     Box(
@@ -110,7 +124,8 @@ private fun TopSemicircleHeader(
         }
         //Profile button
         IconButton(
-            onClick = {}, modifier = Modifier.align(Alignment.TopEnd)
+            onClick = onProfileClick,
+            modifier = Modifier.align(Alignment.TopEnd)
         ) {
             Icon(
                 painter = painterResource(R.drawable.profile_icon),
