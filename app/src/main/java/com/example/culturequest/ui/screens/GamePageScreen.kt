@@ -21,12 +21,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.culturequest.data.HintTier
 import com.example.culturequest.ui.viewmodel.GameViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun GamePageScreen(
     onBackClick: () -> Unit,
-    onGameEnd: () -> Unit, // Navigate back to HomeScreen
+    onGameEnd: (lastScore: Int) -> Unit, // Navigate back to HomeScreen
     viewModel: GameViewModel = viewModel()
 ) {
     val allQuestions by viewModel.questions.collectAsState()
@@ -53,6 +54,10 @@ fun GamePageScreen(
     }
 
 
+    var timeLeft by remember { mutableStateOf(60) }
+
+
+
     //show hints
     LaunchedEffect(currentIndex, countriesLoaded) {
         if (countriesLoaded) viewModel.prepareHintsForCurrent()
@@ -62,7 +67,7 @@ fun GamePageScreen(
     // Navigate back when game finishes
     LaunchedEffect(isGameFinished) {
         if (isGameFinished) {
-            onGameEnd()
+            onGameEnd(viewModel.lastGameScore.value)
             viewModel.resetGame()
         }
     }
@@ -90,6 +95,24 @@ fun GamePageScreen(
         isCorrect = viewModel.submitAnswer(answer.text)
         showDialog = true
     }
+
+
+    // Start countdown when the question is loaded
+    LaunchedEffect(Unit) {
+        while (timeLeft > 0 && !isGameFinished) {
+            delay(1000)
+            timeLeft -= 1
+        }
+        if (!isGameFinished) {
+            val finalScore = viewModel.user.value?.score ?: 0
+            onGameEnd(finalScore)
+            viewModel.resetGame(resetUserScore = false) // keep last game score intact
+        }
+    }
+
+
+
+
 
     //if clicked on the lightbulb icon
     if (showHintsDialog) {
@@ -184,7 +207,7 @@ fun GamePageScreen(
                 contentAlignment = Alignment.TopCenter
             ) {
                 Text(
-                    text = "Score: ${user?.score ?: 0}",
+                    text = "Time left: $timeLeft s | Score: ${user?.score ?: 0}",
                     color = Color.White,
                     fontSize = MaterialTheme.typography.labelSmall.fontSize,
                     textAlign = TextAlign.Center
