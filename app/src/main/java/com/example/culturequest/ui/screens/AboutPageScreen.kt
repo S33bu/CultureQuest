@@ -86,7 +86,9 @@ fun AboutPageScreen(onBackClick: () -> Unit) {
                     )
 
                     Text(
-                        text = "CultureQuest is an engaging educational game that helps you learn about different cultures around the world through fun quizzes and interactive content.",
+                        text = "Test your geography and cultural knowledge by guessing the country based on what you see — from bustling city streets to remote landscapes.\n" +
+                                "\n" +
+                                "Use cultural hints to learn fascinating facts about each location, and climb the global leaderboard as you prove your world knowledge!",
                         style = MaterialTheme.typography.headlineSmall,
                         textAlign = TextAlign.Center
                     )
