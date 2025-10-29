@@ -29,8 +29,6 @@ Team Members:
 
 For a more detailed overview and upcoming features, visit our [**Wiki Page**](https://github.com/S33bu/CultureQuest/wiki).
 
-For more detailed view and planned features, here is our wiki page https://github.com/S33bu/CultureQuest/wiki
-
 
 ## Tools & Frameworks:
 <br/>
