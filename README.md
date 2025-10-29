@@ -13,7 +13,8 @@ Team Members:
   [GitHub Profile](https://github.com/CarolineMarkov)  
 
 - **Kaspar Aednik** — Developer, Project Manager  
-  *Main task:* Adjusting database structure, scoring logic, and timer  
+  *Main task:* Adjusting database structure, scoring logic, and timer
+  [Github Profile](https://github.com/Lontloom)
 
 - **Riika Seeba** — Developer, Editor  
   *Main task:* Updating the “About Us” page  
