@@ -5,7 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -20,11 +21,17 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.culturequest.R
 import com.example.culturequest.ui.theme.Green80
+import com.example.culturequest.ui.viewmodel.GameViewModel
+import kotlin.math.min
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfilePageScreen(onBackClick: () -> Unit) {
+fun ProfilePageScreen(
+    onBackClick: () -> Unit,
+    viewModel: GameViewModel = viewModel()
+) {
     val scrollState = rememberScrollState()
+    val user by viewModel.user.collectAsState()
 
     Scaffold { padding ->
         Box(
@@ -66,10 +73,9 @@ fun ProfilePageScreen(onBackClick: () -> Unit) {
                         textAlign = TextAlign.Center
                     )
 
-                    ProfileItem(label = "Name", value = "Alex Johnson")
-                    ProfileItem(label = "High Score", value = "12,450")
-                    ProfileItem(label = "Games Played", value = "36")
-                    ProfileItem(label = "Last Played", value = "October 25, 2025")
+                    ProfileItem(label = "Name", value = user?.username ?: "Player")
+                    ProfileItem(label = "High Score", value = (user?.bestScore ?: 0).toString())
+                    //ProfileItem(label = "Games Played", value = (user?.gamesPlayed ?: 0).toString())
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -120,7 +126,7 @@ private fun ProfileHeader(
             .drawBehind {
                 val w = size.width
                 val h = size.height
-                val d = minOf(w, 2f * h)
+                val d = min(w, 2f * h)
                 val left = (w - d) / 2f
                 val top = -d / 2f
 
@@ -140,7 +146,7 @@ private fun ProfileHeader(
             modifier = Modifier.align(Alignment.TopStart)
         ) {
             Icon(
-                painter = painterResource(R.drawable.about_us), // could replace with arrow_back icon
+                painter = painterResource(R.drawable.about_us), // parem back icon
                 contentDescription = "Back",
                 modifier = Modifier.size(iconSize),
                 tint = Color.White
