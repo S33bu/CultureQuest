@@ -23,7 +23,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.culturequest.R
-import com.example.culturequest.ui.viewmodel.GameViewModel
 import com.google.android.gms.maps.StreetViewPanoramaView
 import com.example.culturequest.data.HintTier
 import com.example.culturequest.ui.viewmodel.GameViewModel
