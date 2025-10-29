@@ -25,7 +25,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.culturequest.R
 import com.google.android.gms.maps.StreetViewPanoramaView
 import com.example.culturequest.data.HintTier
-import com.example.culturequest.ui.viewmodel.GameViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.google.android.gms.maps.model.LatLng
