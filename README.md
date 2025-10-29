@@ -6,7 +6,7 @@ The game is time-sensitive — each round lasts 1 minute, challenging players to
 Team Members:
 <br/>
 - **Armin Liiv** — Developer, Editor  
-  *Main task:* Implementing leaderboard for personal scores  https://github.com/Rover-M
+  *Main task:* Implementing leaderboard for personal scores
   [GitHub Profile](https://github.com/Rover-M) 
 
 - **Caroline Markov** — Researcher, Developer  
