@@ -7,7 +7,7 @@ Team Members:
 <br/>
   **Armin Liiv** - Developer, Editor
 <br/>
-  **Caroline Markov** - Researcher, Deveöoper Github handle: https://github.com/CarolineMarkov
+  **Caroline Markov** - Researcher, Developer Github handle: https://github.com/CarolineMarkov
 <br/>
   **Kaspar Aednik** - Developer, Project Manager
 <br/>
