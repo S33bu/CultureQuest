@@ -5,16 +5,23 @@ The game is time-sensitive — each round lasts 1 minute, challenging players to
 
 Team Members:
 <br/>
-  **Armin Liiv** - Developer, Editor
-<br/>
-  **Caroline Markov** - Researcher, Developer Github handle: https://github.com/CarolineMarkov
-<br/>
-  **Kaspar Aednik** - Developer, Project Manager
-<br/>
-  **Riika Seeba** - Developer, Editor
-<br/>
-  **Sebastian Mais** - Developer, Presentor,  Github handle https://github.com/S33bu
-<br/>
+- **Armin Liiv** — Developer, Editor  
+  *Main task:* Implementing leaderboard for personal scores  
+
+- **Caroline Markov** — Researcher, Developer  
+  *Main task:* Implementing the hinting system  
+  [GitHub Profile](https://github.com/CarolineMarkov)  
+
+- **Kaspar Aednik** — Developer, Project Manager  
+  *Main task:* Adjusting database structure, scoring logic, and timer  
+
+- **Riika Seeba** — Developer, Editor  
+  *Main task:* Updating the “About Us” page  
+
+- **Sebastian Mais** — Developer, Presenter  
+  *Main task:* Implementing the Google Maps SDK integration  
+  [GitHub Profile](https://github.com/S33bu)
+
 <br/>
 
 
