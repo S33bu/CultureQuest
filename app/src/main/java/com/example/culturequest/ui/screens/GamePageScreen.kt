@@ -29,6 +29,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.google.android.gms.maps.model.LatLng
 import androidx.compose.ui.platform.LocalContext
+import com.example.culturequest.ui.viewmodel.GameViewModel
 
 @Composable
 fun StreetViewPanoramaComposable(location: LatLng, modifier: Modifier = Modifier) {
