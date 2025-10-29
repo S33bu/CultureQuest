@@ -36,11 +36,17 @@ For more detailed view and planned features, here is our wiki page https://githu
 <br/>
 <ul>
   <li>Android Studio</li>
-  <li>Kotlin</li>
+  <li>Kotlin + Kotlin Coroutines</li>
   <li>GitHub (version control and collaboration)</li>
+  <li>Jetpack Compose (UI), Material 3, Navigation</li>
   <li>Figma (UI/UX design)</li>
   <li>Jira (project management)</li>
-  <li>Google Maps SDK for Android (+ Street View Panorama)</li>
+  <li>Google Maps SDK for Android & Maps Compose</li>
   <li>Firebase Authentication <i>(planned)</i></li>
-  <li>mledoze/countries dataset – integrated as a local database for country hints</li>
+  <li>AndroidX Lifecycle & ViewModel</li>
+  <li>Room Database (with KSP)</li>
+  <li>kotlinx-serialization (JSON)</li>
+  <li>mledoze/countries dataset (embedded in assets for local hints)</li>
+  <li>Firebase Authentication <i>(planned)</i></li>
+ 
 </ul>
