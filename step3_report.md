@@ -11,3 +11,6 @@ Because we use the Google Maps SDK, we can't make manual calls to a traditional 
 In our code the closest thing to a 'API call' in our code is this: "panorama.setPosition(location, 50)"
 <br>
 <b>Error handling strategy</b>
+The Google Maps SDK for Android includes built-in error handling for connection and imagery issues. 
+If the SDK cannot load Street View data (for example, due to missing imagery, an invalid API key, or no internet connection), 
+it automatically displays a black screen instead of crashing the app. 
