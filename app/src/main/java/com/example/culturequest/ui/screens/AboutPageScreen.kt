@@ -1,21 +1,27 @@
 package com.example.culturequest.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -166,23 +172,12 @@ private fun TopSemicircleHeader(
                 onClick = onBackClick, modifier = Modifier.align(Alignment.TopStart)
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.about_us),
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
                     modifier = Modifier.size(iconSize),
                     tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
-        }
-
-        IconButton(
-            onClick = {}, modifier = Modifier.align(Alignment.TopEnd)
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.profile_icon),
-                contentDescription = "Profile",
-                modifier = Modifier.size(iconSize),
-                tint = MaterialTheme.colorScheme.onPrimary
-            )
         }
 
         Box(
@@ -206,34 +201,38 @@ fun ThemeSelector(
     selectedTheme: Theme,
     onThemeSelected: (Theme) -> Unit
 ) {
-    Column {
+    val themes = listOf(Theme.LIGHT, Theme.DARK) // Exclude SYSTEM theme
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = "Theme",
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(bottom = 12.dp)
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround,
+            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Theme.values().forEach { theme ->
-                val themeLabel = theme.name.lowercase(Locale.getDefault()).replaceFirstChar { it.uppercase() }
-                Row(
-                    Modifier.selectable(
-                        selected = (theme == selectedTheme),
-                        onClick = { onThemeSelected(theme) }
-                    ),
-                    verticalAlignment = Alignment.CenterVertically
+            themes.forEach { theme ->
+                val isSelected = theme == selectedTheme
+                val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+                val textColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onBackground
+
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(backgroundColor)
+                        .selectable(
+                            selected = isSelected,
+                            onClick = { onThemeSelected(theme) }
+                        )
+                        .padding(horizontal = 24.dp, vertical = 12.dp)
                 ) {
-                    RadioButton(
-                        selected = (theme == selectedTheme),
-                        onClick = { onThemeSelected(theme) }
-                    )
                     Text(
-                        text = themeLabel,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(start = 4.dp)
+                        text = theme.name.lowercase(Locale.getDefault()).replaceFirstChar { it.uppercase() },
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                        color = textColor
                     )
                 }
             }
