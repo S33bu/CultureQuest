@@ -26,6 +26,7 @@ fun HomeScreen(
     onGameClick: () -> Unit,    //what happens when "Play now" is clicked
     onProfileClick: () -> Unit,
     lastGameScore: Int = 0,
+    onBackToLoginClick: () -> Unit,   // ← NEW
     gameViewModel: GameViewModel = viewModel(), // gets the GameViewModel
 ) {
     val user by gameViewModel.user.collectAsState()
@@ -67,6 +68,7 @@ fun HomeScreen(
                         textAlign = TextAlign.Center
                     )
                 }
+
             }
 
             Spacer(Modifier.weight(1f))
@@ -76,6 +78,15 @@ fun HomeScreen(
                 background = MaterialTheme.colorScheme.secondaryContainer,
                 onGameClick = onGameClick
             )
+            // Temporary Back to Login button
+            TextButton(
+                onClick = { onBackToLoginClick() },
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 16.dp)
+            ) {
+                Text("← Back to Login")
+            }
 
             Spacer(Modifier.height(16.dp))
         }
@@ -186,5 +197,6 @@ private fun BottomSemiCircle(
         ) {
             Text("Play now", style = MaterialTheme.typography.titleLarge) // Increased text size
         }
+
     }
 }
