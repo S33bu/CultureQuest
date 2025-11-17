@@ -1,53 +1,38 @@
 package com.example.culturequest.ui.screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
-import com.example.culturequest.R
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.culturequest.R
+import com.example.culturequest.data.Theme
+import com.example.culturequest.ui.viewmodel.SettingsViewModel
+import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalStdlibApi::class)
-/**
- * Composable function that displays the "About" page of the application.
- * This screen provides users with information about the CultureQuest app, including a welcome message,
- * a brief description, and a list of its key features. It features a semi-circular header,
- * a background image, and scrollable content.
- * @param onBackClick A lambda function to be invoked when the back button is clicked.
- */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AboutPageScreen(onBackClick: () -> Unit) {
+fun AboutPageScreen(
+    onBackClick: () -> Unit,
+    settingsViewModel: SettingsViewModel = viewModel()
+) {
     val scrollState = rememberScrollState()
+    val theme by settingsViewModel.theme.collectAsState()
 
     Scaffold { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
@@ -64,7 +49,7 @@ fun AboutPageScreen(onBackClick: () -> Unit) {
             ) {
                 TopSemicircleHeader(
                     height = 300.dp,
-                    background = com.example.culturequest.ui.theme.Green80,
+                    background = MaterialTheme.colorScheme.primary, // Changed from hardcoded color
                     iconSize = 50.dp,
                     showBackButton = true,
                     onBackClick = onBackClick
@@ -72,16 +57,16 @@ fun AboutPageScreen(onBackClick: () -> Unit) {
 
                 Column(
                     modifier = Modifier
-                        .offset(y = (-90).dp) // Move the content up to overlap with the header
-                        .graphicsLayer { alpha = 0.99f } // prevent rendering artifacts
+                        .offset(y = (-90).dp)
+                        .graphicsLayer { alpha = 0.99f }
                         .verticalScroll(scrollState)
                         .padding(32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(32.dp)
+                    verticalArrangement = Arrangement.spacedBy(24.dp) // Adjusted spacing
                 ) {
                     Text(
                         text = "Welcome! Ready to explore world cultures?",
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center,
                     )
 
@@ -89,7 +74,7 @@ fun AboutPageScreen(onBackClick: () -> Unit) {
                         text = "Test your geography and cultural knowledge by guessing the country based on what you see — from bustling city streets to remote landscapes.\n" +
                                 "\n" +
                                 "Use cultural hints to learn fascinating facts about each location, and climb the global leaderboard as you prove your world knowledge!",
-                        style = MaterialTheme.typography.headlineSmall,
+                        style = MaterialTheme.typography.bodyLarge,
                         textAlign = TextAlign.Center
                     )
 
@@ -99,8 +84,8 @@ fun AboutPageScreen(onBackClick: () -> Unit) {
                     ) {
                         Text(
                             text = "Features:",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = com.example.culturequest.ui.theme.Green80
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary
                         )
 
                         Column(
@@ -114,6 +99,13 @@ fun AboutPageScreen(onBackClick: () -> Unit) {
                             FeatureItem("Fun facts")
                         }
                     }
+
+                    // Theme selector
+                    ThemeSelector(
+                        selectedTheme = theme,
+                        onThemeSelected = { settingsViewModel.saveTheme(it) }
+                    )
+
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
@@ -121,12 +113,6 @@ fun AboutPageScreen(onBackClick: () -> Unit) {
     }
 }
 
-/**
- * A private composable function to display a single feature item with a bullet point.
- * This creates a consistent layout for listing features within the "About" page.
- *
- * @param text The string content of the feature to display.
- */
 @Composable
 private fun FeatureItem(text: String) {
     Row(
@@ -137,29 +123,15 @@ private fun FeatureItem(text: String) {
         Text(
             text = "•",
             style = MaterialTheme.typography.bodyLarge,
-            color = com.example.culturequest.ui.theme.Green80,
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(end = 12.dp)
         )
         Text(
-            text = text, style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f)
+            text = text, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f)
         )
     }
 }
 
-/**
- * A private composable function that creates a semi-circular header.
- * This header is drawn using a `drawBehind` modifier to create the arc shape.
- * It includes slots for an optional back button and a profile icon, providing consistent navigation elements.
- * The diameter of the arc's circle is determined by the smaller of the width or twice the height,
- * ensuring the arc fits correctly.
- * The title "About Us" is centered within this header.
- *
- * @param height The height of the header composable, which influences the arc's curvature.
- * @param background The background color of the semi-circle.
- * @param iconSize The size for the icons in the header.
- * @param showBackButton A boolean to determine if the back button should be shown.
- * @param onBackClick A lambda function to be executed when the back button is pressed.
- */
 @Composable
 private fun TopSemicircleHeader(
     height: Dp,
@@ -175,9 +147,9 @@ private fun TopSemicircleHeader(
             .drawBehind {
                 val w = size.width
                 val h = size.height
-                val d = minOf(w, 2f * h) // Calculate the diameter for the circle
-                val left = (w - d) / 2f // Center the arc horizontally
-                val top = -d / 2f // Position the arc's top half above the visible area
+                val d = minOf(w, 2f * h)
+                val left = (w - d) / 2f
+                val top = -d / 2f
 
                 drawArc(
                     color = background,
@@ -194,18 +166,12 @@ private fun TopSemicircleHeader(
                 onClick = onBackClick, modifier = Modifier.align(Alignment.TopStart)
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.about_us), // You might want a back icon
+                    painter = painterResource(R.drawable.about_us),
                     contentDescription = "Back",
                     modifier = Modifier.size(iconSize),
-                    tint = Color.White
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
-        } else {
-            Spacer(
-                modifier = Modifier
-                    .size(iconSize)
-                    .align(Alignment.TopStart)
-            )
         }
 
         IconButton(
@@ -215,7 +181,7 @@ private fun TopSemicircleHeader(
                 painter = painterResource(R.drawable.profile_icon),
                 contentDescription = "Profile",
                 modifier = Modifier.size(iconSize),
-                tint = Color.White
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
 
@@ -225,12 +191,52 @@ private fun TopSemicircleHeader(
                 .fillMaxSize()
         ) {
             Text(
-                text = "About Us",
-                style = MaterialTheme.typography.titleLarge,
-                color = Color.White,
+                text = "About CultureQuest",
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onPrimary,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.align(Alignment.Center)
             )
+        }
+    }
+}
+
+@Composable
+fun ThemeSelector(
+    selectedTheme: Theme,
+    onThemeSelected: (Theme) -> Unit
+) {
+    Column {
+        Text(
+            text = "Theme",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Theme.values().forEach { theme ->
+                val themeLabel = theme.name.lowercase(Locale.getDefault()).replaceFirstChar { it.uppercase() }
+                Row(
+                    Modifier.selectable(
+                        selected = (theme == selectedTheme),
+                        onClick = { onThemeSelected(theme) }
+                    ),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = (theme == selectedTheme),
+                        onClick = { onThemeSelected(theme) }
+                    )
+                    Text(
+                        text = themeLabel,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                }
+            }
         }
     }
 }

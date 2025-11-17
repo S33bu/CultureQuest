@@ -6,6 +6,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -18,13 +20,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.culturequest.R
-import com.example.culturequest.ui.theme.Green80
+import com.example.culturequest.ui.viewmodel.GameViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfilePageScreen(onBackClick: () -> Unit) {
+fun ProfilePageScreen(
+    onBackClick: () -> Unit,
+    gameViewModel: GameViewModel = viewModel()
+) {
     val scrollState = rememberScrollState()
+    val user by gameViewModel.user.collectAsState()
 
     Scaffold { padding ->
         Box(
@@ -45,7 +52,7 @@ fun ProfilePageScreen(onBackClick: () -> Unit) {
             ) {
                 ProfileHeader(
                     height = 300.dp,
-                    background = Green80,
+                    background = MaterialTheme.colorScheme.primary,
                     iconSize = 50.dp,
                     onBackClick = onBackClick
                 )
@@ -66,10 +73,10 @@ fun ProfilePageScreen(onBackClick: () -> Unit) {
                         textAlign = TextAlign.Center
                     )
 
-                    ProfileItem(label = "Name", value = "Alex Johnson")
-                    ProfileItem(label = "High Score", value = "12,450")
-                    ProfileItem(label = "Games Played", value = "36")
-                    ProfileItem(label = "Last Played", value = "October 25, 2025")
+                    ProfileItem(label = "Name", value = user?.username ?: "Player")
+                    ProfileItem(label = "High Score", value = user?.bestScore?.toString() ?: "0")
+                    ProfileItem(label = "Games Played", value = "36") // Static for now
+                    ProfileItem(label = "Last Played", value = "October 25, 2025") // Static for now
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -95,14 +102,14 @@ private fun ProfileItem(label: String, value: String) {
         Text(
             text = label,
             style = MaterialTheme.typography.titleMedium,
-            color = Green80
+            color = MaterialTheme.colorScheme.primary
         )
         Text(
             text = value,
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Medium
         )
-        Divider(thickness = 1.dp, color = Color.LightGray.copy(alpha = 0.4f))
+        Divider(thickness = 1.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
     }
 }
 
@@ -140,17 +147,17 @@ private fun ProfileHeader(
             modifier = Modifier.align(Alignment.TopStart)
         ) {
             Icon(
-                painter = painterResource(R.drawable.about_us), // could replace with arrow_back icon
+                painter = painterResource(R.drawable.about_us),
                 contentDescription = "Back",
                 modifier = Modifier.size(iconSize),
-                tint = Color.White
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
 
         Text(
             text = "Profile",
-            style = MaterialTheme.typography.titleLarge,
-            color = Color.White,
+            style = MaterialTheme.typography.displaySmall,
+            color = MaterialTheme.colorScheme.onPrimary,
             textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.Center)
         )

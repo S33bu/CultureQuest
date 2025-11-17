@@ -207,7 +207,7 @@ fun GamePageScreen(
                             ) {
                                 Text(
                                     text = hint.text,
-                                    style = MaterialTheme.typography.labelSmall,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier.padding(10.dp)
                                 )
                             }
