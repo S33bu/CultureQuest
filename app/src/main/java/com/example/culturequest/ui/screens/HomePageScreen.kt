@@ -27,10 +27,8 @@ fun HomeScreen(
     onProfileClick: () -> Unit,
     lastGameScore: Int = 0,
     gameViewModel: GameViewModel = viewModel(), // gets the GameViewModel
-    homeViewModel: HomeViewModel = viewModel() // gets the HomeViewModel
 ) {
     val user by gameViewModel.user.collectAsState()
-    val score by homeViewModel.score.collectAsState()
 
     //Scaffold gives layout structure (top, bottom, main content)
     Scaffold { padding ->
@@ -41,7 +39,7 @@ fun HomeScreen(
         ) {
             TopSemicircleHeader(
                 height = 300.dp,
-                background = com.example.culturequest.ui.theme.Green80,
+                background = MaterialTheme.colorScheme.primary,
                 iconSize = 50.dp,
                 onAboutClick = onAboutClick,
                 onProfileClick = onProfileClick
@@ -58,14 +56,14 @@ fun HomeScreen(
                     Text(
                         text = "Last Game Score: $lastGameScore",
                         style = MaterialTheme.typography.titleMedium,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onBackground,
                         textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Best Score: ${user?.bestScore ?: 0}",
                         style = MaterialTheme.typography.titleMedium,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onBackground,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -75,7 +73,7 @@ fun HomeScreen(
 
             BottomSemiCircle(
                 height = 180.dp,
-                background = com.example.culturequest.ui.theme.GreenYellow80,
+                background = MaterialTheme.colorScheme.secondaryContainer,
                 onGameClick = onGameClick
             )
 
@@ -119,7 +117,7 @@ private fun TopSemicircleHeader(
                 painter = painterResource(R.drawable.about_us),
                 contentDescription = "About",
                 modifier = Modifier.size(iconSize),
-                tint = Color.White
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
         //Profile button
@@ -131,14 +129,14 @@ private fun TopSemicircleHeader(
                 painter = painterResource(R.drawable.profile_icon),
                 contentDescription = "Profile",
                 modifier = Modifier.size(iconSize),
-                tint = Color.White
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
         //Title in the middle
         Text(
             text = "Culture\nQuest",
-            style = MaterialTheme.typography.titleLarge,
-            color = Color.White,
+            style = MaterialTheme.typography.displaySmall,
+            color = MaterialTheme.colorScheme.onPrimary,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .align(Alignment.Center)
@@ -177,12 +175,16 @@ private fun BottomSemiCircle(
     ) {
         Button(
             onClick = onGameClick,
-            modifier = Modifier.padding(bottom = 16.dp),
+            modifier = Modifier
+                .padding(bottom = 16.dp)
+                .width(200.dp) // Set a fixed width for the button
+                .height(60.dp), // Set a fixed height for the button
             colors = ButtonDefaults.buttonColors(
-                containerColor = com.example.culturequest.ui.theme.GreenYellow80
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             )
         ) {
-            Text("Play now", style = MaterialTheme.typography.bodyLarge)
+            Text("Play now", style = MaterialTheme.typography.titleLarge) // Increased text size
         }
     }
 }
