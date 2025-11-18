@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-
     <style name="Theme.CultureQuest" parent="android:Theme.Material.Light.NoActionBar" >
-        <!-- Built-in Android 12 splash attributes -->
-        <item name="android:windowSplashScreenBackground">@color/green</item>
+        <item name="android:windowSplashScreenBackground">@color/dark_green</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
     </style>
-
 </resources>

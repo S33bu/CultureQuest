@@ -14,9 +14,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="${MAPS_API_KEY}" />
-        <!-- Google Maps API Key MOVE INTO GITIGNORE -->
-
+            android:value="${MAPS_API_KEY}" /> <!-- Google Maps API Key MOVE INTO GITIGNORE -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -24,10 +22,10 @@
             android:theme="@style/Theme.CultureQuest">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>
-
 
 </manifest>
