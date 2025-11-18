@@ -38,14 +38,16 @@ import com.example.culturequest.ui.viewmodel.GameViewModel
 
 // Composable function to display a Google Street View panorama.
 @Composable
-fun StreetViewPanoramaComposable(location: LatLng, modifier: Modifier = Modifier) {
-    // Get the current lifecycle owner and context.
-    val lifecycleOwner = LocalLifecycleOwner.current
+fun StreetViewPanoramaComposable(
+    location: LatLng,
+    modifier: Modifier = Modifier,
+) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    // Remember the StreetViewPanoramaView instance across recompositions.
+    // remember a new instance ONLY when this composable enters composition
     val streetView = remember {
-        StreetViewPanoramaView(context)
+        StreetViewPanoramaView(context).apply { onCreate(null) }
     }
 
     // Use DisposableEffect to manage the lifecycle of the StreetViewPanoramaView.
@@ -54,7 +56,6 @@ fun StreetViewPanoramaComposable(location: LatLng, modifier: Modifier = Modifier
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_CREATE -> streetView.onCreate(null)
                 Lifecycle.Event.ON_START -> streetView.onStart()
                 Lifecycle.Event.ON_RESUME -> streetView.onResume()
                 Lifecycle.Event.ON_PAUSE -> streetView.onPause()
@@ -64,17 +65,15 @@ fun StreetViewPanoramaComposable(location: LatLng, modifier: Modifier = Modifier
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
+    // apply new location when it changes
     // Use LaunchedEffect to update the Street View panorama when the location changes.
     // It's an async call, and this coroutine scope is tied to the composable's lifecycle.
     LaunchedEffect(location) {
         streetView.getStreetViewPanoramaAsync { panorama ->
-            panorama.setPosition(location, 50)
+            panorama.setPosition(location, 50000)
             panorama.isUserNavigationEnabled = false
             panorama.isStreetNamesEnabled = false
         }
@@ -99,8 +98,10 @@ fun GamePageScreen(
     // observing the user state to update the score in the UI.
     val user by viewModel.user.collectAsState()
     val isGameFinished by viewModel.isGameFinished.collectAsState()
+    val currentLocation by viewModel.currentLocation.collectAsState()
 
-    val currentQuestion = allQuestions.getOrNull(currentIndex)
+    val currentQuestion =
+        if (allQuestions.isNotEmpty()) allQuestions.getOrNull(currentIndex) else null
 
     // State for the user's answer, dialog visibility, correctness of the answer, and error messages.
     var answer by remember { mutableStateOf(TextFieldValue("")) }
@@ -111,7 +112,8 @@ fun GamePageScreen(
     // Coroutine scope for launching async operations.
     val coroutineScope = rememberCoroutineScope()
 
-    var showHintsDialog by remember { mutableStateOf(false) }
+    //FOR HINTS
+    var showHintsDialog by remember { mutableStateOf(false)}
     val countriesLoaded by viewModel.countriesLoaded.collectAsState()
     // Tracks which tier of hints is currently visible to the user.
     val tierShown by viewModel.tierShown.collectAsState()
@@ -126,7 +128,7 @@ fun GamePageScreen(
         if (countriesLoaded) viewModel.prepareHintsForCurrent()
     }
 
-    // Effect to handle the end of the game.
+    // Navigate back when game finishes
     LaunchedEffect(isGameFinished) {
         if (isGameFinished) {
             onGameEnd(viewModel.lastGameScore.value)
@@ -159,26 +161,29 @@ fun GamePageScreen(
         showDialog = true
     }
 
-    // A countdown timer for each question.
-    LaunchedEffect(currentQuestion) {
-        if (currentQuestion != null) {
-            timeLeft = 60 // Reset timer for each new question
-            while (timeLeft > 0 && !isGameFinished) {
-                delay(1000)
+
+    // Start countdown when the question is loaded
+    LaunchedEffect(Unit) {
+        while (timeLeft > 0 && !isGameFinished) {
+            delay(1000)
+            // make it so the timer doesnt go down when pop ups are up or when the location is changing
+            if (currentLocation != null && !showDialog){
                 timeLeft -= 1
             }
-            if (!isGameFinished && timeLeft == 0) {
-                val finalScore = viewModel.user.value?.score ?: 0
-                onGameEnd(finalScore)
-                viewModel.resetGame(resetUserScore = false)
-            }
+        }
+        if (!isGameFinished) {
+            val finalScore = viewModel.user.value?.score ?: 0
+            onGameEnd(finalScore)
+            viewModel.resetGame(resetUserScore = false) // keep last game score intact
         }
     }
 
     // Dialog to show hints.
     if (showHintsDialog) {
+
         AlertDialog(
             onDismissRequest = { showHintsDialog = false },
+            //different title headings based on tiers
             title = {
                 Text(
                     text = when (tierShown) {
@@ -195,6 +200,7 @@ fun GamePageScreen(
                     if (visibleHints.isEmpty()) {
                         Text("No hints yet.")
                     } else {
+                        // Display each hint
                         visibleHints.forEach { hint ->
                             Surface(
                                 shape = RoundedCornerShape(8.dp),
@@ -216,11 +222,13 @@ fun GamePageScreen(
             },
             confirmButton = {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    //if the tier is below 3, then it is shown also show more hints
                     if (tierShown < 3) {
                         TextButton(onClick = { viewModel.revealNextTierAndPenalize() }) {
                             Text("Show more hints (−1)", style = MaterialTheme.typography.titleMedium)
                         }
                     }
+                    //always show close
                     TextButton(onClick = { showHintsDialog = false }) {
                         Text("Close", style = MaterialTheme.typography.titleMedium)
                     }
@@ -238,35 +246,19 @@ fun GamePageScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            // Show StreetView if there is a current question, otherwise show a loading indicator.
-            if (currentQuestion != null) {
-                val locations = mapOf(
-                    "australia" to LatLng(-33.856784, 151.215297),
-                    "china" to LatLng(40.431908, 116.570374),
-                    "egypt" to LatLng(29.979234, 31.134202),
-                    "estonia" to LatLng(59.436962, 24.753574),
-                    "france" to LatLng(48.858844, 2.294351),
-                    "india" to LatLng(27.175149, 78.042145),
-                    "indonesia" to LatLng(-7.607874, 110.203751),
-                    "italy" to LatLng(41.89021, 12.492231),
-                    "uk" to LatLng(51.500729, -0.124625),
-                    "usa" to LatLng(40.689247, -74.044502)
-                )
-
-                val location = locations[currentQuestion.correctAnswer.lowercase()] ?: LatLng(0.0, 0.0)
-
-                StreetViewPanoramaComposable(
-                    location = location,
-                    modifier = Modifier.fillMaxSize()
-                )
-            } else {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
+            //Siin mässame street viewga
+            if (currentLocation == null) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
+            } else {
+                StreetViewPanoramaComposable(
+                    location = currentLocation!!,
+                    modifier = Modifier.fillMaxSize()
+                )
+
             }
+
 
             // Top bar with timer, score, back button, and hint button.
             TopGameBar(timeLeft, user?.score ?: 0, onBackClick, {
@@ -353,7 +345,7 @@ fun GamePageScreen(
                     },
                     title = {
                         Text(
-                            if (isCorrect) "✅ Correct!" else "❌ Incorrect!",
+                            if (isCorrect) "✅ Correct!" else "❌ Incorrect! \n Correct answer: ${currentQuestion?.correctAnswer}",
                             textAlign = TextAlign.Center
                         )
                     },

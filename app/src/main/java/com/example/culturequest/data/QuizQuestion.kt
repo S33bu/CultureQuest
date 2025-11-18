@@ -9,6 +9,5 @@ import androidx.room.PrimaryKey
 data class QuizQuestion(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val questionText: String, // The question text
-    val correctAnswer: String, // The correct answer string
-    val imageResId: Int  // Drawable resource ID for the image associated with the question
-)
+    var correctAnswer: String, // The correct answer string
+   )
