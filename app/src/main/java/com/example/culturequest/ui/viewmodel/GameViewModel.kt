@@ -239,7 +239,7 @@ class GameViewModel : ViewModel() {
                     _user.value = updatedUser
                 }
             }
-            _isGameFinished.value = true
+            _isGameFinished.value = true // signal that game has ended
         }
     }
 

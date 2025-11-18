@@ -36,7 +36,7 @@ import com.google.android.gms.maps.model.LatLng
 import androidx.compose.ui.platform.LocalContext
 import com.example.culturequest.ui.viewmodel.GameViewModel
 
-
+// Composable function to display a Google Street View panorama.
 @Composable
 fun StreetViewPanoramaComposable(
     location: LatLng,
@@ -50,6 +50,9 @@ fun StreetViewPanoramaComposable(
         StreetViewPanoramaView(context).apply { onCreate(null) }
     }
 
+    // Use DisposableEffect to manage the lifecycle of the StreetViewPanoramaView.
+    // This ensures that the Street View's lifecycle methods are called correctly
+    // in sync with the composable's lifecycle.
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
@@ -66,6 +69,8 @@ fun StreetViewPanoramaComposable(
     }
 
     // apply new location when it changes
+    // Use LaunchedEffect to update the Street View panorama when the location changes.
+    // It's an async call, and this coroutine scope is tied to the composable's lifecycle.
     LaunchedEffect(location) {
         streetView.getStreetViewPanoramaAsync { panorama ->
             panorama.setPosition(location, 50000)
@@ -74,7 +79,7 @@ fun StreetViewPanoramaComposable(
         }
     }
 
-    // 4. Host the remembered view.
+    // Integrate the Android View (StreetViewPanoramaView) into the Compose UI.
     AndroidView(
         factory = { streetView },
         modifier = modifier
@@ -82,6 +87,7 @@ fun StreetViewPanoramaComposable(
 }
 
 @Composable
+// The main screen for the game page.
 fun GamePageScreen(
     onBackClick: () -> Unit,
     onGameEnd: (lastScore: Int) -> Unit,
@@ -89,6 +95,7 @@ fun GamePageScreen(
 ) {
     val allQuestions by viewModel.questions.collectAsState()
     val currentIndex by viewModel.currentIndex.collectAsState()
+    // observing the user state to update the score in the UI.
     val user by viewModel.user.collectAsState()
     val isGameFinished by viewModel.isGameFinished.collectAsState()
     val currentLocation by viewModel.currentLocation.collectAsState()
@@ -96,16 +103,19 @@ fun GamePageScreen(
     val currentQuestion =
         if (allQuestions.isNotEmpty()) allQuestions.getOrNull(currentIndex) else null
 
+    // State for the user's answer, dialog visibility, correctness of the answer, and error messages.
     var answer by remember { mutableStateOf(TextFieldValue("")) }
     var showDialog by remember { mutableStateOf(false) }
     var isCorrect by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
+    // Coroutine scope for launching async operations.
     val coroutineScope = rememberCoroutineScope()
 
     //FOR HINTS
     var showHintsDialog by remember { mutableStateOf(false)}
     val countriesLoaded by viewModel.countriesLoaded.collectAsState()
+    // Tracks which tier of hints is currently visible to the user.
     val tierShown by viewModel.tierShown.collectAsState()
     val visibleHints by remember(tierShown) {
         derivedStateOf { viewModel.visibleHintsForTier() }
@@ -113,10 +123,10 @@ fun GamePageScreen(
 
     var timeLeft by remember { mutableStateOf(60) }
 
+    // Prepare hints for the current question as soon as it's loaded.
     LaunchedEffect(currentIndex, countriesLoaded) {
         if (countriesLoaded) viewModel.prepareHintsForCurrent()
     }
-
 
     // Navigate back when game finishes
     LaunchedEffect(isGameFinished) {
@@ -126,6 +136,7 @@ fun GamePageScreen(
         }
     }
 
+    // Function to validate the user's input.
     fun validateAnswer(input: String): String? {
         val trimmed = input.trim()
         return when {
@@ -138,6 +149,7 @@ fun GamePageScreen(
         }
     }
 
+    // Function to handle the submission of an answer.
     fun handleSubmit() {
         val validationError = validateAnswer(answer.text)
         if (validationError != null) {
@@ -166,8 +178,7 @@ fun GamePageScreen(
         }
     }
 
-
-    //if clicked on the lightbulb icon
+    // Dialog to show hints.
     if (showHintsDialog) {
 
         AlertDialog(
@@ -262,6 +273,7 @@ fun GamePageScreen(
                 )
             }
 
+            // Top bar with timer, score, back button, and hint button.
             TopGameBar(timeLeft, user?.score ?: 0, onBackClick, {
                 if (tierShown == 0) viewModel.revealNextTierAndPenalize()
                 showHintsDialog = true
@@ -274,6 +286,7 @@ fun GamePageScreen(
                     .padding(bottom = 90.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Input field and submit button at the bottom of the screen.
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(0.9f)
@@ -321,22 +334,7 @@ fun GamePageScreen(
                 }
             }
 
-            // Back button
-            IconButton(
-                onClick = onBackClick,
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(16.dp)
-                    .size(50.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.backbutton),
-                    contentDescription = "Back",
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-
-            // Error dialog
+            // Dialog for showing invalid input messages.
             errorMessage?.let { msg ->
                 AlertDialog(
                     onDismissRequest = { errorMessage = null },
@@ -350,7 +348,7 @@ fun GamePageScreen(
                 )
             }
 
-            // Feedback dialog
+            // Dialog to show whether the answer was correct or incorrect.
             if (showDialog) {
                 AlertDialog(
                     onDismissRequest = {
@@ -379,6 +377,7 @@ fun GamePageScreen(
     }
 }
 
+// Composable for the top bar of the game screen.
 @Composable
 fun TopGameBar(
     timeLeft: Int,
@@ -387,6 +386,7 @@ fun TopGameBar(
     onHintClick: () -> Unit,
     isHintEnabled: Boolean
 ) {
+    // Adapting UI to system theme (dark/light).
     val iconColor = if (isSystemInDarkTheme()) Color.White else Color.Black
     val buttonBackgroundColor = Color(0xAA99FF99)
 
@@ -397,6 +397,7 @@ fun TopGameBar(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Back button.
         IconButton(
             onClick = onBackClick,
             modifier = Modifier
@@ -410,6 +411,7 @@ fun TopGameBar(
             )
         }
 
+        // Display for time left and score.
         Text(
             text = "Time left: $timeLeft s | Score: $score",
             color = Color.White,
@@ -417,6 +419,7 @@ fun TopGameBar(
             textAlign = TextAlign.Center
         )
 
+        // Hint button.
         IconButton(
             onClick = onHintClick,
             enabled = isHintEnabled,
