@@ -8,7 +8,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "user_profile")
 data class UserProfile(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val username: String, // Name of the user
-    val score: Int, // User current score
-    val bestScore: Int = 0 // all-time highscore
+    val username: String,          // Name of the user
+    val score: Int,                // User current score
+    val bestScore: Int = 0,        // all-time highscore
+    val gamesPlayed: Int = 0       // how many games played
 )

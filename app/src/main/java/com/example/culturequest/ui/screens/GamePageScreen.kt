@@ -1,16 +1,21 @@
 package com.example.culturequest.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -31,40 +36,25 @@ import com.google.android.gms.maps.model.LatLng
 import androidx.compose.ui.platform.LocalContext
 import com.example.culturequest.ui.viewmodel.GameViewModel
 
-@kotlinx.serialization.Serializable
-data class GeocodingResponse(
-    val results: List<GeocodingResult>,
-    val status: String)
-
-@kotlinx.serialization.Serializable
-data class GeocodingResult(
-    @kotlinx.serialization.SerialName("address_components")
-    val addressComponents: List<AddressComponent>
-)
-
-@kotlinx.serialization.Serializable
-data class AddressComponent(
-    @kotlinx.serialization.SerialName("long_name")
-    val longName: String,
-    val types: List<String>
-)
-
+// Composable function to display a Google Street View panorama.
 @Composable
-fun StreetViewPanoramaComposable(
-    location: LatLng,
-    modifier: Modifier = Modifier,
-) {
-    val context = LocalContext.current
+fun StreetViewPanoramaComposable(location: LatLng, modifier: Modifier = Modifier) {
+    // Get the current lifecycle owner and context.
     val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
 
-    // remember a new instance ONLY when this composable enters composition
+    // Remember the StreetViewPanoramaView instance across recompositions.
     val streetView = remember {
-        StreetViewPanoramaView(context).apply { onCreate(null) }
+        StreetViewPanoramaView(context)
     }
 
+    // Use DisposableEffect to manage the lifecycle of the StreetViewPanoramaView.
+    // This ensures that the Street View's lifecycle methods are called correctly
+    // in sync with the composable's lifecycle.
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
+                Lifecycle.Event.ON_CREATE -> streetView.onCreate(null)
                 Lifecycle.Event.ON_START -> streetView.onStart()
                 Lifecycle.Event.ON_RESUME -> streetView.onResume()
                 Lifecycle.Event.ON_PAUSE -> streetView.onPause()
@@ -74,18 +64,23 @@ fun StreetViewPanoramaComposable(
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
-    // apply new location when it changes
+    // Use LaunchedEffect to update the Street View panorama when the location changes.
+    // It's an async call, and this coroutine scope is tied to the composable's lifecycle.
     LaunchedEffect(location) {
         streetView.getStreetViewPanoramaAsync { panorama ->
-            panorama.setPosition(location, 50000)
+            panorama.setPosition(location, 50)
             panorama.isUserNavigationEnabled = false
             panorama.isStreetNamesEnabled = false
         }
     }
 
+    // Integrate the Android View (StreetViewPanoramaView) into the Compose UI.
     AndroidView(
         factory = { streetView },
         modifier = modifier
@@ -93,48 +88,45 @@ fun StreetViewPanoramaComposable(
 }
 
 @Composable
+// The main screen for the game page.
 fun GamePageScreen(
     onBackClick: () -> Unit,
-    onGameEnd: (lastScore: Int) -> Unit, // Navigate back to HomeScreen
+    onGameEnd: (lastScore: Int) -> Unit,
     viewModel: GameViewModel = viewModel()
 ) {
-
     val allQuestions by viewModel.questions.collectAsState()
     val currentIndex by viewModel.currentIndex.collectAsState()
+    // observing the user state to update the score in the UI.
     val user by viewModel.user.collectAsState()
     val isGameFinished by viewModel.isGameFinished.collectAsState()
-    val currentLocation by viewModel.currentLocation.collectAsState()
 
-    val currentQuestion =
-        if (allQuestions.isNotEmpty()) allQuestions.getOrNull(currentIndex) else null
+    val currentQuestion = allQuestions.getOrNull(currentIndex)
 
+    // State for the user's answer, dialog visibility, correctness of the answer, and error messages.
     var answer by remember { mutableStateOf(TextFieldValue("")) }
     var showDialog by remember { mutableStateOf(false) }
     var isCorrect by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
+    // Coroutine scope for launching async operations.
     val coroutineScope = rememberCoroutineScope()
 
-    //FOR HINTS
-    var showHintsDialog by remember { mutableStateOf(false)}
+    var showHintsDialog by remember { mutableStateOf(false) }
     val countriesLoaded by viewModel.countriesLoaded.collectAsState()
+    // Tracks which tier of hints is currently visible to the user.
     val tierShown by viewModel.tierShown.collectAsState()
     val visibleHints by remember(tierShown) {
         derivedStateOf { viewModel.visibleHintsForTier() }
     }
 
-
     var timeLeft by remember { mutableStateOf(60) }
 
-
-
-    //show hints
+    // Prepare hints for the current question as soon as it's loaded.
     LaunchedEffect(currentIndex, countriesLoaded) {
         if (countriesLoaded) viewModel.prepareHintsForCurrent()
     }
 
-
-    // Navigate back when game finishes
+    // Effect to handle the end of the game.
     LaunchedEffect(isGameFinished) {
         if (isGameFinished) {
             onGameEnd(viewModel.lastGameScore.value)
@@ -142,6 +134,7 @@ fun GamePageScreen(
         }
     }
 
+    // Function to validate the user's input.
     fun validateAnswer(input: String): String? {
         val trimmed = input.trim()
         return when {
@@ -150,11 +143,11 @@ fun GamePageScreen(
             trimmed.any { it.isDigit() } -> "The answer cannot contain numbers."
             trimmed.any { !it.isLetter() && it != ' ' && it != '-' } ->
                 "Only letters, spaces, and hyphens are allowed."
-
             else -> null
         }
     }
 
+    // Function to handle the submission of an answer.
     fun handleSubmit() {
         val validationError = validateAnswer(answer.text)
         if (validationError != null) {
@@ -166,29 +159,26 @@ fun GamePageScreen(
         showDialog = true
     }
 
-
-    // Start countdown when the question is loaded
-    LaunchedEffect(Unit) {
-        while (timeLeft > 0 && !isGameFinished) {
-            delay(1000)
-            // make it so the timer doesnt go down when pop ups are up or when the location is changing
-            if (currentLocation != null && !showDialog){
+    // A countdown timer for each question.
+    LaunchedEffect(currentQuestion) {
+        if (currentQuestion != null) {
+            timeLeft = 60 // Reset timer for each new question
+            while (timeLeft > 0 && !isGameFinished) {
+                delay(1000)
                 timeLeft -= 1
             }
-        }
-        if (!isGameFinished) {
-            val finalScore = viewModel.user.value?.score ?: 0
-            onGameEnd(finalScore)
-            viewModel.resetGame(resetUserScore = false) // keep last game score intact
+            if (!isGameFinished && timeLeft == 0) {
+                val finalScore = viewModel.user.value?.score ?: 0
+                onGameEnd(finalScore)
+                viewModel.resetGame(resetUserScore = false)
+            }
         }
     }
 
-    //if clicked on the lightbulb icon
+    // Dialog to show hints.
     if (showHintsDialog) {
-
         AlertDialog(
             onDismissRequest = { showHintsDialog = false },
-            //different title headings based on tiers
             title = {
                 Text(
                     text = when (tierShown) {
@@ -205,7 +195,6 @@ fun GamePageScreen(
                     if (visibleHints.isEmpty()) {
                         Text("No hints yet.")
                     } else {
-                        // Display each hint
                         visibleHints.forEach { hint ->
                             Surface(
                                 shape = RoundedCornerShape(8.dp),
@@ -217,7 +206,7 @@ fun GamePageScreen(
                             ) {
                                 Text(
                                     text = hint.text,
-                                    style = MaterialTheme.typography.labelSmall,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier.padding(10.dp)
                                 )
                             }
@@ -227,13 +216,11 @@ fun GamePageScreen(
             },
             confirmButton = {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    //if the tier is below 3, then it is shown also show more hints
                     if (tierShown < 3) {
                         TextButton(onClick = { viewModel.revealNextTierAndPenalize() }) {
                             Text("Show more hints (−1)", style = MaterialTheme.typography.titleMedium)
                         }
                     }
-                    //always show close
                     TextButton(onClick = { showHintsDialog = false }) {
                         Text("Close", style = MaterialTheme.typography.titleMedium)
                     }
@@ -251,76 +238,50 @@ fun GamePageScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            //Siin mässame street viewga
-            if (currentLocation == null) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            } else {
+            // Show StreetView if there is a current question, otherwise show a loading indicator.
+            if (currentQuestion != null) {
+                val locations = mapOf(
+                    "australia" to LatLng(-33.856784, 151.215297),
+                    "china" to LatLng(40.431908, 116.570374),
+                    "egypt" to LatLng(29.979234, 31.134202),
+                    "estonia" to LatLng(59.436962, 24.753574),
+                    "france" to LatLng(48.858844, 2.294351),
+                    "india" to LatLng(27.175149, 78.042145),
+                    "indonesia" to LatLng(-7.607874, 110.203751),
+                    "italy" to LatLng(41.89021, 12.492231),
+                    "uk" to LatLng(51.500729, -0.124625),
+                    "usa" to LatLng(40.689247, -74.044502)
+                )
+
+                val location = locations[currentQuestion.correctAnswer.lowercase()] ?: LatLng(0.0, 0.0)
+
                 StreetViewPanoramaComposable(
-                    location = currentLocation!!,
+                    location = location,
                     modifier = Modifier.fillMaxSize()
                 )
-
-            }
-
-
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(8.dp) // added some padding for better visibility
-            ) {
-                //for debugging, remove later :)
-                Text(
-                    text = "Country: ${currentQuestion?.correctAnswer?.replaceFirstChar { it.uppercase() } ?: "Finding..."}",
-                    color = Color.White,
-                    fontSize = 16.sp
-                )
-            }
-            // Live Score at top center
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 30.dp),
-                contentAlignment = Alignment.TopCenter
-            ) {
-                Text(
-                    text = "Time left: $timeLeft s | Score: ${user?.score ?: 0}",
-                    color = Color.White,
-                    fontSize = MaterialTheme.typography.labelSmall.fontSize,
-                    textAlign = TextAlign.Center
-                )
-
-                IconButton(
-                    onClick = {
-                        //only first click on the lightbulb will make tier+1
-                        if (tierShown == 0) viewModel.revealNextTierAndPenalize()
-                        showHintsDialog = true
-                        //otherwise the hints that are chosen based on the
-                        //button "show more hints -1" will be displayed
-                        if (tierShown <= 3) showHintsDialog = true
-                    },
-
-                    enabled = tierShown <= 3,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(16.dp)
-                        .size(56.dp)
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Image(
-                        painter = painterResource(id = com.example.culturequest.R.drawable.hint_icon),
-                        contentDescription = "Hint"
-                    )
+                    CircularProgressIndicator()
                 }
             }
 
-            // Answer input row at bottom
+            // Top bar with timer, score, back button, and hint button.
+            TopGameBar(timeLeft, user?.score ?: 0, onBackClick, {
+                if (tierShown == 0) viewModel.revealNextTierAndPenalize()
+                showHintsDialog = true
+                if (tierShown <= 3) showHintsDialog = true
+            }, tierShown <= 3)
+
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 90.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Input field and submit button at the bottom of the screen.
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(0.9f)
@@ -368,22 +329,7 @@ fun GamePageScreen(
                 }
             }
 
-            // Back button
-            IconButton(
-                onClick = onBackClick,
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(16.dp)
-                    .size(50.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.backbutton),
-                    contentDescription = "Back",
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-
-            // Error dialog
+            // Dialog for showing invalid input messages.
             errorMessage?.let { msg ->
                 AlertDialog(
                     onDismissRequest = { errorMessage = null },
@@ -397,7 +343,7 @@ fun GamePageScreen(
                 )
             }
 
-            // Feedback dialog
+            // Dialog to show whether the answer was correct or incorrect.
             if (showDialog) {
                 AlertDialog(
                     onDismissRequest = {
@@ -407,7 +353,7 @@ fun GamePageScreen(
                     },
                     title = {
                         Text(
-                            if (isCorrect) "✅ Correct!" else "❌ Incorrect! \n Correct answer: ${currentQuestion?.correctAnswer}",
+                            if (isCorrect) "✅ Correct!" else "❌ Incorrect!",
                             textAlign = TextAlign.Center
                         )
                     },
@@ -422,6 +368,65 @@ fun GamePageScreen(
                     }
                 )
             }
+        }
+    }
+}
+
+// Composable for the top bar of the game screen.
+@Composable
+fun TopGameBar(
+    timeLeft: Int,
+    score: Int,
+    onBackClick: () -> Unit,
+    onHintClick: () -> Unit,
+    isHintEnabled: Boolean
+) {
+    // Adapting UI to system theme (dark/light).
+    val iconColor = if (isSystemInDarkTheme()) Color.White else Color.Black
+    val buttonBackgroundColor = Color(0xAA99FF99)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 30.dp, start = 16.dp, end = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Back button.
+        IconButton(
+            onClick = onBackClick,
+            modifier = Modifier
+                .size(56.dp)
+                .background(buttonBackgroundColor, CircleShape)
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Back",
+                tint = iconColor
+            )
+        }
+
+        // Display for time left and score.
+        Text(
+            text = "Time left: $timeLeft s | Score: $score",
+            color = Color.White,
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center
+        )
+
+        // Hint button.
+        IconButton(
+            onClick = onHintClick,
+            enabled = isHintEnabled,
+            modifier = Modifier
+                .size(56.dp)
+                .background(buttonBackgroundColor, CircleShape)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.hint_icon),
+                contentDescription = "Hint",
+                colorFilter = ColorFilter.tint(iconColor)
+            )
         }
     }
 }

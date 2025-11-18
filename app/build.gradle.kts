@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.ksp)
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
     alias(libs.plugins.kotlin.serialization)   // ← add this
+    id("com.google.gms.google-services")
 
 }
 
@@ -33,17 +34,12 @@ android {
             )
         }
     }
-    buildTypes.forEach {
-        it.buildConfigField("String", "MAPS_API_KEY", "\"${System.getenv("MAPS_API_KEY") ?: project.findProperty("MAPS_API_KEY")}\"")
-        it.buildConfigField("String", "GEOLOCATION_API_KEY", "\"${System.getenv("GEOLOCATION_API_KEY") ?: project.findProperty("GEOLOCATION_API_KEY")}\"")
-    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
         compose = true
-        buildConfig = true
     }
 }
 
@@ -84,10 +80,17 @@ dependencies {
     // Google Maps
     implementation("com.google.maps.android:maps-compose:6.12.1")
     implementation("com.google.android.gms:play-services-maps:19.2.0")
-    implementation("com.google.android.libraries.places:places:3.5.0")
-
+    // Firebase BOM + Auth
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+    implementation("com.google.firebase:firebase-auth-ktx")
     //JSON parser
     implementation(libs.kotlinx.serialization.json)
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
+    // Material Icons Extended
+    implementation(libs.androidx.material.icons.extended)
+
+
 
 
 

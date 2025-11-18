@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "923811813698",
+    "project_id": "culturequest-5683f",
+    "storage_bucket": "culturequest-5683f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:923811813698:android:c451aff2ed3fb16f2890db",
+        "android_client_info": {
+          "package_name": "com.example.culturequest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCvRONk_2s3vbVmGlazjZxGwAc4mUClT5o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,6 +1,5 @@
 package com.example.culturequest.ui.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
@@ -12,20 +11,14 @@ import com.example.culturequest.data.CountryRepository
 import com.example.culturequest.data.Hint
 import com.example.culturequest.data.HintTier
 import com.example.culturequest.data.QuizQuestion
-import com.example.culturequest.data.RandomLocationProvider
 import com.example.culturequest.data.UserProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import com.google.android.gms.maps.model.LatLng
-import kotlinx.coroutines.flow.asStateFlow
 
 // ViewModel to manage the game state
 class GameViewModel : ViewModel() {
-
-    private val _currentLocation = MutableStateFlow<LatLng?>(null)
-    val currentLocation: StateFlow<LatLng?> = _currentLocation.asStateFlow()
 
     // Initialize the Room database
     private val db = Room.databaseBuilder(
@@ -70,30 +63,32 @@ class GameViewModel : ViewModel() {
 
 
     // Initialization block
-    init {    viewModelScope.launch(Dispatchers.IO) {
-        CountryRepository.loadCountries(MyApp.context) {
-            // this runs only AFTER countries are loaded
-            _countriesLoaded.value = true
-
-            // now that countries are loaded, we can safely prepare questions and hints
-            viewModelScope.launch(Dispatchers.IO) {
-                preloadQuestionsIfNeeded()
-                val allQuestions = db.questionDao().getAllQuestions()
-                _questions.value = allQuestions.shuffled()
-
-                prepareHintsForCurrent()
-                fetchRandomLocationForCurrentQuestion()
-                
-                val userDao = db.userDao()
-                var user = userDao.getUser()
-                if (user == null) {
-                    user = UserProfile(username = "Player", score = 0)
-                    userDao.insertUser(user)
-                }
-                _user.value = user
+    init {
+        //launch everything in the background (IO thread)
+        viewModelScope.launch(Dispatchers.IO) {
+            //load country data - used for hints
+            CountryRepository.loadCountries(MyApp.context) {
+                _countriesLoaded.value = true
             }
+            preloadQuestionsIfNeeded() // insert starter questions if DB empty
+            _questions.value =
+                db.questionDao().getAllQuestions().shuffled() // shuffle for random order
+
+            //load or create user profile
+            val userDao = db.userDao()
+            var user = userDao.getUser()
+            if (user == null) {
+                // Create a default user if none exists
+                user = UserProfile(
+                    username = "Player",
+                    score = 0,
+                    bestScore = 0,
+                    gamesPlayed = 0
+                )
+                userDao.insertUser(user)
+            }
+            _user.value = user
         }
-    }
     }
 
     // Preload default questions only if DB is empty
@@ -102,56 +97,56 @@ class GameViewModel : ViewModel() {
         val existing = questionDao.getAllQuestions()
         if (existing.isEmpty()) {
             val starterQuestions = listOf(
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "australia"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "china"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "egypt"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "estonia"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "france"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "india"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "indonesia"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "italy"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "uk"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "usa"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "russia"),
-
-                // Expanded List - Americas
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "canada"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "brazil"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "mexico"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "argentina"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "peru"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "chile"),
-
-                // Expanded List - Europe
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "germany"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "spain"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "greece"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "netherlands"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "switzerland"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "sweden"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "norway"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "ireland"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "portugal"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "finland"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "sweden"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "latvia"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "lithuania"),
-
-                // Expanded List - Asia
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "japan"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "south korea"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "thailand"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "vietnam"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "turkey"), // Transcontinental
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "saudi arabia"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "united arab emirates"),
-
-                // Expanded List - Africa
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "south africa"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "nigeria"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "kenya"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "morocco")
-
+                QuizQuestion(
+                    questionText = "Which country is shown?",
+                    correctAnswer = "australia",
+                    imageResId = R.drawable.australia
+                ),
+                QuizQuestion(
+                    questionText = "Which country is shown?",
+                    correctAnswer = "china",
+                    imageResId = R.drawable.china
+                ),
+                QuizQuestion(
+                    questionText = "Which country is shown?",
+                    correctAnswer = "egypt",
+                    imageResId = R.drawable.egypt
+                ),
+                QuizQuestion(
+                    questionText = "Which country is shown?",
+                    correctAnswer = "estonia",
+                    imageResId = R.drawable.estonia
+                ),
+                QuizQuestion(
+                    questionText = "Which country is shown?",
+                    correctAnswer = "france",
+                    imageResId = R.drawable.france
+                ),
+                QuizQuestion(
+                    questionText = "Which country is shown?",
+                    correctAnswer = "india",
+                    imageResId = R.drawable.india
+                ),
+                QuizQuestion(
+                    questionText = "Which country is shown?",
+                    correctAnswer = "indonesia",
+                    imageResId = R.drawable.indonesia
+                ),
+                QuizQuestion(
+                    questionText = "Which country is shown?",
+                    correctAnswer = "italy",
+                    imageResId = R.drawable.italy
+                ),
+                QuizQuestion(
+                    questionText = "Which country is shown?",
+                    correctAnswer = "uk",
+                    imageResId = R.drawable.uk
+                ),
+                QuizQuestion(
+                    questionText = "Which country is shown?",
+                    correctAnswer = "usa",
+                    imageResId = R.drawable.usa
+                )
             )
             questionDao.insertAll(starterQuestions)
         }
@@ -221,14 +216,18 @@ class GameViewModel : ViewModel() {
         val nextIndex = _currentIndex.value + 1
         if (nextIndex < _questions.value.size) {
             _currentIndex.value = nextIndex
-            // first, reset and prepare hints for the new question
-            resetHints()
-            prepareHintsForCurrent()
-            // fetch the new location
-            fetchRandomLocationForCurrentQuestion()
         } else {
-            _user.value?.let { _lastGameScore.value = it.score }
-            _isGameFinished.value = true
+            _user.value?.let { currentUser ->
+                _lastGameScore.value = currentUser.score
+                val updatedUser = currentUser.copy(
+                    gamesPlayed = currentUser.gamesPlayed + 1
+                )
+                viewModelScope.launch {
+                    db.userDao().insertUser(updatedUser)
+                    _user.value = updatedUser
+                }
+            }
+            _isGameFinished.value = true // signal that game has ended
         }
     }
 
@@ -247,7 +246,6 @@ class GameViewModel : ViewModel() {
                 }
             }
             _questions.value = db.questionDao().getAllQuestions().shuffled()
-            fetchRandomLocationForCurrentQuestion() // Fetch location for the new first question
             resetHints()
             prepareHintsForCurrent()
         }
@@ -356,34 +354,5 @@ class GameViewModel : ViewModel() {
         return allHints
     }
 
-    private fun fetchRandomLocationForCurrentQuestion() {
-        viewModelScope.launch {
-            _currentLocation.value = null // set to loading state
-            val question = questions.value.getOrNull(currentIndex.value)
-            val country = question?.correctAnswer
-
-            if (country == null) {
-                Log.e("ViewModel", "Cannot fetch location because country is null!")
-                return@launch
-            }
-
-            try {
-                //buchn of debugging stuff with logs
-                Log.d("ViewModel", "Asking RandomLocationProvider for a location in '$country'...")
-                val normalizedCountry = normalizeToRepoName(country) // normalize before fetching, this fixed big error
-                val location = RandomLocationProvider.getRandomLocationForCountry(normalizedCountry)
-
-                if (location != null) {
-                    Log.d("GameViewModel", "Updating StreetView location: $location")
-                    _currentLocation.value = LatLng(location.latitude, location.longitude)
-                } else {
-                    Log.e("ViewModel", "FAILURE: RandomLocationProvider returned null.")
-                }
-
-            } catch (e: Exception) {
-                Log.e("ViewModel", "EXCEPTION while fetching location: ${e.message}", e)
-            }
-        }
-    }
 
 }
