@@ -31,23 +31,40 @@ import com.google.android.gms.maps.model.LatLng
 import androidx.compose.ui.platform.LocalContext
 import com.example.culturequest.ui.viewmodel.GameViewModel
 
-@Composable
-fun StreetViewPanoramaComposable(location: LatLng, modifier: Modifier = Modifier) {
-    //hella ai muudatusi siin sest muidu ei suutnud mitme asukohaga pilti vahetada
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val context = LocalContext.current
+@kotlinx.serialization.Serializable
+data class GeocodingResponse(
+    val results: List<GeocodingResult>,
+    val status: String)
 
-    // 1. Remember the view instance so it's not recreated on every recomposition.
+@kotlinx.serialization.Serializable
+data class GeocodingResult(
+    @kotlinx.serialization.SerialName("address_components")
+    val addressComponents: List<AddressComponent>
+)
+
+@kotlinx.serialization.Serializable
+data class AddressComponent(
+    @kotlinx.serialization.SerialName("long_name")
+    val longName: String,
+    val types: List<String>
+)
+
+@Composable
+fun StreetViewPanoramaComposable(
+    location: LatLng,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    // remember a new instance ONLY when this composable enters composition
     val streetView = remember {
-        StreetViewPanoramaView(context)
+        StreetViewPanoramaView(context).apply { onCreate(null) }
     }
 
-    // 2. Use DisposableEffect to safely manage the view's lifecycle.
-    // This correctly forwards lifecycle events (create, resume, destroy) to the view.
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_CREATE -> streetView.onCreate(null)
                 Lifecycle.Event.ON_START -> streetView.onStart()
                 Lifecycle.Event.ON_RESUME -> streetView.onResume()
                 Lifecycle.Event.ON_PAUSE -> streetView.onPause()
@@ -57,26 +74,18 @@ fun StreetViewPanoramaComposable(location: LatLng, modifier: Modifier = Modifier
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
-
-        // Clean up the observer when the composable is removed from the screen
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    // 3. Use LaunchedEffect to react to changes in the 'location' parameter
-    // This coroutine will re-run *only* when the 'location' value changes.
+    // apply new location when it changes
     LaunchedEffect(location) {
         streetView.getStreetViewPanoramaAsync { panorama ->
-            // Using a radius helps find the nearest available panorama,
-            // preventing a black screen if the exact LatLng has no imagery.
-            panorama.setPosition(location, 50)
-            panorama.isUserNavigationEnabled = false // et mängija liikuda ei saaks
-            panorama.isStreetNamesEnabled = false //et mitte kogemata hinte anda :p
+            panorama.setPosition(location, 50000)
+            panorama.isUserNavigationEnabled = false
+            panorama.isStreetNamesEnabled = false
         }
     }
 
-    // 4. Host the remembered view.
     AndroidView(
         factory = { streetView },
         modifier = modifier
@@ -89,10 +98,12 @@ fun GamePageScreen(
     onGameEnd: (lastScore: Int) -> Unit, // Navigate back to HomeScreen
     viewModel: GameViewModel = viewModel()
 ) {
+
     val allQuestions by viewModel.questions.collectAsState()
     val currentIndex by viewModel.currentIndex.collectAsState()
     val user by viewModel.user.collectAsState()
     val isGameFinished by viewModel.isGameFinished.collectAsState()
+    val currentLocation by viewModel.currentLocation.collectAsState()
 
     val currentQuestion =
         if (allQuestions.isNotEmpty()) allQuestions.getOrNull(currentIndex) else null
@@ -160,7 +171,10 @@ fun GamePageScreen(
     LaunchedEffect(Unit) {
         while (timeLeft > 0 && !isGameFinished) {
             delay(1000)
-            timeLeft -= 1
+            // make it so the timer doesnt go down when pop ups are up or when the location is changing
+            if (currentLocation != null && !showDialog){
+                timeLeft -= 1
+            }
         }
         if (!isGameFinished) {
             val finalScore = viewModel.user.value?.score ?: 0
@@ -168,10 +182,6 @@ fun GamePageScreen(
             viewModel.resetGame(resetUserScore = false) // keep last game score intact
         }
     }
-
-
-
-
 
     //if clicked on the lightbulb icon
     if (showHintsDialog) {
@@ -242,35 +252,31 @@ fun GamePageScreen(
                 .padding(padding)
         ) {
             //Siin mässame street viewga
-            if (currentQuestion != null) {
-                val locations = mapOf(
-                    "australia" to LatLng(-33.856784, 151.215297),
-                    "china" to LatLng(40.431908, 116.570374),         // Great Wall of China
-                    "egypt" to LatLng(29.979234, 31.134202),          // Pyramids of Giza
-                    "estonia" to LatLng(59.436962, 24.753574),         // Tallinn Old Town
-                    "france" to LatLng(48.858844, 2.294351),          // Eiffel Tower, Paris
-                    "india" to LatLng(27.175149, 78.042145),          // Taj Mahal, Agra
-                    "indonesia" to LatLng(-7.607874, 110.203751),     // Borobudur Temple
-                    "italy" to LatLng(41.89021, 12.492231),           // Colosseum, Rome
-                    "uk" to LatLng(51.500729, -0.124625),             // Big Ben, London
-                    "usa" to LatLng(40.689247, -74.044502)
-                )
-
-                val location = locations[currentQuestion.correctAnswer.lowercase()] ?: LatLng(0.0, 0.0)
-
+            if (currentLocation == null) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else {
                 StreetViewPanoramaComposable(
-                    location = location,
+                    location = currentLocation!!,
                     modifier = Modifier.fillMaxSize()
                 )
-            } else {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Loading...", color = Color.White, fontSize = MaterialTheme.typography.labelMedium.fontSize)
-                }
+
             }
 
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(8.dp) // added some padding for better visibility
+            ) {
+                //for debugging, remove later :)
+                Text(
+                    text = "Country: ${currentQuestion?.correctAnswer?.replaceFirstChar { it.uppercase() } ?: "Finding..."}",
+                    color = Color.White,
+                    fontSize = 16.sp
+                )
+            }
             // Live Score at top center
             Box(
                 modifier = Modifier
@@ -401,7 +407,7 @@ fun GamePageScreen(
                     },
                     title = {
                         Text(
-                            if (isCorrect) "✅ Correct!" else "❌ Incorrect!",
+                            if (isCorrect) "✅ Correct!" else "❌ Incorrect! \n Correct answer: ${currentQuestion?.correctAnswer}",
                             textAlign = TextAlign.Center
                         )
                     },

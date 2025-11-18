@@ -33,12 +33,17 @@ android {
             )
         }
     }
+    buildTypes.forEach {
+        it.buildConfigField("String", "MAPS_API_KEY", "\"${System.getenv("MAPS_API_KEY") ?: project.findProperty("MAPS_API_KEY")}\"")
+        it.buildConfigField("String", "GEOLOCATION_API_KEY", "\"${System.getenv("GEOLOCATION_API_KEY") ?: project.findProperty("GEOLOCATION_API_KEY")}\"")
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -79,6 +84,8 @@ dependencies {
     // Google Maps
     implementation("com.google.maps.android:maps-compose:6.12.1")
     implementation("com.google.android.gms:play-services-maps:19.2.0")
+    implementation("com.google.android.libraries.places:places:3.5.0")
+
     //JSON parser
     implementation(libs.kotlinx.serialization.json)
 
