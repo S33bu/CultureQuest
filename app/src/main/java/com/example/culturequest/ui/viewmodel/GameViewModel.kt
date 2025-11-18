@@ -82,7 +82,6 @@ class GameViewModel : ViewModel() {
                 _questions.value = allQuestions.shuffled()
 
                 prepareHintsForCurrent()
-                fetchRandomLocationForCurrentQuestion()
                 //load or create user profile
                 val userDao = db.userDao()
                 var user = userDao.getUser()
@@ -220,6 +219,11 @@ class GameViewModel : ViewModel() {
 
     // Move to the next question, or finish the game if last question
     fun moveToNextQuestion() {
+        //stop the api calls after game ends
+        if (_isGameFinished.value) {
+            android.util.Log.d("GameViewModel", "Game is already finished!")
+            return
+        }
         val nextIndex = _currentIndex.value + 1
         if (nextIndex < _questions.value.size) {
             _currentIndex.value = nextIndex
@@ -227,7 +231,9 @@ class GameViewModel : ViewModel() {
             resetHints()
             prepareHintsForCurrent()
             // fetch the new location
-            fetchRandomLocationForCurrentQuestion()
+            if(nextIndex != 0){
+                fetchRandomLocationForCurrentQuestion()
+            }
         } else {
             _user.value?.let { currentUser ->
                 _lastGameScore.value = currentUser.score
@@ -258,7 +264,7 @@ class GameViewModel : ViewModel() {
                 }
             }
             _questions.value = db.questionDao().getAllQuestions().shuffled()
-            fetchRandomLocationForCurrentQuestion() // Fetch location for the new first question
+            fetchRandomLocationForCurrentQuestion()
             resetHints()
             prepareHintsForCurrent()
         }
@@ -375,6 +381,7 @@ class GameViewModel : ViewModel() {
 
             if (country == null) {
                 Log.e("ViewModel", "Cannot fetch location because country is null!")
+                _currentLocation.value = LatLng(0.00,0.00) //just a fallback just in case
                 return@launch
             }
 
