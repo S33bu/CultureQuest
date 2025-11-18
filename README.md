@@ -49,6 +49,7 @@ For a more detailed overview and upcoming features, visit our [**Wiki Page**](ht
   <li>Figma (UI/UX design)</li>
   <li>Jira (project management)</li>
   <li>Google Maps SDK for Android & Maps Compose</li>
+  <li>Google Geocoding API</li>
   <li>Firebase Authentication <i>(planned)</i></li>
   <li>AndroidX Lifecycle & ViewModel</li>
   <li>Room Database (with KSP)</li>
