@@ -1,6 +1,5 @@
 package com.example.culturequest.data
 
-import android.os.Build
 import android.util.Log
 import com.example.culturequest.BuildConfig
 import com.google.android.gms.maps.model.LatLng

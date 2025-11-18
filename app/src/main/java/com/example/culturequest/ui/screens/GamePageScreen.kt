@@ -36,23 +36,6 @@ import com.google.android.gms.maps.model.LatLng
 import androidx.compose.ui.platform.LocalContext
 import com.example.culturequest.ui.viewmodel.GameViewModel
 
-@kotlinx.serialization.Serializable
-data class GeocodingResponse(
-    val results: List<GeocodingResult>,
-    val status: String)
-
-@kotlinx.serialization.Serializable
-data class GeocodingResult(
-    @kotlinx.serialization.SerialName("address_components")
-    val addressComponents: List<AddressComponent>
-)
-
-@kotlinx.serialization.Serializable
-data class AddressComponent(
-    @kotlinx.serialization.SerialName("long_name")
-    val longName: String,
-    val types: List<String>
-)
 
 @Composable
 fun StreetViewPanoramaComposable(
