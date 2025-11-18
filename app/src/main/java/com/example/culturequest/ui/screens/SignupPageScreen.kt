@@ -40,7 +40,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 @Composable
 fun SignupPageScreen(
     onBackClick: () -> Unit,
-    onSignupClick: (String, String) -> Unit
+    onSignupClick: (String, String) -> Unit,
+    isLoading: Boolean,
+    errorMessage: String?,
+    onClearError: () -> Unit
 ) {
     //form state
     val email = remember { mutableStateOf("") }
@@ -98,9 +101,24 @@ fun SignupPageScreen(
                     SignupFields(
                         email.value,
                         password.value,
-                        onEmailChange = { email.value = it },
-                        onPasswordChange = { password.value = it }
+                        onEmailChange = {
+                            email.value = it
+                            onClearError()
+                        },
+                        onPasswordChange = {
+                            password.value = it
+                            onClearError()
+                        }
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    if (errorMessage != null) {
+                        Text(
+                            text = errorMessage,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
             }
             //sign in button on the bottom right
@@ -108,7 +126,8 @@ fun SignupPageScreen(
                 onSignupClick = { onSignupClick(email.value, password.value) },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(bottom = 32.dp, end = 16.dp)
+                    .padding(bottom = 32.dp, end = 16.dp),
+                isLoading = isLoading
             )
         }
     }
@@ -198,9 +217,18 @@ fun SignupFields(
 @Composable
 fun SignupFooter(
     onSignupClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isLoading: Boolean
 ) {
-    Row(modifier = modifier.padding(end= 8.dp), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
-        PrimaryButton(text = "Sign In ->", onClick = onSignupClick)
+    Row(
+        modifier = modifier.padding(end = 8.dp),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        PrimaryButton(
+            text = if (isLoading) "Signing up..." else "Sign In ->",
+            onClick = onSignupClick,
+            enabled = !isLoading
+        )
     }
 }

@@ -42,7 +42,10 @@ import androidx.compose.material3.TextFieldDefaults
 @Composable
 fun LoginPageScreen(
     onSignUpClick: () -> Unit, //what happens when "sign up" is clicked
-    onSignInClick: (String, String) -> Unit    //what happens when "login" is clicked
+    onSignInClick: (String, String) -> Unit,    //what happens when "login" is clicked
+    isLoading: Boolean,
+    errorMessage: String?,
+    onClearError: () -> Unit
 
 ) {
     //this page idea gotten from: https://www.oversimplifiedcoding.com/2024/03/Jetpack-Compose-Login-Screen-Example.html
@@ -95,16 +98,29 @@ fun LoginPageScreen(
             LoginFields(
                 email.value,
                 password.value,
-                onEmailChange = { email.value = it },
-                onPasswordChange = { password.value = it },
-               /* onForgotPasswordClick = { /*TODO*/
-                }*/
+                onEmailChange = {
+                    email.value = it
+                    onClearError()
+                },
+                onPasswordChange = {
+                    password.value = it
+                    onClearError()
+                },
             )
             Spacer(modifier = Modifier.height(20.dp))
             //dont have account sign up
             SignUpFooter(
                 onSignUpClick = onSignUpClick
             )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
 
 
         }
@@ -115,7 +131,8 @@ fun LoginPageScreen(
             onSignInClick = { onSignInClick(email.value, password.value) },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(bottom = 32.dp, end = 16.dp)
+                .padding(bottom = 32.dp, end = 16.dp),
+            isLoading = isLoading
         )
     }
 }
@@ -199,12 +216,14 @@ and logging in wiht user who has existing account
 fun PrimaryButton(
     text: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     Button(
         onClick = onClick,
         modifier = modifier,
         shape = RoundedCornerShape(50),
+        enabled = enabled,
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.secondary,
             contentColor = MaterialTheme.colorScheme.onSecondary
@@ -233,14 +252,23 @@ fun SignUpFooter(
 //the sign in button on the bottom right
 @Composable
 fun SignInFooter(
-
     onSignInClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isLoading: Boolean
 ) {
-    Row(modifier = modifier.padding(end= 8.dp), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
-        PrimaryButton(text = "Sign In ->", onClick = onSignInClick)
+    Row(
+        modifier = modifier.padding(end = 8.dp),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        PrimaryButton(
+            text = if (isLoading) "Signing in..." else "Sign In ->",
+            onClick = onSignInClick,
+            enabled = !isLoading
+        )
     }
 }
+
 
 //custom textfield wrapper adding theme colors
 

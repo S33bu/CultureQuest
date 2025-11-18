@@ -26,6 +26,10 @@ import com.example.culturequest.ui.screens.ProfilePageScreen
 import com.example.culturequest.ui.theme.CultureQuestTheme
 import com.example.culturequest.ui.viewmodel.GameViewModel
 import com.example.culturequest.ui.viewmodel.SettingsViewModel
+import com.example.culturequest.ui.viewmodel.AuthViewModel
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,22 +61,51 @@ fun AppNavigation() {
     val gameViewModel: GameViewModel = viewModel()
     var lastGameScore by remember { mutableIntStateOf(0) }
 
+    // 🔹 AuthViewModel + state
+    val authViewModel: AuthViewModel = viewModel()
+    val authState by authViewModel.authState
+
+    // 🔹 Kui kasutaja logib sisse / välja, liigutame teda õigesse ekraani
+    LaunchedEffect(authState.isLoggedIn) {
+        currentScreen = if (authState.isLoggedIn) "home" else "login"
+    }
+
     when (currentScreen) {
         "login" -> LoginPageScreen(
-            onSignUpClick = { currentScreen = "signup" },
+            onSignUpClick = {
+                authViewModel.clearError()
+                currentScreen = "signup"
+            },
             onSignInClick = { email, password ->
-                currentScreen = "home"
-            }
+                authViewModel.signIn(email, password)
+            },
+            isLoading = authState.isLoading,
+            errorMessage = authState.errorMessage,
+            onClearError = { authViewModel.clearError() }
         )
+
         "signup" -> SignupPageScreen(
-            onBackClick = { currentScreen = "login"},
-            onSignupClick = {email, password -> currentScreen = "home"}
+            onBackClick = {
+                authViewModel.clearError()
+                currentScreen = "login"
+            },
+            onSignupClick = { email, password ->
+                authViewModel.signUp(email, password)
+            },
+            isLoading = authState.isLoading,
+            errorMessage = authState.errorMessage,
+            onClearError = { authViewModel.clearError() }
         )
+
         "home" -> HomeScreen(
-            onAboutClick = { currentScreen = "about" }, // Navigate to About page
-            onBackToLoginClick = { currentScreen = "login" },
+            onAboutClick = { currentScreen = "about" },
+            onBackToLoginClick = {
+                // 🔹 Logime välja ja lähme login ekraanile
+                authViewModel.signOut()
+                currentScreen = "login"
+            },
             onProfileClick = { currentScreen = "profile" },
-            gameViewModel = gameViewModel ,              // Pass ViewModel for score updates
+            gameViewModel = gameViewModel,
             onGameClick = {
                 gameViewModel.resetGame(resetUserScore = true)
                 currentScreen = "game"
