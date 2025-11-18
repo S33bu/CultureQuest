@@ -79,7 +79,12 @@ class GameViewModel : ViewModel() {
             var user = userDao.getUser()
             if (user == null) {
                 // Create a default user if none exists
-                user = UserProfile(username = "Player", score = 0)
+                user = UserProfile(
+                    username = "Player",
+                    score = 0,
+                    bestScore = 0,
+                    gamesPlayed = 0
+                )
                 userDao.insertUser(user)
             }
             _user.value = user
@@ -212,7 +217,16 @@ class GameViewModel : ViewModel() {
         if (nextIndex < _questions.value.size) {
             _currentIndex.value = nextIndex
         } else {
-            _user.value?.let { _lastGameScore.value = it.score }
+            _user.value?.let { currentUser ->
+                _lastGameScore.value = currentUser.score
+                val updatedUser = currentUser.copy(
+                    gamesPlayed = currentUser.gamesPlayed + 1
+                )
+                viewModelScope.launch {
+                    db.userDao().insertUser(updatedUser)
+                    _user.value = updatedUser
+                }
+            }
             _isGameFinished.value = true // signal that game has ended
         }
     }

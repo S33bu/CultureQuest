@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -25,6 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.culturequest.R
 import com.example.culturequest.ui.viewmodel.GameViewModel
+import com.google.firebase.auth.FirebaseAuth
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +37,15 @@ fun ProfilePageScreen(
 ) {
     val scrollState = rememberScrollState()
     val user by gameViewModel.user.collectAsState()
+
+    val firebaseUser = FirebaseAuth.getInstance().currentUser
+    val email = firebaseUser?.email
+
+    val displayName = remember(email, user) {
+        email?.let { nameFromEmail(it) }
+            ?: user?.username
+            ?: "Player"
+    }
 
     Scaffold { padding ->
         Box(
@@ -67,18 +79,16 @@ fun ProfilePageScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
-                    Text(
-                        text = "Player Profile",
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Bold
-                        ),
-                        textAlign = TextAlign.Center
+                    ProfileItem(label = "Name", value = displayName)
+                    ProfileItem(
+                        label = "High Score",
+                        value = user?.bestScore?.toString() ?: "0"
                     )
 
-                    ProfileItem(label = "Name", value = user?.username ?: "Player")
-                    ProfileItem(label = "High Score", value = user?.bestScore?.toString() ?: "0")
-                    ProfileItem(label = "Games Played", value = "36") // Static for now
-                    ProfileItem(label = "Last Played", value = "October 25, 2025") // Static for now
+                    ProfileItem(
+                        label = "Games Played",
+                        value = user?.gamesPlayed?.toString() ?: "0"
+                    )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -163,5 +173,18 @@ private fun ProfileHeader(
             textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.Center)
         )
+    }
+}
+
+private fun nameFromEmail(email: String): String {
+    val dotIndex = email.indexOf('.')
+    val atIndex = email.indexOf('@')
+
+    val candidates = listOf(dotIndex, atIndex).filter { it > 0 }
+    val endIndex = if (candidates.isEmpty()) email.length else candidates.min()
+
+    val raw = email.substring(0, endIndex).ifEmpty { email }
+    return raw.replaceFirstChar { ch ->
+        if (ch.isLowerCase()) ch.titlecase(Locale.getDefault()) else ch.toString()
     }
 }
