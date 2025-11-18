@@ -15,11 +15,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.culturequest.data.Theme
+import com.example.culturequest.ui.screens.LoginPageScreen
+import com.example.culturequest.ui.screens.HomeScreen
 import com.example.culturequest.ui.screens.AboutPageScreen
 import com.example.culturequest.ui.screens.GamePageScreen
-import com.example.culturequest.ui.screens.HomeScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.culturequest.data.Theme
 import com.example.culturequest.ui.screens.ProfilePageScreen
 import com.example.culturequest.ui.theme.CultureQuestTheme
 import com.example.culturequest.ui.viewmodel.GameViewModel
@@ -51,14 +52,22 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun AppNavigation() {
-    var currentScreen by remember { mutableStateOf("home") }
+    var currentScreen by remember { mutableStateOf("login") }
     val gameViewModel: GameViewModel = viewModel()
     var lastGameScore by remember { mutableIntStateOf(0) }
 
     when (currentScreen) {
+        "login" -> LoginPageScreen(
+            onSignUpClick = { currentScreen = "signup" },
+            onSignInClick = { email, password ->
+                currentScreen = "home"
+            }
+        )
         "home" -> HomeScreen(
-            onAboutClick = { currentScreen = "about" },
+            onAboutClick = { currentScreen = "about" }, // Navigate to About page
+            onBackToLoginClick = { currentScreen = "login" },
             onProfileClick = { currentScreen = "profile" },
+            gameViewModel = gameViewModel ,              // Pass ViewModel for score updates
             onGameClick = {
                 gameViewModel.resetGame(resetUserScore = true)
                 currentScreen = "game"
