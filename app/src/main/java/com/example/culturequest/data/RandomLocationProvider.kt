@@ -19,7 +19,7 @@ object RandomLocationProvider {
     private suspend fun hasStreetViewImagery(point: LatLng): Boolean =
         withContext(Dispatchers.IO) {
             try {
-                val url = "https://maps.googleapis.com/maps/api/streetview/metadata?location=${point.latitude},${point.longitude}&key=${BuildConfig.MAPS_API_KEY}"
+                val url = "https://maps.googleapis.com/maps/api/streetview/metadata?location=${point.latitude},${point.longitude}&radius=5000&key=${BuildConfig.MAPS_API_KEY}"
                 val json = URL(url).readText()
                 val response = jsonParser.decodeFromString<StreetViewMetaDataResponse>(json)
 
@@ -50,14 +50,15 @@ object RandomLocationProvider {
                     val lng = kotlin.random.Random.nextDouble(sw.lng, ne.lng)
                     val candidate = LatLng(lat, lng)
 
-                    val inCountry = isPointInCountry(candidate, countryName)
-                    if (!inCountry) {
+                    val hasImagery = hasStreetViewImagery(candidate)
+
+                    if (!hasImagery) {
                         Log.d("RLP_DEBUG", "Attempt $attempt: $candidate is not in $countryName")
                         continue
                     }
 
-                    val hasImagery = hasStreetViewImagery(candidate)
-                    if (hasImagery) {
+                    val inCountry = isPointInCountry(candidate, countryName)
+                    if (inCountry) {
                         Log.d("RLP_DEBUG", "Valid candidate found on attempt $attempt: $candidate")
                         return@withContext candidate
                     } else {
