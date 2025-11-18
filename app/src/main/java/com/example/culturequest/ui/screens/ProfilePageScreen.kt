@@ -29,6 +29,7 @@ import com.example.culturequest.ui.viewmodel.GameViewModel
 import com.google.firebase.auth.FirebaseAuth
 import java.util.Locale
 
+// The main composable for the Profile Page.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfilePageScreen(
@@ -39,16 +40,19 @@ fun ProfilePageScreen(
     val user by gameViewModel.user.collectAsState()
 
     val firebaseUser = FirebaseAuth.getInstance().currentUser
+    // Retrieve user's email from Firebase Authentication.
     val email = firebaseUser?.email
 
     val displayName = remember(email, user) {
         email?.let { nameFromEmail(it) }
             ?: user?.username
             ?: "Player"
+        // Determine the display name, prioritizing email parsing, then stored username.
     }
 
     Scaffold { padding ->
         Box(
+            // The root container for the screen.
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
@@ -61,11 +65,13 @@ fun ProfilePageScreen(
                     .alpha(0.15f)
             )
 
+            // Main content layout.
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
                 ProfileHeader(
                     height = 300.dp,
+                    // Custom header for the profile screen.
                     background = MaterialTheme.colorScheme.primary,
                     iconSize = 50.dp,
                     onBackClick = onBackClick
@@ -73,6 +79,7 @@ fun ProfilePageScreen(
 
                 Column(
                     modifier = Modifier
+                        // Offset to overlap with the header.
                         .offset(y = (-90).dp)
                         .verticalScroll(scrollState)
                         .padding(32.dp),
@@ -80,6 +87,7 @@ fun ProfilePageScreen(
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
                     ProfileItem(label = "Name", value = displayName)
+                    // Display user's statistics.
                     ProfileItem(
                         label = "High Score",
                         value = user?.bestScore?.toString() ?: "0"
@@ -103,6 +111,7 @@ fun ProfilePageScreen(
     }
 }
 
+// A reusable composable to display a labeled piece of user information.
 @Composable
 private fun ProfileItem(label: String, value: String) {
     Column(
@@ -125,6 +134,7 @@ private fun ProfileItem(label: String, value: String) {
     }
 }
 
+// The header section of the profile screen with a curved background.
 @Composable
 private fun ProfileHeader(
     height: Dp,
@@ -137,6 +147,7 @@ private fun ProfileHeader(
             .fillMaxWidth()
             .height(height)
             .drawBehind {
+                // Custom drawing to create an arc shape for the header background.
                 val w = size.width
                 val h = size.height
                 val d = minOf(w, 2f * h)
@@ -167,6 +178,7 @@ private fun ProfileHeader(
         }
 
         Text(
+            // The title text of the header.
             text = "Profile",
             style = MaterialTheme.typography.displaySmall,
             color = MaterialTheme.colorScheme.onPrimary,
@@ -176,6 +188,7 @@ private fun ProfileHeader(
     }
 }
 
+// A helper function to extract a user's name from their email address.
 private fun nameFromEmail(email: String): String {
     val dotIndex = email.indexOf('.')
     val atIndex = email.indexOf('@')
@@ -183,7 +196,9 @@ private fun nameFromEmail(email: String): String {
     val candidates = listOf(dotIndex, atIndex).filter { it > 0 }
     val endIndex = if (candidates.isEmpty()) email.length else candidates.min()
 
+    // Get the part of the email before the first '.' or '@'.
     val raw = email.substring(0, endIndex).ifEmpty { email }
+    // Capitalize the first letter of the extracted name.
     return raw.replaceFirstChar { ch ->
         if (ch.isLowerCase()) ch.titlecase(Locale.getDefault()) else ch.toString()
     }

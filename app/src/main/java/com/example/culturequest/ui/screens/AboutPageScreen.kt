@@ -37,10 +37,13 @@ fun AboutPageScreen(
     onBackClick: () -> Unit,
     settingsViewModel: SettingsViewModel = viewModel()
 ) {
+    // State for the scrollable column
     val scrollState = rememberScrollState()
+    // Observe the current theme from the view model
     val theme by settingsViewModel.theme.collectAsState()
 
     Scaffold { padding ->
+        // Main container Box
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             Image(
                 painter = painterResource(id = R.drawable.maa),
@@ -50,9 +53,11 @@ fun AboutPageScreen(
                     .alpha(0.15f)
             )
 
+            // Main content column
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
+                // Custom header with a semicircle shape
                 TopSemicircleHeader(
                     height = 300.dp,
                     background = MaterialTheme.colorScheme.primary, // Changed from hardcoded color
@@ -61,6 +66,7 @@ fun AboutPageScreen(
                     onBackClick = onBackClick
                 )
 
+                // Scrollable content section
                 Column(
                     modifier = Modifier
                         .offset(y = (-90).dp)
@@ -70,12 +76,14 @@ fun AboutPageScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(24.dp) // Adjusted spacing
                 ) {
+                    // Welcome message
                     Text(
                         text = "Welcome! Ready to explore world cultures?",
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center,
                     )
 
+                    // App description text
                     Text(
                         text = "Test your geography and cultural knowledge by guessing the country based on what you see — from bustling city streets to remote landscapes.\n" +
                                 "\n" +
@@ -84,6 +92,7 @@ fun AboutPageScreen(
                         textAlign = TextAlign.Center
                     )
 
+                    // Features section
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -106,7 +115,7 @@ fun AboutPageScreen(
                         }
                     }
 
-                    // Theme selector
+                    // Component to select the app theme (Light/Dark)
                     ThemeSelector(
                         selectedTheme = theme,
                         onThemeSelected = { settingsViewModel.saveTheme(it) }
@@ -119,6 +128,7 @@ fun AboutPageScreen(
     }
 }
 
+// Composable for displaying a single feature item with a bullet point.
 @Composable
 private fun FeatureItem(text: String) {
     Row(
@@ -138,6 +148,7 @@ private fun FeatureItem(text: String) {
     }
 }
 
+// Composable for the top header, drawn as a large semicircle.
 @Composable
 private fun TopSemicircleHeader(
     height: Dp,
@@ -151,6 +162,7 @@ private fun TopSemicircleHeader(
             .fillMaxWidth()
             .height(height)
             .drawBehind {
+                // Custom drawing logic to create a semicircle arc
                 val w = size.width
                 val h = size.height
                 val d = minOf(w, 2f * h)
@@ -167,6 +179,7 @@ private fun TopSemicircleHeader(
                 )
             }, contentAlignment = Alignment.TopCenter
     ) {
+        // Show a back button if enabled
         if (showBackButton) {
             IconButton(
                 onClick = onBackClick, modifier = Modifier.align(Alignment.TopStart)
@@ -180,6 +193,7 @@ private fun TopSemicircleHeader(
             }
         }
 
+        // Box to center the title text within the header
         Box(
             modifier = Modifier
                 .align(Alignment.Center)
@@ -196,19 +210,23 @@ private fun TopSemicircleHeader(
     }
 }
 
+// Composable that allows the user to select between Light and Dark themes.
 @Composable
 fun ThemeSelector(
     selectedTheme: Theme,
     onThemeSelected: (Theme) -> Unit
 ) {
+    // Defines the available theme options.
     val themes = listOf(Theme.LIGHT, Theme.DARK) // Exclude SYSTEM theme
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        // Title for the theme selector section
         Text(
             text = "Theme",
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 12.dp)
         )
+        // Row to display theme options side-by-side
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
@@ -216,10 +234,12 @@ fun ThemeSelector(
         ) {
             themes.forEach { theme ->
                 val isSelected = theme == selectedTheme
+                // Determine colors based on whether the theme is selected
                 val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
                 val textColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onBackground
 
                 Box(
+                    // Styling for the theme option button
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
                         .background(backgroundColor)
