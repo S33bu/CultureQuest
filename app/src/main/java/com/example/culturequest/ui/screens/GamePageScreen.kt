@@ -1,16 +1,21 @@
 package com.example.culturequest.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -86,6 +91,7 @@ fun StreetViewPanoramaComposable(
         }
     }
 
+    // 4. Host the remembered view.
     AndroidView(
         factory = { streetView },
         modifier = modifier
@@ -95,10 +101,9 @@ fun StreetViewPanoramaComposable(
 @Composable
 fun GamePageScreen(
     onBackClick: () -> Unit,
-    onGameEnd: (lastScore: Int) -> Unit, // Navigate back to HomeScreen
+    onGameEnd: (lastScore: Int) -> Unit,
     viewModel: GameViewModel = viewModel()
 ) {
-
     val allQuestions by viewModel.questions.collectAsState()
     val currentIndex by viewModel.currentIndex.collectAsState()
     val user by viewModel.user.collectAsState()
@@ -123,12 +128,8 @@ fun GamePageScreen(
         derivedStateOf { viewModel.visibleHintsForTier() }
     }
 
-
     var timeLeft by remember { mutableStateOf(60) }
 
-
-
-    //show hints
     LaunchedEffect(currentIndex, countriesLoaded) {
         if (countriesLoaded) viewModel.prepareHintsForCurrent()
     }
@@ -150,7 +151,6 @@ fun GamePageScreen(
             trimmed.any { it.isDigit() } -> "The answer cannot contain numbers."
             trimmed.any { !it.isLetter() && it != ' ' && it != '-' } ->
                 "Only letters, spaces, and hyphens are allowed."
-
             else -> null
         }
     }
@@ -182,6 +182,7 @@ fun GamePageScreen(
             viewModel.resetGame(resetUserScore = false) // keep last game score intact
         }
     }
+
 
     //if clicked on the lightbulb icon
     if (showHintsDialog) {
@@ -217,7 +218,7 @@ fun GamePageScreen(
                             ) {
                                 Text(
                                     text = hint.text,
-                                    style = MaterialTheme.typography.labelSmall,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier.padding(10.dp)
                                 )
                             }
@@ -277,44 +278,13 @@ fun GamePageScreen(
                     fontSize = 16.sp
                 )
             }
-            // Live Score at top center
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 30.dp),
-                contentAlignment = Alignment.TopCenter
-            ) {
-                Text(
-                    text = "Time left: $timeLeft s | Score: ${user?.score ?: 0}",
-                    color = Color.White,
-                    fontSize = MaterialTheme.typography.labelSmall.fontSize,
-                    textAlign = TextAlign.Center
-                )
 
-                IconButton(
-                    onClick = {
-                        //only first click on the lightbulb will make tier+1
-                        if (tierShown == 0) viewModel.revealNextTierAndPenalize()
-                        showHintsDialog = true
-                        //otherwise the hints that are chosen based on the
-                        //button "show more hints -1" will be displayed
-                        if (tierShown <= 3) showHintsDialog = true
-                    },
+            TopGameBar(timeLeft, user?.score ?: 0, onBackClick, {
+                if (tierShown == 0) viewModel.revealNextTierAndPenalize()
+                showHintsDialog = true
+                if (tierShown <= 3) showHintsDialog = true
+            }, tierShown <= 3)
 
-                    enabled = tierShown <= 3,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(16.dp)
-                        .size(56.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = com.example.culturequest.R.drawable.hint_icon),
-                        contentDescription = "Hint"
-                    )
-                }
-            }
-
-            // Answer input row at bottom
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -422,6 +392,60 @@ fun GamePageScreen(
                     }
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun TopGameBar(
+    timeLeft: Int,
+    score: Int,
+    onBackClick: () -> Unit,
+    onHintClick: () -> Unit,
+    isHintEnabled: Boolean
+) {
+    val iconColor = if (isSystemInDarkTheme()) Color.White else Color.Black
+    val buttonBackgroundColor = Color(0xAA99FF99)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 30.dp, start = 16.dp, end = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(
+            onClick = onBackClick,
+            modifier = Modifier
+                .size(56.dp)
+                .background(buttonBackgroundColor, CircleShape)
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Back",
+                tint = iconColor
+            )
+        }
+
+        Text(
+            text = "Time left: $timeLeft s | Score: $score",
+            color = Color.White,
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center
+        )
+
+        IconButton(
+            onClick = onHintClick,
+            enabled = isHintEnabled,
+            modifier = Modifier
+                .size(56.dp)
+                .background(buttonBackgroundColor, CircleShape)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.hint_icon),
+                contentDescription = "Hint",
+                colorFilter = ColorFilter.tint(iconColor)
+            )
         }
     }
 }

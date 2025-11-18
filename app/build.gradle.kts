@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.ksp)
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
     alias(libs.plugins.kotlin.serialization)   // ← add this
+    id("com.google.gms.google-services")
 
 }
 
@@ -86,8 +87,17 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:19.2.0")
     implementation("com.google.android.libraries.places:places:3.5.0")
 
+    // Firebase BOM + Auth
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+    implementation("com.google.firebase:firebase-auth-ktx")
     //JSON parser
     implementation(libs.kotlinx.serialization.json)
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
+    // Material Icons Extended
+    implementation(libs.androidx.material.icons.extended)
+
+
 
 
 

@@ -83,11 +83,14 @@ class GameViewModel : ViewModel() {
 
                 prepareHintsForCurrent()
                 fetchRandomLocationForCurrentQuestion()
-                
+                //load or create user profile
                 val userDao = db.userDao()
                 var user = userDao.getUser()
-                if (user == null) {
-                    user = UserProfile(username = "Player", score = 0)
+                if (user == null) { //create a default user if none exists
+                    user = UserProfile(username = "Player",
+                        score = 0,
+                        bestScore = 0,
+                        gamesPlayed = 0)
                     userDao.insertUser(user)
                 }
                 _user.value = user
@@ -133,7 +136,6 @@ class GameViewModel : ViewModel() {
                 QuizQuestion(questionText = "Which country is shown?", correctAnswer = "ireland"),
                 QuizQuestion(questionText = "Which country is shown?", correctAnswer = "portugal"),
                 QuizQuestion(questionText = "Which country is shown?", correctAnswer = "finland"),
-                QuizQuestion(questionText = "Which country is shown?", correctAnswer = "sweden"),
                 QuizQuestion(questionText = "Which country is shown?", correctAnswer = "latvia"),
                 QuizQuestion(questionText = "Which country is shown?", correctAnswer = "lithuania"),
 
@@ -227,7 +229,16 @@ class GameViewModel : ViewModel() {
             // fetch the new location
             fetchRandomLocationForCurrentQuestion()
         } else {
-            _user.value?.let { _lastGameScore.value = it.score }
+            _user.value?.let { currentUser ->
+                _lastGameScore.value = currentUser.score
+                val updatedUser = currentUser.copy(
+                    gamesPlayed = currentUser.gamesPlayed + 1
+                )
+                viewModelScope.launch {
+                    db.userDao().insertUser(updatedUser)
+                    _user.value = updatedUser
+                }
+            }
             _isGameFinished.value = true
         }
     }
