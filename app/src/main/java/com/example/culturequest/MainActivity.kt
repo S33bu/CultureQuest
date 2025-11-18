@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.example.culturequest.ui.screens.LoginPageScreen
+import com.example.culturequest.ui.screens.SignupPageScreen
 import com.example.culturequest.ui.screens.HomeScreen
 import com.example.culturequest.ui.screens.AboutPageScreen
 import com.example.culturequest.ui.screens.GamePageScreen
@@ -62,6 +63,10 @@ fun AppNavigation() {
             onSignInClick = { email, password ->
                 currentScreen = "home"
             }
+        )
+        "signup" -> SignupPageScreen(
+            onBackClick = { currentScreen = "login"},
+            onSignupClick = {email, password -> currentScreen = "home"}
         )
         "home" -> HomeScreen(
             onAboutClick = { currentScreen = "about" }, // Navigate to About page

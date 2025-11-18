@@ -21,9 +21,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-
-
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -129,7 +126,7 @@ fun LoginHeader(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Start
-    ) { Text(text = "Welcome Back", style = MaterialTheme.typography.headlineLarge, color = Color.White )
+    ) { Text(text = "Welcome Back", style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onPrimary )
 
     }
 }
