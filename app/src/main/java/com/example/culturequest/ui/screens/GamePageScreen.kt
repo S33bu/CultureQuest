@@ -260,19 +260,6 @@ fun GamePageScreen(
             }
 
 
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(8.dp) // added some padding for better visibility
-            ) {
-                //for debugging, remove later :)
-                Text(
-                    text = "Country: ${currentQuestion?.correctAnswer?.replaceFirstChar { it.uppercase() } ?: "Finding..."}",
-                    color = Color.White,
-                    fontSize = 16.sp
-                )
-            }
-
             // Top bar with timer, score, back button, and hint button.
             TopGameBar(timeLeft, user?.score ?: 0, onBackClick, {
                 if (tierShown == 0) viewModel.revealNextTierAndPenalize()
