@@ -99,11 +99,6 @@ fun AppNavigation() {
 
         "home" -> HomeScreen(
             onAboutClick = { currentScreen = "about" },
-            onBackToLoginClick = {
-                // 🔹 Logime välja ja lähme login ekraanile
-                authViewModel.signOut()
-                currentScreen = "login"
-            },
             onProfileClick = { currentScreen = "profile" },
             gameViewModel = gameViewModel,
             onGameClick = {

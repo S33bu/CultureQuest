@@ -1,11 +1,10 @@
 package com.example.culturequest.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -14,14 +13,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.culturequest.R
@@ -64,18 +59,32 @@ fun ProfilePageScreen(
                     .fillMaxSize()
                     .alpha(0.15f)
             )
+            //top circle
+            Box(
+                modifier = Modifier
+                    .size(600.dp)
+                    .offset(y = (-320).dp) // Move bubble down
+                    .clip(androidx.compose.foundation.shape.CircleShape)
+                    .background(MaterialTheme.colorScheme.primary)
+            )
+
 
             // Main content layout.
             Column(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp, vertical = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                ProfileHeader(
-                    height = 300.dp,
-                    // Custom header for the profile screen.
-                    background = MaterialTheme.colorScheme.primary,
-                    iconSize = 50.dp,
-                    onBackClick = onBackClick
+                ProfileHeaderCircle(
+                    onBackClick = onBackClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 40.dp)
+                        .offset(y = (-40).dp) // Move title further up
                 )
+
+                Spacer(modifier = Modifier.height(24.dp))
 
                 Column(
                     modifier = Modifier
@@ -111,6 +120,44 @@ fun ProfilePageScreen(
     }
 }
 
+
+@Composable
+fun ProfileHeaderCircle(
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.height(250.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        //icons at the very top
+        Row(
+            modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter).padding(horizontal = 8.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            IconButton(
+                onClick = onBackClick
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.backbutton),
+                    contentDescription = "About",
+                    modifier = Modifier.size(50.dp),
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
+
+        // Title text
+        Text(
+            text = "Profile",
+            style = MaterialTheme.typography.displayLarge.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.onPrimary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.align(Alignment.Center) // Center in the Box
+        )
+    }
+}
+
 // A reusable composable to display a labeled piece of user information.
 @Composable
 private fun ProfileItem(label: String, value: String) {
@@ -122,7 +169,7 @@ private fun ProfileItem(label: String, value: String) {
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.primary
         )
         Text(
@@ -134,59 +181,6 @@ private fun ProfileItem(label: String, value: String) {
     }
 }
 
-// The header section of the profile screen with a curved background.
-@Composable
-private fun ProfileHeader(
-    height: Dp,
-    background: Color,
-    iconSize: Dp,
-    onBackClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(height)
-            .drawBehind {
-                // Custom drawing to create an arc shape for the header background.
-                val w = size.width
-                val h = size.height
-                val d = minOf(w, 2f * h)
-                val left = (w - d) / 2f
-                val top = -d / 2f
-
-                drawArc(
-                    color = background,
-                    startAngle = 0f,
-                    sweepAngle = 180f,
-                    useCenter = true,
-                    topLeft = Offset(left, top),
-                    size = Size(d, d)
-                )
-            },
-        contentAlignment = Alignment.TopCenter
-    ) {
-        IconButton(
-            onClick = onBackClick,
-            modifier = Modifier.align(Alignment.TopStart)
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
-                modifier = Modifier.size(iconSize),
-                tint = MaterialTheme.colorScheme.onPrimary
-            )
-        }
-
-        Text(
-            // The title text of the header.
-            text = "Profile",
-            style = MaterialTheme.typography.displaySmall,
-            color = MaterialTheme.colorScheme.onPrimary,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.align(Alignment.Center)
-        )
-    }
-}
 
 // A helper function to extract a user's name from their email address.
 private fun nameFromEmail(email: String): String {
