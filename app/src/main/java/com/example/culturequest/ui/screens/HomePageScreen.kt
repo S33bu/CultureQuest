@@ -20,9 +20,9 @@ import androidx.compose.ui.res.painterResource
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onAboutClick: () -> Unit, //what happens when "About" is clicked
-    onGameClick: () -> Unit,    //what happens when "Play now" is clicked
-    onProfileClick: () -> Unit,
+    onAboutClick: () -> Unit, //navigate to about
+    onGameClick: () -> Unit,    //navigate to game
+    onProfileClick: () -> Unit, //navigate to profile
     lastGameScore: Int = 0,
     gameViewModel: GameViewModel = viewModel(), // gets the GameViewModel
 ) {
@@ -55,8 +55,6 @@ fun HomeScreen(
         )
 
         //main content on top of circles
-
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -74,6 +72,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            //score display card
             Box(
                 modifier = Modifier.fillMaxWidth().padding(top=50.dp), contentAlignment = Alignment.Center
             ) {
@@ -85,6 +84,7 @@ fun HomeScreen(
             }
             Spacer(modifier = Modifier.weight(1f))
 
+            //play button at the bottom
             StartGameFooter(
                 onGameClick = onGameClick,
                 modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp, end = 8.dp)
@@ -135,6 +135,7 @@ fun PageHeader(
                 )
             }
         }
+        //title
         Text(
             text = "Culture \n Quest",
             style = MaterialTheme.typography.displayMedium,
@@ -157,6 +158,7 @@ fun ScoreCard(
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            //game info
             Text(
                 text = "Last Game Score: $lastGameScore",
                 style = MaterialTheme.typography.displaySmall,
@@ -185,7 +187,7 @@ fun StartGameFooter(
         verticalAlignment = Alignment.CenterVertically
     ) {
         PrimaryButton(
-            text = ("Start Game"),
+            text = ("Play now"),
             onClick = onGameClick,
         )
     }

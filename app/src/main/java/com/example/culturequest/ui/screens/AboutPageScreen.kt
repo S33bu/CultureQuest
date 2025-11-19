@@ -53,78 +53,133 @@ fun AboutPageScreen(
                     .alpha(0.15f)
             )
 
-            // Main content column
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                // Custom header with a semicircle shape
-                TopSemicircleHeader(
-                    height = 300.dp,
-                    background = MaterialTheme.colorScheme.primary, // Changed from hardcoded color
-                    iconSize = 50.dp,
-                    showBackButton = true,
-                    onBackClick = onBackClick
-                )
 
-                // Scrollable content section
-                Column(
+                //top circle
+                Box(
                     modifier = Modifier
-                        .offset(y = (-90).dp)
-                        .graphicsLayer { alpha = 0.99f }
-                        .verticalScroll(scrollState)
-                        .padding(32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(24.dp) // Adjusted spacing
+                        .size(600.dp)
+                        .offset(y = (-320).dp)
+                        .clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(MaterialTheme.colorScheme.primary)
+                )
+                Column(
+                    modifier = Modifier.fillMaxSize()
+
                 ) {
-                    // Welcome message
-                    Text(
-                        text = "Welcome! Ready to explore world cultures?",
-                        style = MaterialTheme.typography.titleLarge,
-                        textAlign = TextAlign.Center,
+                    // HEADER INSIDE TOP CIRCLE
+                    PageHeader(
+                        onBackClick = onBackClick,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 40.dp)
                     )
 
-                    // App description text
-                    Text(
-                        text = "Test your geography and cultural knowledge by guessing the country based on what you see — from bustling city streets to remote landscapes.\n" +
-                                "\n" +
-                                "Use cultural hints to learn fascinating facts about each location, and climb the global leaderboard as you prove your world knowledge!",
-                        style = MaterialTheme.typography.bodyLarge,
-                        textAlign = TextAlign.Center
-                    )
+                    Spacer(modifier = Modifier.height(100.dp))
 
-                    // Features section
+
+                    // Scrollable content section
                     Column(
+                        modifier = Modifier
+                            .offset(y = (-90).dp)
+                            .graphicsLayer { alpha = 0.99f }
+                            .verticalScroll(scrollState)
+                            .padding(32.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                        verticalArrangement = Arrangement.spacedBy(24.dp) // Adjusted spacing
                     ) {
+                        // Welcome message
                         Text(
-                            text = "Features:",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary
+                            text = "Ready to explore the world — one random corner at a time?",
+                            style = MaterialTheme.typography.titleLarge,
+                            textAlign = TextAlign.Center,
                         )
 
+                        // App description text
+                        Text(
+                            text = "CultureQuest drops you into real Google Maps panoramas from anywhere in the world — \n" +
+                                    "quiet villages, busy streets, beaches, or even parks where people are doing yoga.\n" +
+                                    "\n" +
+                                    "Some places are easy to recognise; others look so familiar that guessing feels impossible. \n" +
+                                    "That’s why you get tiered hints: area and landlocked status, then region, borders, currency, \n" +
+                                    "and finally subregion and capital." +  "\n" +
+                                    "You have 1 minute to guess as many countries as you can. Your best score appears on the \n" +
+                                    "global leaderboard, so you can see how you rank against players worldwide.",
+
+                            style = MaterialTheme.typography.bodyLarge,
+                            textAlign = TextAlign.Center
+                        )
+
+                        // Features section
                         Column(
-                            horizontalAlignment = Alignment.Start,
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            modifier = Modifier.padding(horizontal = 16.dp)
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            FeatureItem("Cultural quizzes")
-                            FeatureItem("Interactive learning")
-                            FeatureItem("Global traditions")
-                            FeatureItem("Fun facts")
+                            Text(
+                                text = "Features:",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+
+                            Column(
+                                horizontalAlignment = Alignment.Start,
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            ) {
+                                FeatureItem("Random Google Maps panoramas")
+                                FeatureItem("Tiered hints: from area to capital")
+                                FeatureItem("1-minute time-based rounds")
+                                FeatureItem("Global leaderboard and best scores")
+                            }
                         }
+
+                        // Component to select the app theme (Light/Dark)
+                        ThemeSelector(
+                            selectedTheme = theme,
+                            onThemeSelected = { settingsViewModel.saveTheme(it) }
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
 
-                    // Component to select the app theme (Light/Dark)
-                    ThemeSelector(
-                        selectedTheme = theme,
-                        onThemeSelected = { settingsViewModel.saveTheme(it) }
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
             }
         }
+    }
+}
+
+@Composable
+fun PageHeader(
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.height(250.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        //icons at the very top
+        Row(
+            modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter).padding(horizontal = 8.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            IconButton(
+                onClick = onBackClick,
+            )
+            {
+                Icon(
+                    painter = painterResource(R.drawable.backbutton),
+                    contentDescription = "About",
+                    modifier = Modifier.size(50.dp),
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+
+        }
+        Text(
+            text = "Culture \n Quest",
+            style = MaterialTheme.typography.displayMedium,
+            color = MaterialTheme.colorScheme.onPrimary,
+            textAlign = TextAlign.Center
+        )
+
     }
 }
 
