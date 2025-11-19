@@ -9,11 +9,15 @@ We attempted to add Allure reporting to improve test result visualization, but t
 For the unit test, we used the RobolectricTestRunner as it enabled us to essentially "mock" the Android framework on a local JVM, allowing tests to run quickly without needing a physical device or emulator. The test checks the functionality of the submitAnswer() method, which validates if the user's input matches the correct country name. The test is designed to confirm a "true" response which is returned for a correct answer and a "false" response for an incorrect one.
   
 ## Build process for APK
+
+To generate the release APK, we used Android Studio’s built-in signing and build tools. First, a new release keystore was created, which is required for signing the final APK. After configuring the keystore path, alias, and passwords, the project was built using Build → Generate Signed Bundle / APK → APK (Release).
+
+The APK was built in release mode, meaning it uses the production Google Maps API key restrictions and the release SHA-1 signature. Because of this, the Google API console had to be updated with the new SHA-1 fingerprint to ensure Street View loaded correctly in the signed build.
   
 ## Known bugs or limitations
   
 No logout option:
-At the moment users cannot log out once they are signed in. This is a major limitation because it prevents switching accounts and reduces overall usability. A proper logout button needs to be added to the Home screen or settings.
+At the moment users cannot log out once they are signed in. This is a major limitation because it prevents switching accounts and reduces overall usability. A proper logout button needs to be added to the Home screen or profile page.
 
 Sometimes the random coordinate generated doesn't fall into the range of available Street View imagery, resulting (in an error handled by Google) a black screen. Solution is to randomly guess a country and move on to the next question. 
 
