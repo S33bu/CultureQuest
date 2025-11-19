@@ -73,14 +73,14 @@ val Typography = Typography(
     ),
     bodyLarge = TextStyle( // Large body text style
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Bold,
-        fontSize = 16.sp, 
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
     ),
     bodyMedium = TextStyle( // Medium body text style
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.Normal,
         fontSize = 14.sp, 
         lineHeight = 20.sp,
         letterSpacing = 0.25.sp

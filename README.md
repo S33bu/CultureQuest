@@ -3,8 +3,9 @@ CultureQuest is a mobile game where players guess the country based on real-worl
 
 The game is time-sensitive — each round lasts 1 minute, challenging players to think fast. To assist, tier-based hints (Easy, Medium, Hard) can be unlocked at any point during the game. Player performance is tracked through a score system and leaderboard, making the experience both fun and competitive.
 
-Team Members:
+Team Members:Iteration 3
 <br/>
+
 - **Armin Liiv** — Developer, Editor  
   *Main task:* Implementing leaderboard for personal scores
   [GitHub Profile](https://github.com/Rover-M) 
@@ -20,6 +21,33 @@ Team Members:
 - **Riika Seeba** — Developer, Editor  
   *Main task:* Updating the “About Us” page  
 
+- **Sebastian Mais** — Developer, Presenter  
+  *Main task:* Implementing the Google Maps SDK integration  
+  [GitHub Profile](https://github.com/S33bu)
+
+  Team Members:Iteration 4
+<br/>
+- **Armin Liiv** — Developer, Editor  
+  *Main task:* Implementing leaderboard for personal scores
+  [GitHub Profile](https://github.com/Rover-M) 
+
+- **Caroline Markov** — Designer, Tester, Frontend Developer
+  *Main tasks:*
+  - Designed and implemented Sign In and Sign Up screens.
+  - Refined UI across multiple screens (spacing, alignment, visual fixes)
+  - Created a custom app icon and splash screen for both light and dark mode
+  - Built the required UI test (Compose UI navigation test).
+  [GitHub Profile](https://github.com/CarolineMarkov)  
+
+- **Kaspar Aednik** — 
+  [Github Profile](https://github.com/Lontloom)
+
+- **Riika Seeba** — Frontend Developer, Themes
+  *Main task:*
+  - Applied and refined Material 3 theming across the app
+  - Set up a consistent ColorScheme and Typography system
+  - Improved overall UI polish to ensure visual consistency in every screen
+ 
 - **Sebastian Mais** — Developer, Presenter  
   *Main task:* Implementing the Google Maps SDK integration  
   [GitHub Profile](https://github.com/S33bu)
@@ -50,11 +78,10 @@ For a more detailed overview and upcoming features, visit our [**Wiki Page**](ht
   <li>Jira (project management)</li>
   <li>Google Maps SDK for Android & Maps Compose</li>
   <li>Google Geocoding API</li>
-  <li>Firebase Authentication <i>(planned)</i></li>
+  <li>Firebase Authentication </li>
   <li>AndroidX Lifecycle & ViewModel</li>
   <li>Room Database (with KSP)</li>
   <li>kotlinx-serialization (JSON)</li>
   <li>mledoze/countries dataset (embedded in assets for local hints)</li>
-  <li>Firebase Authentication <i>(planned)</i></li>
  
 </ul>

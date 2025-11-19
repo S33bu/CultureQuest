@@ -108,10 +108,6 @@ fun AppNavigation() {
 
         "home" -> HomeScreen(
             onAboutClick = { currentScreen = "about" },
-            onBackToLoginClick = {
-                authViewModel.signOut()
-                currentScreen = "login"
-            },
             onProfileClick = { currentScreen = "profile" },
             gameViewModel = gameViewModel,
             onGameClick = {

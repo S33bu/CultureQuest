@@ -1,202 +1,198 @@
 package com.example.culturequest.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.culturequest.R
 import com.example.culturequest.ui.viewmodel.GameViewModel
-import com.example.culturequest.ui.viewmodel.HomeViewModel
+import androidx.compose.ui.res.painterResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onAboutClick: () -> Unit, //what happens when "About" is clicked
-    onGameClick: () -> Unit,    //what happens when "Play now" is clicked
-    onProfileClick: () -> Unit,
+    onAboutClick: () -> Unit, //navigate to about
+    onGameClick: () -> Unit,    //navigate to game
+    onProfileClick: () -> Unit, //navigate to profile
     lastGameScore: Int = 0,
-    onBackToLoginClick: () -> Unit,   // ← NEW
     gameViewModel: GameViewModel = viewModel(), // gets the GameViewModel
 ) {
     val user by gameViewModel.user.collectAsState()
 
-    //Scaffold gives layout structure (top, bottom, main content)
-    Scaffold { padding ->
+
+    Box(
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+    )
+    {
+        //top circle
+        Box(
+            modifier = Modifier
+                .size(600.dp)
+                .offset(y = (-320).dp) // Move bubble down
+                .clip(androidx.compose.foundation.shape.CircleShape)
+                .background(MaterialTheme.colorScheme.primary)
+        )
+
+        //bottom circle
+        Box(
+            modifier = Modifier
+                .size(360.dp)
+                .align(Alignment.BottomEnd)
+                .offset(x = 40.dp, y = 120.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    shape = RoundedCornerShape(180.dp)
+                )
+        )
+
+        //main content on top of circles
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(horizontal = 16.dp, vertical = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TopSemicircleHeader(
-                height = 300.dp,
-                background = MaterialTheme.colorScheme.primary,
-                iconSize = 50.dp,
+            // HEADER INSIDE TOP CIRCLE
+            PageHeader(
                 onAboutClick = onAboutClick,
-                onProfileClick = onProfileClick
-            )
-
-            // Display the score below the top semicircle
-            Box(
+                onProfileClick = onProfileClick,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp),
+                    .padding(top = 40.dp)
+                    .offset(y = (-20).dp) // Move title up
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            //score display card
+            Box(
+                modifier = Modifier.fillMaxWidth().padding(top=50.dp, end = 80.dp), // Move more to the left
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = "Last Game Score: $lastGameScore",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Best Score: ${user?.bestScore ?: 0}",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        textAlign = TextAlign.Center
-                    )
-                }
-
+                ScoreCard(
+                    lastGameScore = lastGameScore,
+                    bestScore = user?.bestScore ?: 0
+                )
             }
+            Spacer(modifier = Modifier.weight(1f))
 
-            Spacer(Modifier.weight(1f))
-
-            BottomSemiCircle(
-                height = 180.dp,
-                background = MaterialTheme.colorScheme.secondaryContainer,
-                onGameClick = onGameClick
+            //play button at the bottom
+            StartGameFooter(
+                onGameClick = onGameClick,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp, end = 8.dp)
             )
-            // Temporary Back to Login button
-            TextButton(
-                onClick = { onBackToLoginClick() },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(top = 16.dp)
-            ) {
-                Text("← Back to Login")
-            }
 
-            Spacer(Modifier.height(16.dp))
         }
+
     }
 }
 
 @Composable
-private fun TopSemicircleHeader(
-    height: Dp, background: Color, iconSize: Dp, onAboutClick: () -> Unit = {}, onProfileClick: () -> Unit = {}
+fun PageHeader(
+    onAboutClick: () -> Unit,
+    onProfileClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    //Box draws the semicircle background and places icons/text inside it
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(height)
-            //draw top semicircle
-            .drawBehind {
-                val w = size.width
-                val h = size.height
-                val d = minOf(w, 2f * h)
-                val left = (w - d) / 2f
-                val top = -d / 2f
-
-                drawArc(
-                    color = background,
-                    startAngle = 0f,
-                    sweepAngle = 180f,
-                    useCenter = true,
-                    topLeft = Offset(left, top),
-                    size = Size(d, d)
-                )
-            }, contentAlignment = Alignment.TopCenter
+        modifier = modifier.height(250.dp),
+        contentAlignment = Alignment.Center
     ) {
-        //About button
-        IconButton(
-            onClick = onAboutClick, modifier = Modifier.align(Alignment.TopStart)
+        //icons at the very top
+        Row(
+            modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter).padding(horizontal = 8.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Icon(
-                painter = painterResource(R.drawable.about_us),
-                contentDescription = "About",
-                modifier = Modifier.size(iconSize),
-                tint = MaterialTheme.colorScheme.onPrimary
+            IconButton(
+                onClick = onAboutClick,
             )
-        }
-        //Profile button
-        IconButton(
-            onClick = onProfileClick,
-            modifier = Modifier.align(Alignment.TopEnd)
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.profile_icon),
-                contentDescription = "Profile",
-                modifier = Modifier.size(iconSize),
-                tint = MaterialTheme.colorScheme.onPrimary
+            {
+                Icon(
+                    painter = painterResource(R.drawable.about_us),
+                    contentDescription = "About",
+                    modifier = Modifier.size(60.dp),
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+            IconButton(
+                onClick = onProfileClick,
             )
+            {
+                Icon(
+                    painter = painterResource(R.drawable.profile_icon),
+                    contentDescription = "Profile",
+                    modifier = Modifier.size(60.dp),
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         }
-        //Title in the middle
+        //title
         Text(
-            text = "Culture\nQuest",
-            style = MaterialTheme.typography.displaySmall,
+            text = "CultureQuest",
+            style = MaterialTheme.typography.displayLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onPrimary,
             textAlign = TextAlign.Center,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(top = 8.dp)
-                .padding(bottom = 80.dp)
+            modifier = Modifier.align(Alignment.Center) // Center in the Box
         )
+
     }
 }
 
 @Composable
-private fun BottomSemiCircle(
-    height: Dp, background: Color, onGameClick: () -> Unit
+fun ScoreCard(
+    lastGameScore: Int,
+    bestScore: Int,
 ) {
-    //Box draws the bottom semicircle and places the button inside it
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(height)
-            .clipToBounds()
-            .drawBehind {
-                val w = size.width
-                val h = size.height
-                val d = minOf(w, 2f * h)
-                val left = (w - d) / 2f
-                val top = h - d / 2f
-
-                drawArc(
-                    color = background,
-                    startAngle = 180f,
-                    sweepAngle = 180f,
-                    useCenter = true,
-                    topLeft = Offset(left, top),
-                    size = Size(d, d)
-                )
-            }, contentAlignment = Alignment.Center
+    Surface(
+        modifier = Modifier.size(240.dp), // Bigger circular shape
+        shape = CircleShape, // Circular shape
+        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.95f)
     ) {
-        Button(
-            onClick = onGameClick,
-            modifier = Modifier
-                .padding(bottom = 16.dp)
-                .width(200.dp) // Set a fixed width for the button
-                .height(60.dp), // Set a fixed height for the button
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Text("Play now", style = MaterialTheme.typography.titleLarge) // Increased text size
+            //game info
+            Text(
+                text = "Last Game Score: $lastGameScore",
+                style = MaterialTheme.typography.headlineSmall, // Adjusted size
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center // Center text
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Best Score: $bestScore",
+                style = MaterialTheme.typography.headlineSmall, // Adjusted size
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center // Center text
+            )
         }
 
+    }
+}
+
+@Composable
+fun StartGameFooter(
+    onGameClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.padding(end = 8.dp),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        PrimaryButton(
+            text = ("Play now"),
+            onClick = onGameClick,
+        )
     }
 }
