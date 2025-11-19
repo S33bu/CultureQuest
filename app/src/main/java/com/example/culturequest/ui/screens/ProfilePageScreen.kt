@@ -26,18 +26,27 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.culturequest.R
 import com.example.culturequest.ui.viewmodel.GameViewModel
+import com.example.culturequest.ui.viewmodel.LeaderboardEntry
+import com.example.culturequest.ui.viewmodel.LeaderboardViewModel
 import com.google.firebase.auth.FirebaseAuth
 import java.util.Locale
+import androidx.compose.runtime.LaunchedEffect
 
 // The main composable for the Profile Page.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfilePageScreen(
     onBackClick: () -> Unit,
-    gameViewModel: GameViewModel = viewModel()
+    gameViewModel: GameViewModel,
+    leaderboardViewModel: LeaderboardViewModel = viewModel()
 ) {
     val scrollState = rememberScrollState()
     val user by gameViewModel.user.collectAsState()
+    val leaders by leaderboardViewModel.leaders.collectAsState()
+    // Ensure leaderboard is refreshed whenever the Profile screen is opened
+    LaunchedEffect(Unit) {
+        leaderboardViewModel.refreshLeaderboard()
+    }
 
     val firebaseUser = FirebaseAuth.getInstance().currentUser
     // Retrieve user's email from Firebase Authentication.
@@ -105,6 +114,11 @@ fun ProfilePageScreen(
                         style = MaterialTheme.typography.bodyLarge,
                         textAlign = TextAlign.Center
                     )
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    // Leaderboard section showing top players from Firestore.
+                    LeaderboardSection(leaders = leaders)
                 }
             }
         }
@@ -201,5 +215,54 @@ private fun nameFromEmail(email: String): String {
     // Capitalize the first letter of the extracted name.
     return raw.replaceFirstChar { ch ->
         if (ch.isLowerCase()) ch.titlecase(Locale.getDefault()) else ch.toString()
+    }
+}
+
+// Leaderboard UI section that shows the top players list.
+@Composable
+private fun LeaderboardSection(leaders: List<LeaderboardEntry>) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "Top Players",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.primary
+        )
+
+        if (leaders.isEmpty()) {
+            Text(
+                text = "No leaderboard data yet.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        } else {
+            leaders.forEachIndexed { index, entry ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "${index + 1}. ${entry.displayName}",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Text(
+                        text = entry.bestScore.toString(),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Divider(
+                    thickness = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                )
+            }
+        }
     }
 }

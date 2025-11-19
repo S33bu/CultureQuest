@@ -9,6 +9,7 @@ import com.example.culturequest.data.AppDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import com.google.firebase.auth.FirebaseAuth
 
 class HomeViewModel : ViewModel() {
 
@@ -28,9 +29,13 @@ class HomeViewModel : ViewModel() {
 
     init {
         viewModelScope.launch {
+            // Determine current Firebase user id (or fallback guest id)
+            val firebaseUser = FirebaseAuth.getInstance().currentUser
+            val uid = firebaseUser?.uid ?: "local_guest"
+
             // Collect the user profile Flow from the database
             // Updates _score whenever user's score changes
-            db.userDao().getUserFlow().collect { user ->
+            db.userDao().getUserFlow(uid).collect { user ->
                 _score.value = user?.score ?: 0
                 _bestScore.value = user?.bestScore ?: 0
             }
