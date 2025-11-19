@@ -1,6 +1,20 @@
   - Testing strategy
+For UI testing we decided to use Compose UI tests instead of Espresso. Espresso works best with XML-based layouts because it interacts with the traditional Android View hierarchy. Our app, however, is built almost completely with Jetpack Compose (LoginPageScreen, SignupPageScreen, HomePageScreen, etc.). Compose does not produce View objects — instead it creates a semantics tree, which Espresso cannot properly work with.
+
+So using Compose UI testing was the more natural option.
+With Compose UI tests we were able to check navigation, content display, button clicks, and form input using the test rule and Compose semantics. We also split the navigation tests into private helper functions for each screen to keep the code easier to read and maintain.
+
+We attempted to add Allure reporting to improve test result visualization, but this integration kept failing due to compatibility issues with Compose UI tests. Because of this we decided to keep the Compose UI test setup simple and reliable, without advanced reporting tools.
+  
    - Build process for APK
    - Known bugs or limitations
+No logout option:
+At the moment users cannot log out once they are signed in. This is a major limitation because it prevents switching accounts and reduces overall usability. A proper logout button needs to be added to the Home screen or settings.
+
+No “Forgot Password” feature:
+If a user forgets their password, there is currently no way to reset it. This is a serious missing feature for any login system, and it needs to be implemented to allow users to recover their accounts.
+
+These do not break the app, they impact user experience
 
    - Last times mistakes fixed:
 We use the **Google Geocoding API** and **Google Street View Metadata API**.  
