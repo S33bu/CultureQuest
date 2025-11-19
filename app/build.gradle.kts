@@ -22,7 +22,8 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "io.qameta.allure.android.runners.AllureAndroidJUnitRunner"
+
     }
 
     buildTypes {
@@ -96,6 +97,12 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     // Material Icons Extended
     implementation(libs.androidx.material.icons.extended)
+
+    //allure
+    androidTestImplementation("io.qameta.allure:allure-kotlin-model:2.4.0")
+    androidTestImplementation("io.qameta.allure:allure-kotlin-commons:2.4.0")
+    androidTestImplementation("io.qameta.allure:allure-kotlin-junit4:2.4.0")
+    androidTestImplementation("io.qameta.allure:allure-kotlin-android:2.4.0")
 
 
 

@@ -106,6 +106,9 @@ fun LoginPageScreen(
                     password.value = it
                     onClearError()
                 },
+                onSubmit = {
+                    onSignInClick(email.value, password.value)
+                }
             )
             Spacer(modifier = Modifier.height(20.dp))
             //dont have account sign up
@@ -153,7 +156,8 @@ fun LoginHeader(modifier: Modifier = Modifier) {
 fun LoginFields(
     email: String, password: String,
     onEmailChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit
+    onPasswordChange: (String) -> Unit,
+    onSubmit: () -> Unit
     //onForgotPasswordClick: () -> Unit,
 
 ) {
@@ -191,11 +195,11 @@ fun LoginFields(
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Go
+                imeAction = ImeAction.Done
             ),
             keyboardActions = KeyboardActions (
-                onNext = {
-                    focusManager.moveFocus(FocusDirection.Down)
+                onDone = {
+                    onSubmit()
                 }
             ),
             textStyle = MaterialTheme.typography.titleMedium,
@@ -302,6 +306,7 @@ fun TextField(
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon,
         textStyle = textStyle,
+        singleLine = true,
         colors = TextFieldDefaults.colors(
             focusedTextColor = MaterialTheme.colorScheme.onSurface,
             unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
