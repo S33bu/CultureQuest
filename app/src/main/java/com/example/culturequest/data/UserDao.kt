@@ -11,13 +11,13 @@ interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUser(user: UserProfile)
 
-    // Retrieve the first user in the database (if any). Suspends until done.
-    @Query("SELECT * FROM user_profile LIMIT 1")
-    suspend fun getUser(): UserProfile?
+    // Retrieve the user profile for the given Firebase UID (if any). Suspends until done.
+    @Query("SELECT * FROM user_profile WHERE uid = :uid LIMIT 1")
+    suspend fun getUser(uid: String): UserProfile?
 
-    // Returns a Flow for observing changes to the user profile in real-time.
-    @Query("SELECT * FROM user_profile LIMIT 1")
-    fun getUserFlow(): Flow<UserProfile?>
+    // Returns a Flow for observing changes to the user profile for a given UID in real-time.
+    @Query("SELECT * FROM user_profile WHERE uid = :uid LIMIT 1")
+    fun getUserFlow(uid: String): Flow<UserProfile?>
 
     // Updates an existing user in the database
     @Update

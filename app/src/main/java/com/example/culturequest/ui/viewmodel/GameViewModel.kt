@@ -14,18 +14,25 @@ import com.example.culturequest.data.HintTier
 import com.example.culturequest.data.QuizQuestion
 import com.example.culturequest.data.RandomLocationProvider
 import com.example.culturequest.data.UserProfile
+import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 // ViewModel to manage the game state
 class GameViewModel : ViewModel() {
 
     private val _currentLocation = MutableStateFlow<LatLng?>(null)
     val currentLocation: StateFlow<LatLng?> = _currentLocation.asStateFlow()
+
+    // Firestore instance for syncing user stats to the cloud
+    private val firestore = FirebaseFirestore.getInstance()
 
     // Initialize the Room database
     private val db = Room.databaseBuilder(
@@ -58,7 +65,6 @@ class GameViewModel : ViewModel() {
     private val _hints = MutableStateFlow<List<Hint>>(emptyList())
     val hints: StateFlow<List<Hint>> = _hints
 
-
     // 0 = none, 1 = hard, 2 = medium, 3 = easy (all)
     private val _tierShown = MutableStateFlow(0)
     val tierShown: StateFlow<Int> = _tierShown
@@ -66,36 +72,32 @@ class GameViewModel : ViewModel() {
     private val _lastGameScore = MutableStateFlow(0)
     val lastGameScore: StateFlow<Int> = _lastGameScore
 
-
-
-
     // Initialization block
-    init {    viewModelScope.launch(Dispatchers.IO) {
-        CountryRepository.loadCountries(MyApp.context) {
-            // this runs only AFTER countries are loaded
-            _countriesLoaded.value = true
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            CountryRepository.loadCountries(MyApp.context) {
+                // this runs only AFTER countries are loaded
+                _countriesLoaded.value = true
 
-            // now that countries are loaded, we can safely prepare questions and hints
-            viewModelScope.launch(Dispatchers.IO) {
-                preloadQuestionsIfNeeded()
-                val allQuestions = db.questionDao().getAllQuestions()
-                _questions.value = allQuestions.shuffled()
+                // now that countries are loaded, we can safely prepare questions and hints
+                viewModelScope.launch(Dispatchers.IO) {
+                    preloadQuestionsIfNeeded()
+                    val allQuestions = db.questionDao().getAllQuestions()
+                    _questions.value = allQuestions.shuffled()
 
-                prepareHintsForCurrent()
-                //load or create user profile
-                val userDao = db.userDao()
-                var user = userDao.getUser()
-                if (user == null) { //create a default user if none exists
-                    user = UserProfile(username = "Player",
-                        score = 0,
-                        bestScore = 0,
-                        gamesPlayed = 0)
-                    userDao.insertUser(user)
+                    prepareHintsForCurrent()
+
+                    // ✅ Laeme kasutaja kõigepealt Firestore'ist (kui olemas), siis Roomist
+                    val loadedUser = loadUserForCurrentAccountFromServerOrLocal()
+                    _user.value = loadedUser
+
+                    // kui Firebase kasutaja on olemas, peegeldame lokaalse seisu Firestore'i (merge)
+                    if (FirebaseAuth.getInstance().currentUser != null) {
+                        syncUserToFirestore(loadedUser)
+                    }
                 }
-                _user.value = user
             }
         }
-    }
     }
 
     // Preload default questions only if DB is empty
@@ -182,6 +184,9 @@ class GameViewModel : ViewModel() {
                 val updatedUser = user.copy(score = newScore, bestScore = newBest)
                 db.userDao().insertUser(updatedUser)
                 _user.value = updatedUser
+
+                // sync updated stats to Firestore
+                syncUserToFirestore(updatedUser)
             }
         }
 
@@ -243,6 +248,9 @@ class GameViewModel : ViewModel() {
                 viewModelScope.launch {
                     db.userDao().insertUser(updatedUser)
                     _user.value = updatedUser
+
+                    // sync updated stats to Firestore
+                    syncUserToFirestore(updatedUser)
                 }
             }
             _isGameFinished.value = true // signal that game has ended
@@ -261,6 +269,9 @@ class GameViewModel : ViewModel() {
                     val resetUser = user.copy(score = 0)
                     db.userDao().insertUser(resetUser)
                     _user.value = resetUser
+
+                    // sync reset stats to Firestore
+                    syncUserToFirestore(resetUser)
                 }
             }
             _questions.value = db.questionDao().getAllQuestions().shuffled()
@@ -320,12 +331,11 @@ class GameViewModel : ViewModel() {
         else            -> "one of the smallest"
     }
 
-    private fun capitalPrefix(capital: String, letters: Int = 2): String = capital.take(letters).uppercase()
+    private fun capitalPrefix(capital: String, letters: Int): String =
+        capital.take(letters).uppercase()
 
 
     //TIERING HINTS: HARD, MEDIUM, EASY
-
-
     private fun buildHints(country: Country): List<Hint> {
         android.util.Log.d("HintBuild", "--- Building hints for: ${country.name.common} ---")
         //HARD level - least revealing
@@ -342,9 +352,9 @@ class GameViewModel : ViewModel() {
             country.region?.let { add(Hint("Region: $it", HintTier.MEDIUM))}
             //commented languages out, because a lot of countries have just the common language
 
-           // country.languages?.let { languages ->
-             //   val languageList = languages.values.joinToString(", ")
-               // add(Hint("Languages: $languageList", HintTier.MEDIUM))
+            // country.languages?.let { languages ->
+            //   val languageList = languages.values.joinToString(", ")
+            // add(Hint("Languages: $languageList", HintTier.MEDIUM))
             //}
             country.borders?.let { borders ->
                 val borderList = borders.joinToString(", ")
@@ -362,15 +372,149 @@ class GameViewModel : ViewModel() {
         val easy = buildList {
             country.subregion?.let { add(Hint("Subregion: $it", HintTier.EASY)) }
             country.capital?.firstOrNull().let { cap ->
-                add(Hint("Capital starts with '${capitalPrefix(cap ?: "")}'", HintTier.EASY))}
+                add(Hint("Capital starts with '${capitalPrefix(cap ?: "", 2)}'", HintTier.EASY))}
         }
         android.util.Log.d("HintBuild", "Generated ${easy.size} EASY hints: ${easy.map { it.text }}")
 
-         val allHints = hard + medium + easy
+        val allHints = hard + medium + easy
         android.util.Log.i("HintBuild", "Total hints generated: ${allHints.size}. Tiers: ${allHints.map { it.tier }}")
 
         // Order: HARD → MEDIUM → EASY
         return allHints
+    }
+
+    /**
+     * Syncs the local UserProfile to Firestore under:
+     *  collection: "users"
+     *  document:  current Firebase uid
+     *
+     * Stored fields:
+     *  - uid
+     *  - email
+     *  - displayName
+     *  - bestScore
+     *  - gamesPlayed
+     *  - score (current run)
+     */
+    private fun syncUserToFirestore(user: UserProfile) {
+        val firebaseUser = FirebaseAuth.getInstance().currentUser ?: return
+        val uid = firebaseUser.uid
+        val email = firebaseUser.email
+
+        // Derive a display name from email if possible, fall back to local username.
+        val displayName = email
+            ?.substringBefore('.')
+            ?.substringBefore('@')
+            ?.replaceFirstChar { ch ->
+                if (ch.isLowerCase()) ch.titlecase() else ch.toString()
+            }
+            ?: user.username
+
+        val data = mapOf(
+            "uid" to uid,
+            "email" to email,
+            "displayName" to displayName,
+            "bestScore" to user.bestScore,
+            "gamesPlayed" to user.gamesPlayed,
+            "score" to user.score
+        )
+
+        firestore.collection("users")
+            .document(uid)
+            .set(data, SetOptions.merge())
+            .addOnFailureListener { e ->
+                Log.e("GameViewModel", "Failed to sync user to Firestore", e)
+            }
+    }
+
+    /**
+     * Laeb aktiivse Firebase kasutaja profiili:
+     *  - kui Firebase user on olemas, proovib kõigepealt Firestore'ist lugeda
+     *  - uuendab / loob vastava rea lokaalses Room DB-s
+     *  - kui Firestore'is veel midagi pole, kasutab ainult Roomi / loob default profiili
+     */
+    private suspend fun loadUserForCurrentAccountFromServerOrLocal(): UserProfile {
+        val userDao = db.userDao()
+        val firebaseUser = FirebaseAuth.getInstance().currentUser
+        val uid = firebaseUser?.uid ?: "local_guest"
+
+        // Kui Firebase kasutaja olemas, proovime Firestore'ist lugeda
+        if (firebaseUser != null) {
+            try {
+                val snapshot = firestore
+                    .collection("users")
+                    .document(uid)
+                    .get()
+                    .await()
+
+                if (snapshot.exists()) {
+                    val bestScore = snapshot.getLong("bestScore")?.toInt() ?: 0
+                    val gamesPlayed = snapshot.getLong("gamesPlayed")?.toInt() ?: 0
+                    val score = snapshot.getLong("score")?.toInt() ?: 0
+                    val remoteName = snapshot.getString("displayName")
+
+                    val localExisting = userDao.getUser(uid)
+                    val username = remoteName
+                        ?: localExisting?.username
+                        ?: firebaseUser.email
+                            ?.substringBefore('.')
+                            ?.substringBefore('@')
+                            ?.replaceFirstChar { ch ->
+                                if (ch.isLowerCase()) ch.titlecase() else ch.toString()
+                            }
+                        ?: "Player"
+
+                    val finalScore = if (localExisting != null) localExisting.score else score
+
+                    val user = UserProfile(
+                        id = localExisting?.id ?: 0,
+                        uid = uid,
+                        username = username,
+                        score = finalScore,
+                        bestScore = bestScore,
+                        gamesPlayed = gamesPlayed
+                    )
+
+                    userDao.insertUser(user)
+                    return user
+                }
+            } catch (e: Exception) {
+                Log.e("GameViewModel", "Failed to load user from Firestore, falling back to local", e)
+            }
+        }
+
+        // Kui Firestore'ist ei saanud või pole login'itud, kasutame ainult Roomi
+        var user = userDao.getUser(uid)
+        if (user == null) {
+            val defaultName = firebaseUser?.email
+                ?.substringBefore('.')
+                ?.substringBefore('@')
+                ?.replaceFirstChar { ch ->
+                    if (ch.isLowerCase()) ch.titlecase() else ch.toString()
+                }
+                ?: "Player"
+
+            user = UserProfile(
+                uid = uid,
+                username = defaultName,
+                score = 0,
+                bestScore = 0,
+                gamesPlayed = 0
+            )
+            userDao.insertUser(user)
+        }
+        return user
+    }
+
+    /**
+     * Reload the local user profile based on the *current* Firebase user.
+     * Kasutatakse pärast login/logout'i.
+     */
+    fun reloadUserForCurrentAccount() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val user = loadUserForCurrentAccountFromServerOrLocal()
+            _user.value = user
+        }
     }
 
     private fun fetchRandomLocationForCurrentQuestion() {
@@ -403,5 +547,4 @@ class GameViewModel : ViewModel() {
             }
         }
     }
-
 }

@@ -28,7 +28,7 @@ import com.example.culturequest.ui.viewmodel.GameViewModel
 import com.example.culturequest.ui.viewmodel.SettingsViewModel
 import com.example.culturequest.ui.viewmodel.AuthViewModel
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import com.example.culturequest.ui.viewmodel.LeaderboardViewModel
 
 
 class MainActivity : ComponentActivity() {
@@ -58,16 +58,25 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation() {
     var currentScreen by remember { mutableStateOf("login") }
+
+    // Shared ViewModels
     val gameViewModel: GameViewModel = viewModel()
+    val authViewModel: AuthViewModel = viewModel()
+    val leaderboardViewModel: LeaderboardViewModel = viewModel()
+
     var lastGameScore by remember { mutableIntStateOf(0) }
 
-    // 🔹 AuthViewModel + state
-    val authViewModel: AuthViewModel = viewModel()
+    // 🔹 Auth state
     val authState by authViewModel.authState
 
-    // 🔹 Kui kasutaja logib sisse / välja, liigutame teda õigesse ekraani
+    // 🔹 Kui login-state muutub, liigutame ekraani ja laeme õige kasutaja andmed
     LaunchedEffect(authState.isLoggedIn) {
-        currentScreen = if (authState.isLoggedIn) "home" else "login"
+        if (authState.isLoggedIn) {
+            gameViewModel.reloadUserForCurrentAccount()
+            currentScreen = "home"
+        } else {
+            currentScreen = "login"
+        }
     }
 
     when (currentScreen) {
@@ -107,9 +116,11 @@ fun AppNavigation() {
             },
             lastGameScore = lastGameScore
         )
+
         "about" -> AboutPageScreen(
             onBackClick = { currentScreen = "home" }
         )
+
         "game" -> GamePageScreen(
             onBackClick = {
                 lastGameScore = gameViewModel.user.value?.score ?: 0
@@ -123,8 +134,12 @@ fun AppNavigation() {
             },
             viewModel = gameViewModel
         )
+
         "profile" -> ProfilePageScreen(
-            onBackClick = { currentScreen = "home" }
+            onBackClick = { currentScreen = "home" },
+            gameViewModel = gameViewModel,
+            leaderboardViewModel = leaderboardViewModel
         )
     }
 }
+

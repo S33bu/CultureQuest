@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "user_profile")
 data class UserProfile(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val uid: String,               // Firebase user UID (or local guest id)
     val username: String,          // Name of the user
     val score: Int,                // User current score
     val bestScore: Int = 0,        // all-time highscore
