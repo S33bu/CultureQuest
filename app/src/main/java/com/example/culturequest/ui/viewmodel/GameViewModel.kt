@@ -100,6 +100,9 @@ class GameViewModel : ViewModel() {
         }
     }
 
+    fun closeDataBase(){ //for testing
+        if (db.isOpen) db.close()
+    }
     // Preload default questions only if DB is empty
     private suspend fun preloadQuestionsIfNeeded() {
         val questionDao = db.questionDao()
@@ -189,6 +192,17 @@ class GameViewModel : ViewModel() {
                 syncUserToFirestore(updatedUser)
             }
         }
+
+        return isCorrect
+    }
+
+    fun submitAnswerForTest(answer: String): Boolean { //EXACT SAME AS THE CORE ONE JUST WITHOUT THE POINT ADDING
+        val current = getCurrentQuestion() ?: return false
+        //REMOVED USER AS WE DONT NEED AN USER RIGHT NOW FOR TESTING
+
+        // Check if the answer is correct (case-insensitive)
+        val isCorrect = answer.equals(current.correctAnswer, ignoreCase = true)
+
 
         return isCorrect
     }

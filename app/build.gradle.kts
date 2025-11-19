@@ -47,6 +47,10 @@ android {
         compose = true
         buildConfig = true
     }
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+        testOptions.unitTests.isIncludeAndroidResources = true
+    }
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
@@ -80,6 +84,7 @@ dependencies {
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     // Room
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
@@ -105,11 +110,11 @@ dependencies {
     androidTestImplementation("io.qameta.allure:allure-kotlin-junit4:2.4.0")
     androidTestImplementation("io.qameta.allure:allure-kotlin-android:2.4.0")
 
-
-
-
-
-
-
+    // Robolectric
+    testImplementation("org.robolectric:robolectric:4.12.2")
+    testImplementation("androidx.test:core:1.6.1")
+    //Mockito
+    testImplementation("org.mockito:mockito-core:5.12.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
 
 }
