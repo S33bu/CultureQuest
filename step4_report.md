@@ -5,6 +5,8 @@ So using Compose UI testing was the more natural option.
 With Compose UI tests we were able to check navigation, content display, button clicks, and form input using the test rule and Compose semantics. We also split the navigation tests into private helper functions for each screen to keep the code easier to read and maintain.
 
 We attempted to add Allure reporting to improve test result visualization, but this integration kept failing due to compatibility issues with Compose UI tests. Because of this we decided to keep the Compose UI test setup simple and reliable, without advanced reporting tools.
+
+For the unit test, we used the RobolectricTestRunner as it enabled us to essentially "mock" the Android framework on a local JVM, allowing tests to run quickly without needing a physical device or emulator. The test checks the functionality of the submitAnswer() method, which validates if the user's input matches the correct country name. The test is designed to confirm a "true" response which is returned for a correct answer and a "false" response for an incorrect one.
   
 ## Build process for APK
   
