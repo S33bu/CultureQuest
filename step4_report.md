@@ -34,7 +34,7 @@ The Geocoding API gives us country bounds and reverse-geocoding for coordinates,
 
 - Street View metadata (imagery check):  
   `https://maps.googleapis.com/maps/api/streetview/metadata?location={LAT},{LNG}&radius=5000&key=API_KEY`
-  ## API Service & Data Model
+## API Service & Data Model
 
 The `RandomLocationProvider` class encapsulates all API access using `URL(...).readText()` (HttpURLConnection under the hood) and Kotlin coroutines.  
 JSON is parsed with `kotlinx.serialization` into data classes such as:
