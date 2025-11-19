@@ -5,6 +5,7 @@ The game is time-sensitive — each round lasts 1 minute, challenging players to
 
 Team Members:Iteration 3
 <br/>
+
 - **Armin Liiv** — Developer, Editor  
   *Main task:* Implementing leaderboard for personal scores
   [GitHub Profile](https://github.com/Rover-M) 
