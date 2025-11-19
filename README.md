@@ -77,11 +77,10 @@ For a more detailed overview and upcoming features, visit our [**Wiki Page**](ht
   <li>Jira (project management)</li>
   <li>Google Maps SDK for Android & Maps Compose</li>
   <li>Google Geocoding API</li>
-  <li>Firebase Authentication <i>(planned)</i></li>
+  <li>Firebase Authentication </li>
   <li>AndroidX Lifecycle & ViewModel</li>
   <li>Room Database (with KSP)</li>
   <li>kotlinx-serialization (JSON)</li>
   <li>mledoze/countries dataset (embedded in assets for local hints)</li>
-  <li>Firebase Authentication <i>(planned)</i></li>
  
 </ul>
