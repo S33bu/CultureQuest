@@ -27,6 +27,7 @@ Team Members:Iteration 3
 
   Team Members:Iteration 4
 <br/>
+
 - **Armin Liiv** — Developer, Editor  
   *Main task:* Implementing leaderboard for personal scores
   [GitHub Profile](https://github.com/Rover-M) 
@@ -48,8 +49,11 @@ Team Members:Iteration 3
   - Set up a consistent ColorScheme and Typography system
   - Improved overall UI polish to ensure visual consistency in every screen
  
-- **Sebastian Mais** — Developer, Presenter  
-  *Main task:* Implementing the Google Maps SDK integration  
+- **Sebastian Mais** — Developer, Tester 
+  *Main task:*
+  - Implementing the Google Geocoding API
+  - Extending the random location logic, making sure coordinates are randomly generated
+  - Built the required unit test (submit answer validation)
   [GitHub Profile](https://github.com/S33bu)
 
 <br/>
