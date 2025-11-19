@@ -2,20 +2,20 @@ package com.example.culturequest.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.culturequest.R
 import com.example.culturequest.ui.viewmodel.GameViewModel
 import androidx.compose.ui.res.painterResource
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +37,7 @@ fun HomeScreen(
         Box(
             modifier = Modifier
                 .size(600.dp)
-                .offset(y = (-320).dp)
+                .offset(y = (-320).dp) // Move bubble down
                 .clip(androidx.compose.foundation.shape.CircleShape)
                 .background(MaterialTheme.colorScheme.primary)
         )
@@ -68,15 +68,16 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 40.dp)
+                    .offset(y = (-20).dp) // Move title up
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             //score display card
             Box(
-                modifier = Modifier.fillMaxWidth().padding(top=50.dp), contentAlignment = Alignment.Center
+                modifier = Modifier.fillMaxWidth().padding(top=50.dp, end = 80.dp), // Move more to the left
+                contentAlignment = Alignment.Center
             ) {
-
                 ScoreCard(
                     lastGameScore = lastGameScore,
                     bestScore = user?.bestScore ?: 0
@@ -94,8 +95,6 @@ fun HomeScreen(
 
     }
 }
-
-
 
 @Composable
 fun PageHeader(
@@ -119,7 +118,7 @@ fun PageHeader(
                 Icon(
                     painter = painterResource(R.drawable.about_us),
                     contentDescription = "About",
-                    modifier = Modifier.size(50.dp),
+                    modifier = Modifier.size(60.dp),
                     tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
@@ -130,17 +129,18 @@ fun PageHeader(
                 Icon(
                     painter = painterResource(R.drawable.profile_icon),
                     contentDescription = "Profile",
-                    modifier = Modifier.size(50.dp),
+                    modifier = Modifier.size(60.dp),
                     tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
         }
         //title
         Text(
-            text = "Culture \n Quest",
-            style = MaterialTheme.typography.displayMedium,
+            text = "CultureQuest",
+            style = MaterialTheme.typography.displayLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onPrimary,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.align(Alignment.Center) // Center in the Box
         )
 
     }
@@ -152,24 +152,28 @@ fun ScoreCard(
     bestScore: Int,
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.95f)
+        modifier = Modifier.size(240.dp), // Bigger circular shape
+        shape = CircleShape, // Circular shape
+        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.95f)
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 40.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             //game info
             Text(
                 text = "Last Game Score: $lastGameScore",
-                style = MaterialTheme.typography.displaySmall,
-                color = MaterialTheme.colorScheme.onSurface
-
+                style = MaterialTheme.typography.headlineSmall, // Adjusted size
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center // Center text
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Best Score: $bestScore",
-                style = MaterialTheme.typography.displaySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.headlineSmall, // Adjusted size
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center // Center text
             )
         }
 

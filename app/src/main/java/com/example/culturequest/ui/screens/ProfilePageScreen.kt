@@ -63,7 +63,7 @@ fun ProfilePageScreen(
             Box(
                 modifier = Modifier
                     .size(600.dp)
-                    .offset(y = (-320).dp)
+                    .offset(y = (-320).dp) // Move bubble down
                     .clip(androidx.compose.foundation.shape.CircleShape)
                     .background(MaterialTheme.colorScheme.primary)
             )
@@ -81,6 +81,7 @@ fun ProfilePageScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 40.dp)
+                        .offset(y = (-40).dp) // Move title further up
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -149,9 +150,10 @@ fun ProfileHeaderCircle(
         // Title text
         Text(
             text = "Profile",
-            style = MaterialTheme.typography.displayMedium,
+            style = MaterialTheme.typography.displayLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onPrimary,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.align(Alignment.Center) // Center in the Box
         )
     }
 }
@@ -167,7 +169,7 @@ private fun ProfileItem(label: String, value: String) {
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.primary
         )
         Text(

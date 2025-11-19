@@ -58,7 +58,7 @@ fun AboutPageScreen(
                 Box(
                     modifier = Modifier
                         .size(600.dp)
-                        .offset(y = (-320).dp)
+                        .offset(y = (-320).dp) // Move bubble down
                         .clip(androidx.compose.foundation.shape.CircleShape)
                         .background(MaterialTheme.colorScheme.primary)
                 )
@@ -72,6 +72,7 @@ fun AboutPageScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 40.dp)
+                            .offset(y = (-40).dp) // Move title further up
                     )
 
                     Spacer(modifier = Modifier.height(100.dp))
@@ -87,10 +88,18 @@ fun AboutPageScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(24.dp) // Adjusted spacing
                     ) {
+
+                        // Component to select the app theme (Light/Dark)
+                        ThemeSelector(
+                            selectedTheme = theme,
+                            onThemeSelected = { settingsViewModel.saveTheme(it) }
+                        )
+
                         // Welcome message
                         Text(
                             text = "Ready to explore the world — one random corner at a time?",
-                            style = MaterialTheme.typography.titleLarge,
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.primary,
                             textAlign = TextAlign.Center,
                         )
 
@@ -116,7 +125,7 @@ fun AboutPageScreen(
                         ) {
                             Text(
                                 text = "Features:",
-                                style = MaterialTheme.typography.titleMedium,
+                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                                 color = MaterialTheme.colorScheme.primary
                             )
 
@@ -131,12 +140,6 @@ fun AboutPageScreen(
                                 FeatureItem("Global leaderboard and best scores")
                             }
                         }
-
-                        // Component to select the app theme (Light/Dark)
-                        ThemeSelector(
-                            selectedTheme = theme,
-                            onThemeSelected = { settingsViewModel.saveTheme(it) }
-                        )
 
                         Spacer(modifier = Modifier.height(16.dp))
                     }
@@ -174,10 +177,11 @@ fun PageHeader(
 
         }
         Text(
-            text = "Culture \n Quest",
-            style = MaterialTheme.typography.displayMedium,
+            text = "About CultureQuest",
+            style = MaterialTheme.typography.displayLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onPrimary,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.align(Alignment.Center) // Center in the Box
         )
 
     }
@@ -203,68 +207,6 @@ private fun FeatureItem(text: String) {
     }
 }
 
-// Composable for the top header, drawn as a large semicircle.
-@Composable
-private fun TopSemicircleHeader(
-    height: Dp,
-    background: Color,
-    iconSize: Dp,
-    showBackButton: Boolean = false,
-    onBackClick: () -> Unit = {}
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(height)
-            .drawBehind {
-                // Custom drawing logic to create a semicircle arc
-                val w = size.width
-                val h = size.height
-                val d = minOf(w, 2f * h)
-                val left = (w - d) / 2f
-                val top = -d / 2f
-
-                drawArc(
-                    color = background,
-                    startAngle = 0f,
-                    sweepAngle = 180f,
-                    useCenter = true,
-                    topLeft = Offset(left, top),
-                    size = Size(d, d)
-                )
-            }, contentAlignment = Alignment.TopCenter
-    ) {
-        // Show a back button if enabled
-        if (showBackButton) {
-            IconButton(
-                onClick = onBackClick, modifier = Modifier.align(Alignment.TopStart)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    modifier = Modifier.size(iconSize),
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-        }
-
-        // Box to center the title text within the header
-        Box(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .fillMaxSize()
-        ) {
-            Text(
-                text = "About CultureQuest",
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onPrimary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
-    }
-}
-
 // Composable that allows the user to select between Light and Dark themes.
 @Composable
 fun ThemeSelector(
@@ -278,7 +220,8 @@ fun ThemeSelector(
         // Title for the theme selector section
         Text(
             text = "Theme",
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(bottom = 12.dp)
         )
         // Row to display theme options side-by-side
@@ -296,17 +239,17 @@ fun ThemeSelector(
                 Box(
                     // Styling for the theme option button
                     modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(24.dp)) // Rounder corners
                         .background(backgroundColor)
                         .selectable(
                             selected = isSelected,
                             onClick = { onThemeSelected(theme) }
                         )
-                        .padding(horizontal = 24.dp, vertical = 12.dp)
+                        .padding(horizontal = 32.dp, vertical = 16.dp) // Bigger buttons
                 ) {
                     Text(
                         text = theme.name.lowercase(Locale.getDefault()).replaceFirstChar { it.uppercase() },
-                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.titleLarge, // Adjusted size
                         color = textColor
                     )
                 }

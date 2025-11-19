@@ -14,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
@@ -316,7 +317,11 @@ fun GamePageScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
                         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp)
                     ) {
-                        Text("Submit", color = Color.White)
+                        Text(
+                            "Submit",
+                            color = Color.White,
+                            style = MaterialTheme.typography.titleMedium // Match the timer text
+                        )
                     }
                 }
             }
@@ -375,7 +380,7 @@ fun TopGameBar(
 ) {
     // Adapting UI to system theme (dark/light).
     val iconColor = if (isSystemInDarkTheme()) Color.White else Color.Black
-    val buttonBackgroundColor = Color(0xAA99FF99)
+    val buttonBackgroundColor = Color(0xAA4CAF50) // Darker, transparent green
 
     Row(
         modifier = Modifier
@@ -403,7 +408,11 @@ fun TopGameBar(
             text = "Time left: $timeLeft s | Score: $score",
             color = Color.White,
             style = MaterialTheme.typography.titleMedium,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .clip(CircleShape) // Rounded corners
+                .background(buttonBackgroundColor) // Darker, transparent green
+                .padding(8.dp)
         )
 
         // Hint button.
