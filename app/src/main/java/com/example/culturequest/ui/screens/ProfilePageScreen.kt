@@ -154,7 +154,7 @@ fun ProfileHeaderCircle(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.backbutton),
-                    contentDescription = "About",
+                    contentDescription = "Back",
                     modifier = Modifier.size(50.dp),
                     tint = MaterialTheme.colorScheme.onPrimary
                 )

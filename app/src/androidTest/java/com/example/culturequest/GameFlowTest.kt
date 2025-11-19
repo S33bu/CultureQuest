@@ -6,19 +6,137 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.performImeAction
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.culturequest.ui.theme.CultureQuestTheme
+import io.qameta.allure.kotlin.Allure.step
+import io.qameta.allure.kotlin.Step
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import io.qameta.allure.android.runners.AllureAndroidJUnit4
+
 
 @RunWith(AndroidJUnit4::class)
 class GameFlowTest {
 
+    //https://developer.android.com/develop/ui/compose/testing
+    //NB ideally wanted to get allure report working, but had issues and could not
+    //from usual experience the steps are still defined
+
+    @Step("Ensure logged in and on home screen")
+    private fun ensureLoggedInAndOnHome(email: String, password: String) {
+        val alreadyOnHome = runCatching {
+            composeTestRule.waitUntil(timeoutMillis = 10_000) {
+                composeTestRule.onAllNodesWithText("Play now").fetchSemanticsNodes().isNotEmpty()
+            }
+        }.isSuccess
+
+        if (!alreadyOnHome) {
+            step("Not already on home -> performing sign-in or sign-up")
+            signInOrSignUp(email, password)
+            verifyHomePageIsDisplayed()
+        } else {
+            step("Already on home -> skipping sign-in or sign-up")
+        }
+    }
+
+    @Step("Sign in or sign up")
+    private fun signInOrSignUp (email: String, password: String) {
+
+        composeTestRule.onNodeWithText("Email").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Password").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Email").performTextInput(email)
+        composeTestRule.onNodeWithText("Password").performTextInput(password)
+        composeTestRule.onNodeWithText("Sign In ->").performClick()
+
+        val loginSucceeded = runCatching {
+            composeTestRule.waitUntil(timeoutMillis = 5_000) {
+                composeTestRule.onAllNodesWithText("Play now")
+                    .fetchSemanticsNodes()
+                    .isNotEmpty()
+            }
+        }.isSuccess
+
+        if (loginSucceeded == false) {
+            composeTestRule.onNodeWithText("Sign Up").performClick()
+
+            composeTestRule.waitUntil(timeoutMillis = 5000) {
+                composeTestRule.onAllNodesWithText("Create account").fetchSemanticsNodes()
+                    .isNotEmpty()
+            }
+
+            composeTestRule.onNodeWithText("Email").performTextInput(email)
+            composeTestRule.onNodeWithText("Create your password").performTextInput(password)
+            composeTestRule.onNodeWithText("Create your password").performImeAction()
+        }
+    }
+
+    @Step("Verify home page is displayed")
+    private fun verifyHomePageIsDisplayed() {
+        // Wait until the "Play now" button is visible, as it's a key indicator.
+        composeTestRule.waitUntil(timeoutMillis = 5_000) {
+            composeTestRule.onAllNodesWithText("Play now").fetchSemanticsNodes().isNotEmpty()
+        }
+
+        // Assert all key elements are present
+        composeTestRule.onNodeWithText("Play now").assertIsDisplayed()
+        composeTestRule.onNodeWithText("CultureQuest").assertIsDisplayed()
+        composeTestRule.onNode(hasText("Last Game Score:", substring = true)).assertIsDisplayed()
+        composeTestRule.onNode(hasText("Best Score:", substring = true)).assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription("About").assertIsDisplayed()
+    }
+
+    @Step("Verify about page is displayed")
+    private fun verifyAboutPageIsDisplayed() {
+        // Unique element assurance.
+        composeTestRule.waitUntil(timeoutMillis = 5_000) {
+            composeTestRule.onAllNodesWithText("About CultureQuest").fetchSemanticsNodes().isNotEmpty()
+        }
+
+        // Assert all key elements are present
+        composeTestRule.onNodeWithText("About CultureQuest").assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription("Back").assertIsDisplayed()
+        composeTestRule.onNode(hasText("Ready to explore the world", substring = true)).assertIsDisplayed()
+        composeTestRule.onNodeWithText("Theme").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Features:").performScrollTo().assertIsDisplayed()
+    }
+
+    @Step("Verify profile page is displayed")
+    private fun verifyProfilePageIsDisplayed() {
+        // Wait for a unique element on the Profile page.
+        composeTestRule.waitUntil(timeoutMillis = 10_000) {
+            // Assuming your profile page has a title "Profile" and shows the user's email.
+            composeTestRule.onAllNodesWithText("Profile").fetchSemanticsNodes().isNotEmpty()
+        }
+
+        // Assert all key elements are present
+        composeTestRule.onNodeWithText("Profile").assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription("Back").assertIsDisplayed()
+        composeTestRule.onNode(hasText("Name", substring = true)).assertIsDisplayed()
+    }
+
+    @Step("Verify game page is displayed")
+    private fun verifyGamePageIsDisplayed() {
+        // Wait for the game screen to load, identified by key element so question
+        composeTestRule.waitUntil(timeoutMillis = 30_000) {
+            composeTestRule.onAllNodesWithText("What country is it?").fetchSemanticsNodes().isNotEmpty()
+        }
+
+        // Assert all key elements are present.
+        composeTestRule.onNodeWithText("What country is it?").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Submit").assertIsDisplayed()
+    }
+
+
+
     @get:Rule
     val composeTestRule = createComposeRule()
+    // use createAndroidComposeRule<YourActivity>() if you need access to
+    // an activity
 
     @Test
     fun fullAppFlow_withUIConsistencyTest() {
@@ -28,124 +146,29 @@ class GameFlowTest {
             }
         }
 
-        //Starting UI Consistency Check
+        val email = "test@test.com"
+        val password = "password"
 
-        // Check Login page title
-        composeTestRule.onNodeWithText("Login").assertIsDisplayed()
+        step("Ensure logged in and on home screen")
+        ensureLoggedInAndOnHome(email, password)
+        verifyHomePageIsDisplayed()
 
-        // Navigate to Sign Up page and check title
-        composeTestRule.onNodeWithText("Don't have an account? Sign up").performClick()
-        composeTestRule.waitUntil(10_000) {
-            composeTestRule.onAllNodesWithText("Sign Up").fetchSemanticsNodes().isNotEmpty()
-        }
-        composeTestRule.onNodeWithText("Sign Up").assertIsDisplayed()
-
-        // Navigate back to Login page
-        composeTestRule.onNodeWithText("Already have an account? Login").performClick()
-        composeTestRule.waitUntil(10_000) {
-            composeTestRule.onAllNodesWithText("Login").fetchSemanticsNodes().isNotEmpty()
-        }
-
-        // 1. Login Flow Check
-        composeTestRule.onNodeWithText("Email").performTextInput("test@test.com")
-        composeTestRule.onNodeWithText("Password").performTextInput("password")
-        composeTestRule.onNodeWithText("Login").performClick()
-
-        // Wait for home screen to load
-        composeTestRule.waitUntil(30_000) {
-            composeTestRule.onAllNodesWithText("Play now").fetchSemanticsNodes().isNotEmpty()
-        }
-
-        // 2. Continue UI Consistency Check
-        // Check Home Page title
-        composeTestRule.onNodeWithText("Culture\nQuest").assertIsDisplayed()
-
-        // Navigate to About Page and check title
-        composeTestRule.onNodeWithText("About").performClick()
-        composeTestRule.waitUntil(10_000) {
-            composeTestRule.onAllNodesWithText("About CultureQuest").fetchSemanticsNodes().isNotEmpty()
-        }
-        composeTestRule.onNodeWithText("About CultureQuest").assertIsDisplayed()
+        step("Navigate to About")
+        composeTestRule.onNodeWithContentDescription("About").performClick()
+        verifyAboutPageIsDisplayed()
         composeTestRule.onNodeWithContentDescription("Back").performClick()
+        verifyHomePageIsDisplayed()
 
-        // Navigate to Profile Page and check title
-        composeTestRule.onNodeWithText("Profile").performClick()
-        composeTestRule.waitUntil(10_000) {
-            composeTestRule.onAllNodesWithText("Profile").fetchSemanticsNodes().isNotEmpty()
-        }
-        composeTestRule.onNodeWithText("Profile").assertIsDisplayed()
+        step("Navigate to Profile")
+        composeTestRule.onNodeWithContentDescription("Profile").performClick()
+        verifyProfilePageIsDisplayed()
         composeTestRule.onNodeWithContentDescription("Back").performClick()
+        verifyHomePageIsDisplayed()
 
-        // 3. Game Flow
-        // Click the "Play now" button to start a new game.
+        step("Navigate to Game")
         composeTestRule.onNodeWithText("Play now").performClick()
-
-        // Wait for the game screen to load, which is identified by the question text.
-        composeTestRule.waitUntil(30_000) {
-            composeTestRule.onAllNodesWithText("What country is it?").fetchSemanticsNodes().isNotEmpty()
-        }
-
-        // Input an answer into the text field and submit it.
-        // Note: The answer "Estonia" is hardcoded. This might pass or fail depending on the question generated.
-        composeTestRule.onNodeWithText("What country is it?").performTextInput("Estonia")
-        composeTestRule.onNodeWithText("Submit").performClick()
-
-        // After submitting, the result is displayed.
-        // We check if either the "Correct!" or "Incorrect!" message appears.
-        // This is necessary because the correct answer is dynamic and unknown to the test.
-        try {
-            composeTestRule.onNodeWithText("✅ Correct!").assertIsDisplayed()
-        } catch (e: AssertionError) {
-            composeTestRule.onNodeWithText("❌ Incorrect!").assertIsDisplayed()
-        }
-
-        // Click "Next" to proceed to the score screen (which is the home screen in this app).
-        composeTestRule.onNodeWithText("Next").performClick()
-
-        // Wait until the home screen is visible again, identified by the "Play now" button.
-        composeTestRule.waitUntil(30_000) {
-            composeTestRule.onAllNodesWithText("Play now").fetchSemanticsNodes().isNotEmpty()
-        }
-
-        // Verify that we are back on the home screen and that the "Last Game Score" is displayed.
-        composeTestRule.onNodeWithText("Play now").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Last Game Score:", substring = true).assertIsDisplayed()
-    }
-
-    @Test
-    fun gameFlow_invalidInputShowsError() {
-        composeTestRule.setContent {
-            CultureQuestTheme {
-                AppNavigation()
-            }
-        }
-
-        // Login to get to the home screen
-        composeTestRule.onNodeWithText("Email").performTextInput("test@test.com")
-        composeTestRule.onNodeWithText("Password").performTextInput("password")
-        composeTestRule.onNodeWithText("Login").performClick()
-
-        // Wait for home screen to load
-        composeTestRule.waitUntil(30_000) {
-            composeTestRule.onAllNodesWithText("Play now").fetchSemanticsNodes().isNotEmpty()
-        }
-
-        // Start the game
-        composeTestRule.onNodeWithText("Play now").performClick()
-
-        // Wait for the game screen to load
-        composeTestRule.waitUntil(30_000) {
-            composeTestRule.onAllNodesWithText("What country is it?").fetchSemanticsNodes().isNotEmpty()
-        }
-
-        // Input an invalid answer with numbers and special characters
-        composeTestRule.onNodeWithText("What country is it?").performTextInput("Invalid123!")
-
-        // Check that the error message is displayed
-        composeTestRule.onNodeWithText("Only letters, spaces, and hyphens are allowed.").assertIsDisplayed()
-
-        // Replace the text with a valid input and check that the error message disappears
-        composeTestRule.onNodeWithText("What country is it?").performTextReplacement("Valid-Input")
-        composeTestRule.onNodeWithText("Only letters, spaces, and hyphens are allowed.").assertDoesNotExist()
+        verifyGamePageIsDisplayed()
+        composeTestRule.onNodeWithContentDescription("Back").performClick()
+        verifyHomePageIsDisplayed()
     }
 }

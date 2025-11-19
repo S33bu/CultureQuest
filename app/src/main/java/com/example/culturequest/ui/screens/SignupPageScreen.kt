@@ -108,6 +108,9 @@ fun SignupPageScreen(
                         onPasswordChange = {
                             password.value = it
                             onClearError()
+                        },
+                        onSubmit = {
+                            onSignupClick(email.value, password.value)
                         }
                     )
                     Spacer(modifier = Modifier.height(16.dp))
@@ -160,7 +163,8 @@ fun SignUpHeader(
 fun SignupFields(
     email: String, password: String,
     onEmailChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit
+    onPasswordChange: (String) -> Unit,
+    onSubmit: () -> Unit
     //onForgotPasswordClick: () -> Unit,
 
 ) {
@@ -198,11 +202,11 @@ fun SignupFields(
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Go
+                imeAction = ImeAction.Done
             ),
             keyboardActions = KeyboardActions (
-                onNext = {
-                    focusManager.moveFocus(FocusDirection.Down)
+                onDone = {
+                     onSubmit()
                 }
             ),
             textStyle = MaterialTheme.typography.titleMedium,
@@ -226,7 +230,7 @@ fun SignupFooter(
         verticalAlignment = Alignment.CenterVertically
     ) {
         PrimaryButton(
-            text = if (isLoading) "Signing up..." else "Sign In ->",
+            text = if (isLoading) "Signing up..." else "Sign Up ->",
             onClick = onSignupClick,
             enabled = !isLoading
         )
