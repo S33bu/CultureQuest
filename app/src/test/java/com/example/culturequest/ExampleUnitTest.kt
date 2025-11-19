@@ -33,7 +33,7 @@ class ExampleUnitTest {
         Dispatchers.setMain(testDispatcher)
 
         val context = ApplicationProvider.getApplicationContext<Context>()
-        // 2. Initialize Firebase manually for this test run
+        //Initialize Firebase manually for this test run
         FirebaseApp.initializeApp(context)
 
         viewModel = GameViewModel()
