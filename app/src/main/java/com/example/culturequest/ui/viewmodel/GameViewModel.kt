@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
 import com.example.culturequest.MyApp
-import com.example.culturequest.R
 import com.example.culturequest.data.AppDatabase
 import com.example.culturequest.data.Country
 import com.example.culturequest.data.CountryRepository
