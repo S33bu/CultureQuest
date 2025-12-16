@@ -15,7 +15,11 @@ object RandomLocationProvider {
     private val jsonParser = Json { ignoreUnknownKeys = true }
     private const val API_KEY = BuildConfig.GEOLOCATION_API_KEY
 
-   //checks if the street view has a panorama available, otherwise displays a black screen
+    /**
+     * @param point The LatLng coordinate to check.
+     * Uses the Google Street View API to check if the given coordinate has Street View imagery.
+     * @return True if the coordinate has Street View imagery, false otherwise.
+     */
     private suspend fun hasStreetViewImagery(point: LatLng): Boolean =
         withContext(Dispatchers.IO) {
             try {
@@ -35,7 +39,12 @@ object RandomLocationProvider {
             }
         }
 
-   //uses the country borders to generate random coordinates within them
+    /**
+     * @param countryName The name of the country for which to fetch a random location.
+     * Uses the country name to generate a random location within the country's boundaries using functions: getRandomLocationForCountry and getCountryBounds.
+     * Has 10 attempts to find a valid location within the country's boundaries to limit API usage. Otherwise falls back to the center of the country's bounding box
+     * @return A LatLng object representing the randomly generated location, or null if the country's bounds cannot be found.
+     */
     suspend fun getRandomLocationForCountry(countryName: String): LatLng? =
         withContext(Dispatchers.IO) {
             Log.d("RandomLocationProvider", "Requesting location for: $countryName")
@@ -75,7 +84,12 @@ object RandomLocationProvider {
             }
         }
 
-   //gets the correct answer as the country name and searches for the borders to get random coordinates within them later
+    /**
+     * @param countryName The name of the country for which to fetch the bounds.
+     * Uses the Google Geocode API to retrieve the boundaries of the country.
+     * @return A pair of Location objects representing the southwest and northeast corners of the country's boundaries.
+     * If the country is not found or the API call fails, null is returned.
+     */
     private fun getCountryBounds(countryName: String): Pair<Location, Location>? {
         return try {
             val url =
@@ -93,7 +107,12 @@ object RandomLocationProvider {
         }
     }
 
-    //checks if the coordinates are in the country we need
+    /**
+     * @param point The LatLng coordinate to check.
+     * @param expected The expected country name for the coordinate.
+     * Uses the Google Geocode API to check if the given coordinate is within the boundaries of the expected country.
+     * @return True if the coordinate is within the country's boundaries, false otherwise.
+     */
     private suspend fun isPointInCountry(point: LatLng, expected: String): Boolean =
         withContext(Dispatchers.IO) {
             try {

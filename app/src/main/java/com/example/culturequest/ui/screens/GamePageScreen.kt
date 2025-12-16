@@ -38,6 +38,16 @@ import androidx.compose.ui.platform.LocalContext
 import com.example.culturequest.ui.viewmodel.GameViewModel
 
 // Composable function to display a Google Street View panorama.
+/**
+ * A composable that wraps the Android `StreetViewPanoramaView` to display a Street View panorama.
+ *
+ * This composable manages the lifecycle of the underlying Android View, ensuring that methods like
+ * `onCreate`, `onResume`, `onPause`, and `onDestroy` are called in sync with the composable's
+ * lifecycle. It also updates the panorama's position whenever the `location` parameter changes.
+ *
+ * @param location The LatLng geographic coordinate to display in the Street View.
+ * @param modifier Modifier for styling and layout.
+ */
 @Composable
 fun StreetViewPanoramaComposable(
     location: LatLng,
@@ -88,7 +98,18 @@ fun StreetViewPanoramaComposable(
 }
 
 @Composable
-// The main screen for the game page.
+/**
+ * The main screen for the game, hosting the Street View panorama, user input,
+ * timer, and hint functionality.
+ *
+ * This screen is stateful and observes the [GameViewModel] to react to changes in the
+ * current question, score, timer, and game state. It handles user input, answer validation,
+ * and displaying dialogs for hints and results.
+ *
+ * @param onBackClick A callback function to be invoked when the user clicks the back button.
+ * @param onGameEnd A callback function that is triggered when the game finishes, passing the final score.
+ * @param viewModel The instance of [GameViewModel] that holds the game's state and logic.
+ */
 fun GamePageScreen(
     onBackClick: () -> Unit,
     onGameEnd: (lastScore: Int) -> Unit,
@@ -138,6 +159,11 @@ fun GamePageScreen(
     }
 
     // Function to validate the user's input.
+    /**
+     * @param input The user's input to be validated.
+     * Checks if the input is not empty, not longer than 30 characters, and does not contain numbers.
+     * @return An error message if the input is invalid, or null if it's valid.
+     */
     fun validateAnswer(input: String): String? {
         val trimmed = input.trim()
         return when {
@@ -150,7 +176,10 @@ fun GamePageScreen(
         }
     }
 
-    // Function to handle the submission of an answer.
+    /**
+     * Handles the submission of an answer by
+     * validating it and submitting it to the game logic.
+     */
     fun handleSubmit() {
         val validationError = validateAnswer(answer.text)
         if (validationError != null) {
@@ -247,7 +276,7 @@ fun GamePageScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            //Siin mässame street viewga
+            //Street View stuff
             if (currentLocation == null) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
@@ -369,7 +398,14 @@ fun GamePageScreen(
     }
 }
 
-// Composable for the top bar of the game screen.
+/**
+ * The top bar of the game screen, displaying the timer, score, back button, and hint button.
+ * @param timeLeft The remaining time in seconds to be displayed.
+ * @param score The player's current score to be displayed.
+ * @param onBackClick A callback function to be invoked when the back button is clicked.
+ * @param onHintClick A callback function to be invoked when the hint button is clicked.
+ * @param isHintEnabled A boolean to control whether the hint button is clickable.
+ */
 @Composable
 fun TopGameBar(
     timeLeft: Int,
