@@ -3,62 +3,25 @@ CultureQuest is a mobile game where players guess the country based on real-worl
 
 The game is time-sensitive — each round lasts 1 minute, challenging players to think fast. To assist, tier-based hints (Easy, Medium, Hard) can be unlocked at any point during the game. Player performance is tracked through a score system and leaderboard, making the experience both fun and competitive.
 
-Team Members:Iteration 3
+Team Members:
 <br/>
 
 - **Armin Liiv** — Developer, Editor  
-  *Main task:* Implementing leaderboard for personal scores
   [GitHub Profile](https://github.com/Rover-M) 
 
 - **Caroline Markov** — Researcher, Developer  
-  *Main task:* Implementing the hinting system  
   [GitHub Profile](https://github.com/CarolineMarkov)  
 
 - **Kaspar Aednik** — Developer, Project Manager  
-  *Main task:* Adjusting database structure, scoring logic, and timer
   [Github Profile](https://github.com/Lontloom)
 
 - **Riika Seeba** — Developer, Editor  
-  *Main task:* Updating the “About Us” page
   [Github Profile](https://github.com/riikaseeba)  
 
-- **Sebastian Mais** — Developer, Presenter  
-  *Main task:* Implementing the Google Maps SDK integration  
-  [GitHub Profile](https://github.com/S33bu)
-
-  Team Members:Iteration 4
-<br/>
-
-- **Armin Liiv** — Developer, Editor  
-  *Main task:* Implementing leaderboard for personal scores
-  [GitHub Profile](https://github.com/Rover-M) 
-
-- **Caroline Markov** — Designer, Tester, Frontend Developer
-  *Main tasks:*
-  - Designed and implemented Sign In and Sign Up screens.
-  - Refined UI across multiple screens (spacing, alignment, visual fixes)
-  - Created a custom app icon and splash screen for both light and dark mode
-  - Built the required UI test (Compose UI navigation test).
-  [GitHub Profile](https://github.com/CarolineMarkov)  
-
-- **Kaspar Aednik** — 
-  [Github Profile](https://github.com/Lontloom)
-
-- **Riika Seeba** — Frontend Developer, Themes
-  *Main task:*
-  - Applied and refined Material 3 theming across the app
-  - Set up a consistent ColorScheme and Typography system
-  - Improved overall UI polish to ensure visual consistency in every screen
- 
-- **Sebastian Mais** — Developer, Tester 
-  *Main task:*
-  - Implementing the Google Geocoding API
-  - Extending the random location logic, making sure coordinates are randomly generated
-  - Built the required unit test (submit answer validation)
+- **Sebastian Mais** — Developer, Presenter   
   [GitHub Profile](https://github.com/S33bu)
 
 <br/>
-
 
 ### Main Features
 - **Game Page:** Core experience powered by **Google Street View**  
@@ -68,6 +31,33 @@ Team Members:Iteration 3
 - **Sign In / Log In:** User authentication to track individual scores and progress  
 
 For a more detailed overview and upcoming features, visit our [**Wiki Page**](https://github.com/S33bu/CultureQuest/wiki).
+
+###Installation/Build instructions
+1. Download Android Studio
+2. Clone this Repo
+3. Sync the gradle if needed
+4. Boot up a virutal android phone if needed
+5. Android Studio should show "app" top middle of screen and click the green start button
+6. All of the dependencies should be applied/installed automatically
+
+<br/>
+
+### Usage of the app
+
+In CultureQuest you can just click with your mouse or touch (depends if you have a touchpad or not) on buttons that seem logical.
+
+**Game window**
+<br/>
+There are multiple places you can click for example just click on "Play now" and it will start a game.
+From there the game will generate a random google street view and you have to type in the box of the country you think it is and click "submit" or just enter on the keyboard.
+In the game you can drag to look around and even zoom by pinching or scrolling depending on the device and its inputs.
+If you want help you can click on the bulb to get hints or click "Show more hints" to get more hints but be aware you will get less points for finally correcting right
+<br/>
+**About window**
+Clicking on the info button will open the about page
+<br/>
+**login/sign in**
+<br/>
 
 
 ## Tools & Frameworks:
