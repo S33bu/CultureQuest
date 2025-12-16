@@ -19,7 +19,8 @@ Team Members:Iteration 3
   [Github Profile](https://github.com/Lontloom)
 
 - **Riika Seeba** — Developer, Editor  
-  *Main task:* Updating the “About Us” page  
+  *Main task:* Updating the “About Us” page
+  [Github Profile](https://github.com/riikaseeba)  
 
 - **Sebastian Mais** — Developer, Presenter  
   *Main task:* Implementing the Google Maps SDK integration  
