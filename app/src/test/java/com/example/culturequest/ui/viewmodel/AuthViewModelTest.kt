@@ -1,50 +1,101 @@
 package com.example.culturequest.ui.viewmodel
 
 // Import necessary testing libraries.
+
+import com.example.culturequest.MyApp
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import com.google.firebase.auth.FirebaseAuth
+import org.mockito.Mockito.mock
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
+import com.google.android.gms.tasks.Tasks
+import android.os.Looper.getMainLooper
+import org.robolectric.Shadows.shadowOf
 
 /**
- * Unit tests for the [AuthViewModel].
- * These tests verify the logic for handling sign-in and sign-up validation.
+ * Unit tests for [AuthViewModel].
+ * * These tests verify the authentication logic, including input validation and
+ * handling of Firebase authentication responses.
+ * * @property viewModel The instance of the ViewModel being tested.
+ * @property mockAuth The mocked Firebase authentication service.
  */
+@RunWith(RobolectricTestRunner::class)
+@Config(application = MyApp::class, sdk = [28])
 class AuthViewModelTest {
+    private lateinit var viewModel: AuthViewModel
+    private lateinit var mockAuth: FirebaseAuth
 
-    // Test case to verify that attempting to sign in with a blank email triggers an error.
+    /**
+     * Sets up the testing environment before each test case.
+     * Initializes the [mockAuth] and injects it into the [viewModel].
+     */
+
+    @Before
+    fun setUp() {
+        // Mockito creates a 'hollow' version of FirebaseAuth to avoid real API calls
+        mockAuth = mock(FirebaseAuth::class.java)
+        // Dependency Injection: We provide the mock to the ViewModel so it doesn't use the real Firebase
+        viewModel = AuthViewModel(mockAuth)
+    }
+
+    /**
+     * Verifies that [AuthViewModel.signIn] correctly identifies empty input.
+     * * Usage: Ensures the UI displays "Email and password are required" without contacting Firebase.
+     */
     @Test
     fun `signIn with blank email shows error`() {
-        // Create an instance of the AuthViewModel.
-        val viewModel = AuthViewModel()
-        // Call the signIn method with a blank email and a valid password.
         viewModel.signIn("", "password")
-        // Assert that the errorMessage in the authState now reflects the expected validation error.
         assertEquals("Email and password are required", viewModel.authState.value.errorMessage)
     }
 
-    // Test case to verify that signing up with a password shorter than 6 characters shows an error.
+    /**
+     * Verifies that [AuthViewModel.signUp] enforces minimum password length.
+     * * @see AuthViewModel.signUp
+     */
     @Test
     fun `signUp with short password shows error`() {
-        val viewModel = AuthViewModel()
         viewModel.signUp("test@test.com", "123")
-        // Assert that the correct error message for a short password is set.
         assertEquals("Password must be at least 6 characters", viewModel.authState.value.errorMessage)
     }
 
-    // Test case to verify that signing up with a badly formatted email shows an error.
+    /**
+     * Verifies that the ViewModel correctly handles and displays Firebase formatting errors.
+     * * This test mocks a failed Task return from Firebase to simulate an invalid email string.
+     */
     @Test
     fun `signUp with badly formatted email shows error`() {
-        val viewModel = AuthViewModel()
+        //Creating a "Fake" Exception that looks like FireBase's error
+        val exception = Exception("The email address is badly formatted.")
+
+        //Telling the mock "When someone calls createuser, return a failed task immediately"
+        whenever(mockAuth.createUserWithEmailAndPassword(any(), any()))
+            .thenReturn(Tasks.forException(exception))
+
         viewModel.signUp("test", "password")
-        // Assert that the correct error message for a badly formatted email is set.
+
+        //Forces the Main Looper to process the 'addOnCompleteListener' result, without this errormessage would remain null
+        shadowOf(getMainLooper()).idle()
         assertEquals("The email address is badly formatted.", viewModel.authState.value.errorMessage)
     }
 
-    // Test case to verify that signing in with an incorrect password shows an error.
+    /**
+     * Verifies that the ViewModel handles incorrect login credentials appropriately.
+     * * @throws Exception Simulated Firebase Auth exception.
+     */
     @Test
     fun `signIn with incorrect password shows error`() {
-        val viewModel = AuthViewModel()
+        val exception = Exception("The supplied auth credential is incorrect, malformed or has expired.")
+        //Directing the mock to return a failed task when signIn is called.
+        whenever(mockAuth.signInWithEmailAndPassword(any(), any()))
+            .thenReturn(Tasks.forException(exception))
         viewModel.signIn("nonexistent@user.com", "wrongpassword")
-        // Assert that the correct error message for an incorrect credential is set.
+        //Ensures the ViewModel state update is processed before assertion.
+        shadowOf(getMainLooper()).idle()
         assertEquals("The supplied auth credential is incorrect, malformed or has expired.", viewModel.authState.value.errorMessage)
     }
 

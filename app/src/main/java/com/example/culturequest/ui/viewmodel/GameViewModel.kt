@@ -3,9 +3,7 @@ package com.example.culturequest.ui.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.Room
 import com.example.culturequest.MyApp
-import com.example.culturequest.data.AppDatabase
 import com.example.culturequest.data.Country
 import com.example.culturequest.data.CountryRepository
 import com.example.culturequest.data.Hint
@@ -13,6 +11,8 @@ import com.example.culturequest.data.HintTier
 import com.example.culturequest.data.QuizQuestion
 import com.example.culturequest.data.RandomLocationProvider
 import com.example.culturequest.data.UserProfile
+import com.example.culturequest.data.UserRepository
+import com.example.culturequest.data.GameRepository
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
+
 // ViewModel to manage the game state
 class GameViewModel : ViewModel() {
 
@@ -33,12 +34,9 @@ class GameViewModel : ViewModel() {
     // Firestore instance for syncing user stats to the cloud
     private val firestore = FirebaseFirestore.getInstance()
 
-    // Initialize the Room database
-    private val db = Room.databaseBuilder(
-        MyApp.context,
-        AppDatabase::class.java,
-        "culturequest-db"
-    ).build()
+    private val db = MyApp.instance.database
+    private val userRepository = UserRepository(db.userDao())
+    private val gameRepository = GameRepository(db.questionDao())
 
     // StateFlow holding the list of quiz questions
     private val _questions = MutableStateFlow<List<QuizQuestion>>(emptyList())
@@ -86,7 +84,7 @@ class GameViewModel : ViewModel() {
 
                     prepareHintsForCurrent()
 
-                    // ✅ Laeme kasutaja kõigepealt Firestore'ist (kui olemas), siis Roomist
+                    // Laeme kasutaja kõigepealt Firestore'ist (kui olemas), siis Roomist
                     val loadedUser = loadUserForCurrentAccountFromServerOrLocal()
                     _user.value = loadedUser
 
@@ -99,13 +97,9 @@ class GameViewModel : ViewModel() {
         }
     }
 
-    fun closeDataBase(){ //for testing
-        if (db.isOpen) db.close()
-    }
     // Preload default questions only if DB is empty
     private suspend fun preloadQuestionsIfNeeded() {
-        val questionDao = db.questionDao()
-        val existing = questionDao.getAllQuestions()
+        val existing = gameRepository.getAllQuestions()
         if (existing.isEmpty()) {
             val starterQuestions = listOf(
                 QuizQuestion(questionText = "Which country is shown?", correctAnswer = "australia"),
@@ -158,7 +152,7 @@ class GameViewModel : ViewModel() {
                 QuizQuestion(questionText = "Which country is shown?", correctAnswer = "morocco")
 
             )
-            questionDao.insertAll(starterQuestions)
+            gameRepository.refreshQuestions(starterQuestions)
         }
     }
 
@@ -184,7 +178,7 @@ class GameViewModel : ViewModel() {
             // Update user in DB and StateFlow
             viewModelScope.launch {
                 val updatedUser = user.copy(score = newScore, bestScore = newBest)
-                db.userDao().insertUser(updatedUser)
+                userRepository.saveLocalProgress(updatedUser)
                 _user.value = updatedUser
 
                 // sync updated stats to Firestore
@@ -447,7 +441,6 @@ class GameViewModel : ViewModel() {
      *  - kui Firestore'is veel midagi pole, kasutab ainult Roomi / loob default profiili
      */
     private suspend fun loadUserForCurrentAccountFromServerOrLocal(): UserProfile {
-        val userDao = db.userDao()
         val firebaseUser = FirebaseAuth.getInstance().currentUser
         val uid = firebaseUser?.uid ?: "local_guest"
 
@@ -466,7 +459,7 @@ class GameViewModel : ViewModel() {
                     val score = snapshot.getLong("score")?.toInt() ?: 0
                     val remoteName = snapshot.getString("displayName")
 
-                    val localExisting = userDao.getUser(uid)
+                    val localExisting = userRepository.getUser(uid)
                     val username = remoteName
                         ?: localExisting?.username
                         ?: firebaseUser.email
@@ -488,7 +481,7 @@ class GameViewModel : ViewModel() {
                         gamesPlayed = gamesPlayed
                     )
 
-                    userDao.insertUser(user)
+                    userRepository.saveLocalProgress(user)
                     return user
                 }
             } catch (e: Exception) {
@@ -497,7 +490,7 @@ class GameViewModel : ViewModel() {
         }
 
         // Kui Firestore'ist ei saanud või pole login'itud, kasutame ainult Roomi
-        var user = userDao.getUser(uid)
+        var user = userRepository.getUser(uid)
         if (user == null) {
             val defaultName = firebaseUser?.email
                 ?.substringBefore('.')
@@ -514,7 +507,7 @@ class GameViewModel : ViewModel() {
                 bestScore = 0,
                 gamesPlayed = 0
             )
-            userDao.insertUser(user)
+            userRepository.saveLocalProgress(user)
         }
         return user
     }

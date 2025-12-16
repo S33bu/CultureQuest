@@ -11,9 +11,7 @@ data class AuthState(
     val errorMessage: String? = null
 )
 
-class AuthViewModel : ViewModel() {
-
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+class AuthViewModel (private val auth: FirebaseAuth = FirebaseAuth.getInstance()) : ViewModel() {
 
     private val _authState = mutableStateOf(
         AuthState(
