@@ -59,13 +59,11 @@ Team Members:Iteration 3
 <br/>
 
 
-### Implemented Features
+### Main Features
 - **Game Page:** Core experience powered by **Google Street View**  
 - **Hint System:** Tier-based hints (Easy, Medium, Hard) available during gameplay  
 - **Leaderboard:** Displays top players and their scores  
 - **About Page:** Information about the game and developers  
-
-### Planned Features
 - **Sign In / Log In:** User authentication to track individual scores and progress  
 
 For a more detailed overview and upcoming features, visit our [**Wiki Page**](https://github.com/S33bu/CultureQuest/wiki).
