@@ -24,7 +24,6 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = MyApp::class, sdk = [28])
 class ExampleUnitTest {
-
     private lateinit var viewModel: GameViewModel
     private val testDispatcher = StandardTestDispatcher()
 
@@ -33,10 +32,9 @@ class ExampleUnitTest {
         Dispatchers.setMain(testDispatcher)
 
         val context = ApplicationProvider.getApplicationContext<Context>()
-        //Initialize Firebase manually for this test run
+        // Initialize Firebase manually for this test run
 
         FirebaseApp.initializeApp(context)
-
 
         val app = context as MyApp
         app.onCreate()
@@ -50,26 +48,26 @@ class ExampleUnitTest {
     }
 
     @Test
-    fun submitAnswer_withCorrectAndIncorrectAnswers() = runTest {
-        // wait for the ViewModel to finish loading its questions
-        viewModel.questions.first { it.isNotEmpty() }
+    fun submitAnswer_withCorrectAndIncorrectAnswers() =
+        runTest {
+            // wait for the ViewModel to finish loading its questions
+            viewModel.questions.first { it.isNotEmpty() }
 
-        // get the first question
-        val question = viewModel.questions.value.first()
-        println("Question: $question")
+            // get the first question
+            val question = viewModel.questions.value.first()
+            println("Question: $question")
 
-        val answer = question.correctAnswer
+            val answer = question.correctAnswer
 
-        println("Question again: $question")
-        // test with a correct answer
-        val isCorrect = viewModel.submitAnswerForTest(answer)
-        println(answer)
-        println("isCorrect: $isCorrect")
-        assertTrue("The answer should be correct", isCorrect)
+            println("Question again: $question")
+            // test with a correct answer
+            val isCorrect = viewModel.submitAnswerForTest(answer)
+            println(answer)
+            println("isCorrect: $isCorrect")
+            assertTrue("The answer should be correct", isCorrect)
 
-
-        // test with an incorrect answer
-        val isIncorrect = viewModel.submitAnswer("a wrong answer")
-        assertFalse("The answer should be incorrect", isIncorrect)
-    }
+            // test with an incorrect answer
+            val isIncorrect = viewModel.submitAnswer("a wrong answer")
+            assertFalse("The answer should be incorrect", isIncorrect)
+        }
 }

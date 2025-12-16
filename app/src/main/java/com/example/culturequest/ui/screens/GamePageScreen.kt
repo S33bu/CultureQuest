@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -29,15 +30,15 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.culturequest.R
-import com.google.android.gms.maps.StreetViewPanoramaView
 import com.example.culturequest.data.HintTier
+import com.example.culturequest.ui.viewmodel.GameViewModel
+import com.google.android.gms.maps.StreetViewPanoramaView
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import com.google.android.gms.maps.model.LatLng
-import androidx.compose.ui.platform.LocalContext
-import com.example.culturequest.ui.viewmodel.GameViewModel
 
 // Composable function to display a Google Street View panorama.
+
 /**
  * A composable that wraps the Android `StreetViewPanoramaView` to display a Street View panorama.
  *
@@ -57,24 +58,26 @@ fun StreetViewPanoramaComposable(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     // remember a new instance ONLY when this composable enters composition
-    val streetView = remember {
-        StreetViewPanoramaView(context).apply { onCreate(null) }
-    }
+    val streetView =
+        remember {
+            StreetViewPanoramaView(context).apply { onCreate(null) }
+        }
 
     // Use DisposableEffect to manage the lifecycle of the StreetViewPanoramaView.
     // This ensures that the Street View's lifecycle methods are called correctly
     // in sync with the composable's lifecycle.
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_START -> streetView.onStart()
-                Lifecycle.Event.ON_RESUME -> streetView.onResume()
-                Lifecycle.Event.ON_PAUSE -> streetView.onPause()
-                Lifecycle.Event.ON_STOP -> streetView.onStop()
-                Lifecycle.Event.ON_DESTROY -> streetView.onDestroy()
-                else -> {}
+        val observer =
+            LifecycleEventObserver { _, event ->
+                when (event) {
+                    Lifecycle.Event.ON_START -> streetView.onStart()
+                    Lifecycle.Event.ON_RESUME -> streetView.onResume()
+                    Lifecycle.Event.ON_PAUSE -> streetView.onPause()
+                    Lifecycle.Event.ON_STOP -> streetView.onStop()
+                    Lifecycle.Event.ON_DESTROY -> streetView.onDestroy()
+                    else -> {}
+                }
             }
-        }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
@@ -93,11 +96,10 @@ fun StreetViewPanoramaComposable(
     // Integrate the Android View (StreetViewPanoramaView) into the Compose UI.
     AndroidView(
         factory = { streetView },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
-@Composable
 /**
  * The main screen for the game, hosting the Street View panorama, user input,
  * timer, and hint functionality.
@@ -110,10 +112,11 @@ fun StreetViewPanoramaComposable(
  * @param onGameEnd A callback function that is triggered when the game finishes, passing the final score.
  * @param viewModel The instance of [GameViewModel] that holds the game's state and logic.
  */
+@Composable
 fun GamePageScreen(
     onBackClick: () -> Unit,
     onGameEnd: (lastScore: Int) -> Unit,
-    viewModel: GameViewModel = viewModel()
+    viewModel: GameViewModel = viewModel(),
 ) {
     val allQuestions by viewModel.questions.collectAsState()
     val currentIndex by viewModel.currentIndex.collectAsState()
@@ -134,8 +137,8 @@ fun GamePageScreen(
     // Coroutine scope for launching async operations.
     val coroutineScope = rememberCoroutineScope()
 
-    //FOR HINTS
-    var showHintsDialog by remember { mutableStateOf(false)}
+    // FOR HINTS
+    var showHintsDialog by remember { mutableStateOf(false) }
     val countriesLoaded by viewModel.countriesLoaded.collectAsState()
     // Tracks which tier of hints is currently visible to the user.
     val tierShown by viewModel.tierShown.collectAsState()
@@ -159,9 +162,11 @@ fun GamePageScreen(
     }
 
     // Function to validate the user's input.
+
     /**
      * @param input The user's input to be validated.
      * Checks if the input is not empty, not longer than 30 characters, and does not contain numbers.
+     * @param input The user's input string to be validated.
      * @return An error message if the input is invalid, or null if it's valid.
      */
     fun validateAnswer(input: String): String? {
@@ -191,13 +196,12 @@ fun GamePageScreen(
         showDialog = true
     }
 
-
     // Start countdown when the question is loaded
     LaunchedEffect(Unit) {
         while (timeLeft > 0 && !isGameFinished) {
             delay(1000)
             // make it so the timer doesnt go down when pop ups are up or when the location is changing
-            if (currentLocation != null && !showDialog){
+            if (currentLocation != null && !showDialog) {
                 timeLeft -= 1
             }
         }
@@ -210,19 +214,19 @@ fun GamePageScreen(
 
     // Dialog to show hints.
     if (showHintsDialog) {
-
         AlertDialog(
             onDismissRequest = { showHintsDialog = false },
-            //different title headings based on tiers
+            // different title headings based on tiers
             title = {
                 Text(
-                    text = when (tierShown) {
-                        1 -> "Hints: Hard"
-                        2 -> "Hints: Hard + Medium"
-                        3 -> "Hints: Hard + Medium + Easy"
-                        else -> "Hints"
-                    },
-                    style = MaterialTheme.typography.titleMedium
+                    text =
+                        when (tierShown) {
+                            1 -> "Hints: Hard"
+                            2 -> "Hints: Hard + Medium"
+                            3 -> "Hints: Hard + Medium + Easy"
+                            else -> "Hints"
+                        },
+                    style = MaterialTheme.typography.titleMedium,
                 )
             },
             text = {
@@ -234,16 +238,17 @@ fun GamePageScreen(
                         visibleHints.forEach { hint ->
                             Surface(
                                 shape = RoundedCornerShape(8.dp),
-                                color = when (hint.tier) {
-                                    HintTier.HARD -> Color(0x332196F3)
-                                    HintTier.MEDIUM -> Color(0x334CAF50)
-                                    HintTier.EASY -> Color(0x33FFC107)
-                                }
+                                color =
+                                    when (hint.tier) {
+                                        HintTier.HARD -> Color(0x332196F3)
+                                        HintTier.MEDIUM -> Color(0x334CAF50)
+                                        HintTier.EASY -> Color(0x33FFC107)
+                                    },
                             ) {
                                 Text(
                                     text = hint.text,
                                     style = MaterialTheme.typography.bodyMedium,
-                                    modifier = Modifier.padding(10.dp)
+                                    modifier = Modifier.padding(10.dp),
                                 )
                             }
                         }
@@ -252,31 +257,32 @@ fun GamePageScreen(
             },
             confirmButton = {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    //if the tier is below 3, then it is shown also show more hints
+                    // if the tier is below 3, then it is shown also show more hints
                     if (tierShown < 3) {
                         TextButton(onClick = { viewModel.revealNextTierAndPenalize() }) {
                             Text("Show more hints (−1)", style = MaterialTheme.typography.titleMedium)
                         }
                     }
-                    //always show close
+                    // always show close
                     TextButton(onClick = { showHintsDialog = false }) {
                         Text("Close", style = MaterialTheme.typography.titleMedium)
                     }
                 }
-            }
+            },
         )
     }
 
     Scaffold(
         containerColor = Color.Black,
-        contentWindowInsets = WindowInsets(0)
+        contentWindowInsets = WindowInsets(0),
     ) { padding ->
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding),
         ) {
-            //Street View stuff
+            // Street View stuff
             if (currentLocation == null) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
@@ -284,11 +290,9 @@ fun GamePageScreen(
             } else {
                 StreetViewPanoramaComposable(
                     location = currentLocation!!,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 )
-
             }
-
 
             // Top bar with timer, score, back button, and hint button.
             TopGameBar(timeLeft, user?.score ?: 0, onBackClick, {
@@ -298,18 +302,20 @@ fun GamePageScreen(
             }, tierShown <= 3)
 
             Column(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 90.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 90.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 // Input field and submit button at the bottom of the screen.
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth(0.9f)
-                        .height(56.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(0.9f)
+                            .height(56.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.Center,
                 ) {
                     OutlinedTextField(
                         value = answer,
@@ -318,24 +324,25 @@ fun GamePageScreen(
                             Text(
                                 "What country is it?",
                                 color = Color.Black.copy(alpha = 0.6f),
-                                fontSize = 18.sp
+                                fontSize = 18.sp,
                             )
                         },
                         textStyle = LocalTextStyle.current.copy(fontSize = 20.sp),
                         singleLine = true,
                         shape = RoundedCornerShape(50),
                         modifier = Modifier.weight(1f),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.White,
-                            unfocusedBorderColor = Color.White,
-                            focusedContainerColor = Color(0xAA99FF99),
-                            unfocusedContainerColor = Color(0xAA99FF99),
-                            focusedTextColor = Color.Black,
-                            unfocusedTextColor = Color.Black,
-                            cursorColor = Color.Black
-                        ),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color.White,
+                                unfocusedBorderColor = Color.White,
+                                focusedContainerColor = Color(0xAA99FF99),
+                                unfocusedContainerColor = Color(0xAA99FF99),
+                                focusedTextColor = Color.Black,
+                                unfocusedTextColor = Color.Black,
+                                cursorColor = Color.Black,
+                            ),
                         keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-                        keyboardActions = KeyboardActions(onDone = { handleSubmit() })
+                        keyboardActions = KeyboardActions(onDone = { handleSubmit() }),
                     )
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -344,12 +351,12 @@ fun GamePageScreen(
                         onClick = { handleSubmit() },
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
-                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp)
+                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp),
                     ) {
                         Text(
                             "Submit",
                             color = Color.White,
-                            style = MaterialTheme.typography.titleMedium // Match the timer text
+                            style = MaterialTheme.typography.titleMedium, // Match the timer text
                         )
                     }
                 }
@@ -365,7 +372,7 @@ fun GamePageScreen(
                         TextButton(onClick = { errorMessage = null }) {
                             Text("OK")
                         }
-                    }
+                    },
                 )
             }
 
@@ -380,7 +387,7 @@ fun GamePageScreen(
                     title = {
                         Text(
                             if (isCorrect) "✅ Correct!" else "❌ Incorrect! \n Correct answer: ${currentQuestion?.correctAnswer}",
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
                         )
                     },
                     confirmButton = {
@@ -391,7 +398,7 @@ fun GamePageScreen(
                         }) {
                             Text("Next")
                         }
-                    }
+                    },
                 )
             }
         }
@@ -412,30 +419,32 @@ fun TopGameBar(
     score: Int,
     onBackClick: () -> Unit,
     onHintClick: () -> Unit,
-    isHintEnabled: Boolean
+    isHintEnabled: Boolean,
 ) {
     // Adapting UI to system theme (dark/light).
     val iconColor = if (isSystemInDarkTheme()) Color.White else Color.Black
     val buttonBackgroundColor = Color(0xAA4CAF50) // Darker, transparent green
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 30.dp, start = 16.dp, end = 16.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(top = 30.dp, start = 16.dp, end = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         // Back button.
         IconButton(
             onClick = onBackClick,
-            modifier = Modifier
-                .size(56.dp)
-                .background(buttonBackgroundColor, CircleShape)
+            modifier =
+                Modifier
+                    .size(56.dp)
+                    .background(buttonBackgroundColor, CircleShape),
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Back",
-                tint = iconColor
+                tint = iconColor,
             )
         }
 
@@ -445,24 +454,26 @@ fun TopGameBar(
             color = Color.White,
             style = MaterialTheme.typography.titleMedium,
             textAlign = TextAlign.Center,
-            modifier = Modifier
-                .clip(CircleShape) // Rounded corners
-                .background(buttonBackgroundColor) // Darker, transparent green
-                .padding(8.dp)
+            modifier =
+                Modifier
+                    .clip(CircleShape) // Rounded corners
+                    .background(buttonBackgroundColor) // Darker, transparent green
+                    .padding(8.dp),
         )
 
         // Hint button.
         IconButton(
             onClick = onHintClick,
             enabled = isHintEnabled,
-            modifier = Modifier
-                .size(56.dp)
-                .background(buttonBackgroundColor, CircleShape)
+            modifier =
+                Modifier
+                    .size(56.dp)
+                    .background(buttonBackgroundColor, CircleShape),
         ) {
             Image(
                 painter = painterResource(id = R.drawable.hint_icon),
                 contentDescription = "Hint",
-                colorFilter = ColorFilter.tint(iconColor)
+                colorFilter = ColorFilter.tint(iconColor),
             )
         }
     }

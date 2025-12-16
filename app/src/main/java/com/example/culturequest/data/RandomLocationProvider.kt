@@ -11,7 +11,6 @@ import kotlinx.serialization.json.Json
 import java.net.URL
 
 object RandomLocationProvider {
-
     private val jsonParser = Json { ignoreUnknownKeys = true }
     private const val API_KEY = BuildConfig.GEOLOCATION_API_KEY
 
@@ -27,12 +26,11 @@ object RandomLocationProvider {
                 val json = URL(url).readText()
                 val response = jsonParser.decodeFromString<StreetViewMetaDataResponse>(json)
 
-                //api returns "OK" if imagery is found.
-                //we need this to make sure a street view panorama is available for this location, otherwise it will display a black screen
+                // api returns "OK" if imagery is found.
+                // we need this to make sure a street view panorama is available for this location, otherwise it will display a black screen
                 val hasImagery = response.status == "OK"
                 Log.d("RLP_DEBUG", "StreetView imagery check for $point: ${response.status}")
                 return@withContext hasImagery
-
             } catch (e: Exception) {
                 Log.e("RandomLocation", "Street View metadata check failed", e)
                 return@withContext false
@@ -77,7 +75,6 @@ object RandomLocationProvider {
 
                 // fallback, return center of the country if no valid candidates found (hopefully works)
                 LatLng((sw.lat + ne.lat) / 2, (sw.lng + ne.lng) / 2)
-
             } catch (e: Exception) {
                 Log.e("RandomLocation", "Critical error", e)
                 null
@@ -100,7 +97,6 @@ object RandomLocationProvider {
             val geometry = response.results.firstOrNull()?.geometry ?: return null
             val bounds = geometry.bounds ?: geometry.viewport ?: return null
             Pair(bounds.southwest, bounds.northeast)
-
         } catch (e: Exception) {
             Log.e("CountryBounds", "Failed bounds for $countryName", e)
             null
@@ -113,7 +109,10 @@ object RandomLocationProvider {
      * Uses the Google Geocode API to check if the given coordinate is within the boundaries of the expected country.
      * @return True if the coordinate is within the country's boundaries, false otherwise.
      */
-    private suspend fun isPointInCountry(point: LatLng, expected: String): Boolean =
+    private suspend fun isPointInCountry(
+        point: LatLng,
+        expected: String,
+    ): Boolean =
         withContext(Dispatchers.IO) {
             try {
                 val url =
@@ -121,62 +120,62 @@ object RandomLocationProvider {
                 val json = URL(url).readText()
                 val response = jsonParser.decodeFromString<GeocodingResponse>(json)
 
-                val found = response.results.firstOrNull()
-                    ?.address_components
-                    ?.firstOrNull { "country" in it.types }
-                    ?.long_name
+                val found =
+                    response.results
+                        .firstOrNull()
+                        ?.address_components
+                        ?.firstOrNull { "country" in it.types }
+                        ?.long_name
 
                 Log.d("RLP_DEBUG", "Reverse geocode for $point returned country: $found")
                 found?.equals(expected, ignoreCase = true) == true
-
             } catch (e: Exception) {
                 Log.e("RandomLocation", "Reverse geocode failed", e)
                 false
             }
         }
 
-
     @Serializable
     data class GeocodingResponse(
         val results: List<GeocodingResult>,
-        val status: String
+        val status: String,
     )
 
     @Serializable
     data class StreetViewMetaDataResponse(
-        val status: String
+        val status: String,
     )
 
     @Serializable
     data class GeocodingResult(
         val geometry: Geometry,
         @SerialName("address_components")
-        val address_components: List<AddressComponent>
+        val address_components: List<AddressComponent>,
     )
 
     @Serializable
     data class Geometry(
         val location: Location,
         val bounds: Bounds? = null,
-        val viewport: Bounds? = null
+        val viewport: Bounds? = null,
     )
 
     @Serializable
     data class Bounds(
         val northeast: Location,
-        val southwest: Location
+        val southwest: Location,
     )
 
     @Serializable
     data class Location(
         val lat: Double,
-        val lng: Double
+        val lng: Double,
     )
 
     @Serializable
     data class AddressComponent(
         @SerialName("long_name")
         val long_name: String,
-        val types: List<String>
+        val types: List<String>,
     )
 }

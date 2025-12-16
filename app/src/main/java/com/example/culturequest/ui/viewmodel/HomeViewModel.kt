@@ -3,15 +3,13 @@ package com.example.culturequest.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.culturequest.MyApp
 import com.example.culturequest.data.UserRepository
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import com.google.firebase.auth.FirebaseAuth
 
 class HomeViewModel : ViewModel() {
-
     private val userRepository = UserRepository()
 
     // Current user score (stateful, observable)

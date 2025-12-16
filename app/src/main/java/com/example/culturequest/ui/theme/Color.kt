@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Color
  * using ARGB hexadecimal notation.
  */
 
-/* ---------------------------- Light Theme Colors ---------------------------- */
+// ---------------------------- Light Theme Colors ----------------------------
 
 /**
  * Primary color used for prominent UI elements in light theme.
@@ -105,7 +105,7 @@ val md_theme_light_surface = Color(0xFFFDFDF5)
  */
 val md_theme_light_onSurface = Color(0xFF1A1C18)
 
-/* ---------------------------- Dark Theme Colors ----------------------------- */
+// ---------------------------- Dark Theme Colors -----------------------------
 
 /**
  * Primary color used for prominent UI elements in dark theme.

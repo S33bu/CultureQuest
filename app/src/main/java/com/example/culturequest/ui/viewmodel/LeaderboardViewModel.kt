@@ -11,12 +11,11 @@ import kotlinx.coroutines.flow.asStateFlow
 // Represents a single leaderboard entry loaded from Firestore.
 data class LeaderboardEntry(
     val displayName: String,
-    val bestScore: Int
+    val bestScore: Int,
 )
 
 // ViewModel responsible for loading and exposing the global leaderboard.
 class LeaderboardViewModel : ViewModel() {
-
     private val firestore = FirebaseFirestore.getInstance()
 
     // Backing StateFlow for the list of top players.
@@ -30,7 +29,8 @@ class LeaderboardViewModel : ViewModel() {
 
     // Subscribes to Firestore changes and keeps the leaderboard in sync.
     private fun listenToTopPlayers() {
-        firestore.collection("users")
+        firestore
+            .collection("users")
             .orderBy("bestScore", Query.Direction.DESCENDING)
             .limit(10) // top 10 players
             .addSnapshotListener { snapshot, error ->
@@ -44,11 +44,12 @@ class LeaderboardViewModel : ViewModel() {
                     return@addSnapshotListener
                 }
 
-                val entries = snapshot.documents.mapNotNull { doc ->
-                    val name = doc.getString("displayName") ?: "Player"
-                    val score = doc.getLong("bestScore")?.toInt() ?: 0
-                    LeaderboardEntry(name, score)
-                }
+                val entries =
+                    snapshot.documents.mapNotNull { doc ->
+                        val name = doc.getString("displayName") ?: "Player"
+                        val score = doc.getLong("bestScore")?.toInt() ?: 0
+                        LeaderboardEntry(name, score)
+                    }
 
                 _leaders.value = entries
             }
@@ -56,7 +57,8 @@ class LeaderboardViewModel : ViewModel() {
 
     // One–shot refresh used when Profile screen is opened
     fun refreshLeaderboard() {
-        firestore.collection("users")
+        firestore
+            .collection("users")
             .orderBy("bestScore", Query.Direction.DESCENDING)
             .limit(10)
             .get()
@@ -66,17 +68,16 @@ class LeaderboardViewModel : ViewModel() {
                     return@addOnSuccessListener
                 }
 
-                val entries = snapshot.documents.mapNotNull { doc ->
-                    val name = doc.getString("displayName") ?: "Player"
-                    val score = doc.getLong("bestScore")?.toInt() ?: 0
-                    LeaderboardEntry(name, score)
-                }
+                val entries =
+                    snapshot.documents.mapNotNull { doc ->
+                        val name = doc.getString("displayName") ?: "Player"
+                        val score = doc.getLong("bestScore")?.toInt() ?: 0
+                        LeaderboardEntry(name, score)
+                    }
 
                 _leaders.value = entries
-            }
-            .addOnFailureListener { e ->
+            }.addOnFailureListener { e ->
                 Log.e("LeaderboardViewModel", "Failed to refresh leaderboard", e)
             }
     }
-
 }

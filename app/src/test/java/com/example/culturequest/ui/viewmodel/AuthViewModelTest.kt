@@ -2,20 +2,20 @@ package com.example.culturequest.ui.viewmodel
 
 // Import necessary testing libraries.
 
+import android.os.Looper.getMainLooper
 import com.example.culturequest.MyApp
+import com.google.android.gms.tasks.Tasks
+import com.google.firebase.auth.FirebaseAuth
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import com.google.firebase.auth.FirebaseAuth
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
-import com.google.android.gms.tasks.Tasks
-import android.os.Looper.getMainLooper
+import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 
 /**
  * Unit tests for [AuthViewModel].
@@ -69,16 +69,16 @@ class AuthViewModelTest {
      */
     @Test
     fun `signUp with badly formatted email shows error`() {
-        //Creating a "Fake" Exception that looks like FireBase's error
+        // Creating a "Fake" Exception that looks like FireBase's error
         val exception = Exception("The email address is badly formatted.")
 
-        //Telling the mock "When someone calls createuser, return a failed task immediately"
+        // Telling the mock "When someone calls createuser, return a failed task immediately"
         whenever(mockAuth.createUserWithEmailAndPassword(any(), any()))
             .thenReturn(Tasks.forException(exception))
 
         viewModel.signUp("test", "password")
 
-        //Forces the Main Looper to process the 'addOnCompleteListener' result, without this errormessage would remain null
+        // Forces the Main Looper to process the 'addOnCompleteListener' result, without this errormessage would remain null
         shadowOf(getMainLooper()).idle()
         assertEquals("The email address is badly formatted.", viewModel.authState.value.errorMessage)
     }
@@ -90,13 +90,12 @@ class AuthViewModelTest {
     @Test
     fun `signIn with incorrect password shows error`() {
         val exception = Exception("The supplied auth credential is incorrect, malformed or has expired.")
-        //Directing the mock to return a failed task when signIn is called.
+        // Directing the mock to return a failed task when signIn is called.
         whenever(mockAuth.signInWithEmailAndPassword(any(), any()))
             .thenReturn(Tasks.forException(exception))
         viewModel.signIn("nonexistent@user.com", "wrongpassword")
-        //Ensures the ViewModel state update is processed before assertion.
+        // Ensures the ViewModel state update is processed before assertion.
         shadowOf(getMainLooper()).idle()
         assertEquals("The supplied auth credential is incorrect, malformed or has expired.", viewModel.authState.value.errorMessage)
     }
-
 }

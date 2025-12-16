@@ -6,9 +6,9 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
-    alias(libs.plugins.kotlin.serialization)   // ← add this
+    alias(libs.plugins.kotlin.serialization) // ← add this
     id("com.google.gms.google-services")
-
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
 }
 
 android {
@@ -23,7 +23,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "io.qameta.allure.android.runners.AllureAndroidJUnitRunner"
-
     }
 
     buildTypes {
@@ -31,13 +30,17 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
     buildTypes.forEach {
         it.buildConfigField("String", "MAPS_API_KEY", "\"${System.getenv("MAPS_API_KEY") ?: project.findProperty("MAPS_API_KEY")}\"")
-        it.buildConfigField("String", "GEOLOCATION_API_KEY", "\"${System.getenv("GEOLOCATION_API_KEY") ?: project.findProperty("GEOLOCATION_API_KEY")}\"")
+        it.buildConfigField(
+            "String",
+            "GEOLOCATION_API_KEY",
+            "\"${System.getenv("GEOLOCATION_API_KEY") ?: project.findProperty("GEOLOCATION_API_KEY")}\"",
+        )
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -53,12 +56,33 @@ android {
     }
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.fromTarget(libs.versions.jvm.target.get()))
+ktlint {
+    version.set("1.3.1") // The version of the ktlint engine
+    verbose.set(true)
+    outputToConsole.set(true)
+    coloredOutput.set(true)
+
+    // Use this to apply Android-specific code style rules
+    android.set(true)
+
+    // You can also define which files to include or exclude
+    filter {
+        // Example: exclude generated data binding classes
+        exclude("**/generated/**")
+        include("**/kotlin/**")
     }
 }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(
+            JvmTarget.fromTarget(
+                libs.versions.jvm.target
+                    .get(),
+            ),
+        )
+    }
+}
 
 dependencies {
 
@@ -97,14 +121,14 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
-    //JSON parser
+    // JSON parser
     implementation(libs.kotlinx.serialization.json)
     // DataStore
     implementation(libs.androidx.datastore.preferences)
     // Material Icons Extended
     implementation(libs.androidx.material.icons.extended)
 
-    //allure
+    // allure
     androidTestImplementation("io.qameta.allure:allure-kotlin-model:2.4.0")
     androidTestImplementation("io.qameta.allure:allure-kotlin-commons:2.4.0")
     androidTestImplementation("io.qameta.allure:allure-kotlin-junit4:2.4.0")
@@ -113,7 +137,7 @@ dependencies {
     // Robolectric
     testImplementation("org.robolectric:robolectric:4.12.2")
     testImplementation("androidx.test:core:1.6.1")
-    //Mockito
+    // Mockito
     testImplementation("org.mockito:mockito-core:5.12.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
 }

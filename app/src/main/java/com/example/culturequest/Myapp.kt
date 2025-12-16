@@ -2,22 +2,20 @@ package com.example.culturequest
 
 import android.app.Application
 import android.content.Context
-import com.example.culturequest.data.SettingsDataStore
 import androidx.room.Room
 import com.example.culturequest.data.AppDatabase
-
+import com.example.culturequest.data.SettingsDataStore
 
 class MyApp : Application() {
-
     private lateinit var settingsDataStore: SettingsDataStore
 
-
     val database: AppDatabase by lazy {
-        Room.databaseBuilder(
-            this,
-            AppDatabase::class.java,
-            "culturequest-db"
-        ).build()
+        Room
+            .databaseBuilder(
+                this,
+                AppDatabase::class.java,
+                "culturequest-db",
+            ).build()
     }
 
     override fun onCreate() {
@@ -27,9 +25,7 @@ class MyApp : Application() {
         settingsDataStore = SettingsDataStore(this)
     }
 
-    fun getSettingsDataStore(): SettingsDataStore {
-        return settingsDataStore
-    }
+    fun getSettingsDataStore(): SettingsDataStore = settingsDataStore
 
     companion object { // warns about memory leak but should be fine because Application lives as long as the app
 
@@ -39,8 +35,6 @@ class MyApp : Application() {
         lateinit var context: Context
             private set
 
-        fun from(context: Context): MyApp {
-            return context.applicationContext as MyApp
-        }
+        fun from(context: Context): MyApp = context.applicationContext as MyApp
     }
 }

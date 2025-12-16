@@ -40,7 +40,6 @@ import com.example.culturequest.ui.viewmodel.SettingsViewModel
  * - Hosting the root composable responsible for app navigation
  */
 class MainActivity : ComponentActivity() {
-
     /**
      * Called when the activity is first created.
      *
@@ -57,11 +56,12 @@ class MainActivity : ComponentActivity() {
             val settingsViewModel: SettingsViewModel = viewModel()
             val theme by settingsViewModel.theme.collectAsState()
 
-            val useDarkTheme = when (theme) {
-                Theme.LIGHT -> false
-                Theme.DARK -> true
-                Theme.SYSTEM -> isSystemInDarkTheme()
-            }
+            val useDarkTheme =
+                when (theme) {
+                    Theme.LIGHT -> false
+                    Theme.DARK -> true
+                    Theme.SYSTEM -> isSystemInDarkTheme()
+                }
 
             CultureQuestTheme(darkTheme = useDarkTheme) {
                 Surface(modifier = Modifier.fillMaxSize()) {
@@ -111,65 +111,71 @@ fun AppNavigation() {
     }
 
     when (currentScreen) {
-        "login" -> LoginPageScreen(
-            onSignUpClick = {
-                authViewModel.clearError()
-                currentScreen = "signup"
-            },
-            onSignInClick = { email, password ->
-                authViewModel.signIn(email, password)
-            },
-            isLoading = authState.isLoading,
-            errorMessage = authState.errorMessage,
-            onClearError = { authViewModel.clearError() }
-        )
+        "login" ->
+            LoginPageScreen(
+                onSignUpClick = {
+                    authViewModel.clearError()
+                    currentScreen = "signup"
+                },
+                onSignInClick = { email, password ->
+                    authViewModel.signIn(email, password)
+                },
+                isLoading = authState.isLoading,
+                errorMessage = authState.errorMessage,
+                onClearError = { authViewModel.clearError() },
+            )
 
-        "signup" -> SignupPageScreen(
-            onBackClick = {
-                authViewModel.clearError()
-                currentScreen = "login"
-            },
-            onSignupClick = { email, password ->
-                authViewModel.signUp(email, password)
-            },
-            isLoading = authState.isLoading,
-            errorMessage = authState.errorMessage,
-            onClearError = { authViewModel.clearError() }
-        )
+        "signup" ->
+            SignupPageScreen(
+                onBackClick = {
+                    authViewModel.clearError()
+                    currentScreen = "login"
+                },
+                onSignupClick = { email, password ->
+                    authViewModel.signUp(email, password)
+                },
+                isLoading = authState.isLoading,
+                errorMessage = authState.errorMessage,
+                onClearError = { authViewModel.clearError() },
+            )
 
-        "home" -> HomeScreen(
-            onAboutClick = { currentScreen = "about" },
-            onProfileClick = { currentScreen = "profile" },
-            gameViewModel = gameViewModel,
-            onGameClick = {
-                gameViewModel.resetGame(resetUserScore = true)
-                currentScreen = "game"
-            },
-            lastGameScore = lastGameScore
-        )
+        "home" ->
+            HomeScreen(
+                onAboutClick = { currentScreen = "about" },
+                onProfileClick = { currentScreen = "profile" },
+                gameViewModel = gameViewModel,
+                onGameClick = {
+                    gameViewModel.resetGame(resetUserScore = true)
+                    currentScreen = "game"
+                },
+                lastGameScore = lastGameScore,
+            )
 
-        "about" -> AboutPageScreen(
-            onBackClick = { currentScreen = "home" }
-        )
+        "about" ->
+            AboutPageScreen(
+                onBackClick = { currentScreen = "home" },
+            )
 
-        "game" -> GamePageScreen(
-            onBackClick = {
-                lastGameScore = gameViewModel.user.value?.score ?: 0
-                currentScreen = "home"
-                gameViewModel.resetGame(resetUserScore = false)
-            },
-            onGameEnd = { score ->
-                lastGameScore = score
-                currentScreen = "home"
-                gameViewModel.resetGame(resetUserScore = false)
-            },
-            viewModel = gameViewModel
-        )
+        "game" ->
+            GamePageScreen(
+                onBackClick = {
+                    lastGameScore = gameViewModel.user.value?.score ?: 0
+                    currentScreen = "home"
+                    gameViewModel.resetGame(resetUserScore = false)
+                },
+                onGameEnd = { score ->
+                    lastGameScore = score
+                    currentScreen = "home"
+                    gameViewModel.resetGame(resetUserScore = false)
+                },
+                viewModel = gameViewModel,
+            )
 
-        "profile" -> ProfilePageScreen(
-            onBackClick = { currentScreen = "home" },
-            gameViewModel = gameViewModel,
-            leaderboardViewModel = leaderboardViewModel
-        )
+        "profile" ->
+            ProfilePageScreen(
+                onBackClick = { currentScreen = "home" },
+                gameViewModel = gameViewModel,
+                leaderboardViewModel = leaderboardViewModel,
+            )
     }
 }

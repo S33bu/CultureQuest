@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 @Database(
     entities = [UserProfile::class, QuizQuestion::class], // Database tables
     version = 1,
-    exportSchema = false
+    exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
     // Provides access to user-related queries

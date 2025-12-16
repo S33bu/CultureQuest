@@ -1,12 +1,12 @@
 package com.example.culturequest
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
@@ -17,23 +17,24 @@ import io.qameta.allure.kotlin.Step
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import io.qameta.allure.android.runners.AllureAndroidJUnit4
-
 
 @RunWith(AndroidJUnit4::class)
 class GameFlowTest {
-
-    //https://developer.android.com/develop/ui/compose/testing
-    //NB ideally wanted to get allure report working, but had issues and could not
-    //from usual experience the steps are still defined
+    // https://developer.android.com/develop/ui/compose/testing
+    // NB ideally wanted to get allure report working, but had issues and could not
+    // from usual experience the steps are still defined
 
     @Step("Ensure logged in and on home screen")
-    private fun ensureLoggedInAndOnHome(email: String, password: String) {
-        val alreadyOnHome = runCatching {
-            composeTestRule.waitUntil(timeoutMillis = 10_000) {
-                composeTestRule.onAllNodesWithText("Play now").fetchSemanticsNodes().isNotEmpty()
-            }
-        }.isSuccess
+    private fun ensureLoggedInAndOnHome(
+        email: String,
+        password: String,
+    ) {
+        val alreadyOnHome =
+            runCatching {
+                composeTestRule.waitUntil(timeoutMillis = 10_000) {
+                    composeTestRule.onAllNodesWithText("Play now").fetchSemanticsNodes().isNotEmpty()
+                }
+            }.isSuccess
 
         if (!alreadyOnHome) {
             step("Not already on home -> performing sign-in or sign-up")
@@ -45,27 +46,33 @@ class GameFlowTest {
     }
 
     @Step("Sign in or sign up")
-    private fun signInOrSignUp (email: String, password: String) {
-
+    private fun signInOrSignUp(
+        email: String,
+        password: String,
+    ) {
         composeTestRule.onNodeWithText("Email").assertIsDisplayed()
         composeTestRule.onNodeWithText("Password").assertIsDisplayed()
         composeTestRule.onNodeWithText("Email").performTextInput(email)
         composeTestRule.onNodeWithText("Password").performTextInput(password)
         composeTestRule.onNodeWithText("Sign In ->").performClick()
 
-        val loginSucceeded = runCatching {
-            composeTestRule.waitUntil(timeoutMillis = 5_000) {
-                composeTestRule.onAllNodesWithText("Play now")
-                    .fetchSemanticsNodes()
-                    .isNotEmpty()
-            }
-        }.isSuccess
+        val loginSucceeded =
+            runCatching {
+                composeTestRule.waitUntil(timeoutMillis = 5_000) {
+                    composeTestRule
+                        .onAllNodesWithText("Play now")
+                        .fetchSemanticsNodes()
+                        .isNotEmpty()
+                }
+            }.isSuccess
 
         if (loginSucceeded == false) {
             composeTestRule.onNodeWithText("Sign Up").performClick()
 
             composeTestRule.waitUntil(timeoutMillis = 5000) {
-                composeTestRule.onAllNodesWithText("Create account").fetchSemanticsNodes()
+                composeTestRule
+                    .onAllNodesWithText("Create account")
+                    .fetchSemanticsNodes()
                     .isNotEmpty()
             }
 
@@ -130,8 +137,6 @@ class GameFlowTest {
         composeTestRule.onNodeWithText("What country is it?").assertIsDisplayed()
         composeTestRule.onNodeWithText("Submit").assertIsDisplayed()
     }
-
-
 
     @get:Rule
     val composeTestRule = createComposeRule()

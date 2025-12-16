@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -25,7 +26,6 @@ import com.example.culturequest.ui.viewmodel.LeaderboardEntry
 import com.example.culturequest.ui.viewmodel.LeaderboardViewModel
 import com.google.firebase.auth.FirebaseAuth
 import java.util.Locale
-import androidx.compose.runtime.LaunchedEffect
 
 // The main composable for the Profile Page.
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,7 +33,7 @@ import androidx.compose.runtime.LaunchedEffect
 fun ProfilePageScreen(
     onBackClick: () -> Unit,
     gameViewModel: GameViewModel,
-    leaderboardViewModel: LeaderboardViewModel = viewModel()
+    leaderboardViewModel: LeaderboardViewModel = viewModel(),
 ) {
     val scrollState = rememberScrollState()
     val user by gameViewModel.user.collectAsState()
@@ -47,73 +47,79 @@ fun ProfilePageScreen(
     // Retrieve user's email from Firebase Authentication.
     val email = firebaseUser?.email
 
-    val displayName = remember(email, user) {
-        email?.let { nameFromEmail(it) }
-            ?: user?.username
-            ?: "Player"
-        // Determine the display name, prioritizing email parsing, then stored username.
-    }
+    val displayName =
+        remember(email, user) {
+            email?.let { nameFromEmail(it) }
+                ?: user?.username
+                ?: "Player"
+            // Determine the display name, prioritizing email parsing, then stored username.
+        }
 
     Scaffold { padding ->
         Box(
             // The root container for the screen.
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding),
         ) {
             Image(
                 painter = painterResource(id = R.drawable.maa),
                 contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .alpha(0.15f)
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .alpha(0.15f),
             )
-            //top circle
+            // top circle
             Box(
-                modifier = Modifier
-                    .size(600.dp)
-                    .offset(y = (-320).dp) // Move bubble down
-                    .clip(androidx.compose.foundation.shape.CircleShape)
-                    .background(MaterialTheme.colorScheme.primary)
+                modifier =
+                    Modifier
+                        .size(600.dp)
+                        .offset(y = (-320).dp) // Move bubble down
+                        .clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(MaterialTheme.colorScheme.primary),
             )
-
 
             // Main content layout.
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp, vertical = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 ProfileHeaderCircle(
                     onBackClick = onBackClick,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 40.dp)
-                        .offset(y = (-40).dp) // Move title further up
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(top = 40.dp)
+                            .offset(y = (-40).dp), // Move title further up
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Column(
-                    modifier = Modifier
-                        // Offset to overlap with the header.
-                        .offset(y = (-90).dp)
-                        .verticalScroll(scrollState)
-                        .padding(32.dp),
+                    modifier =
+                        Modifier
+                            // Offset to overlap with the header.
+                            .offset(y = (-90).dp)
+                            .verticalScroll(scrollState)
+                            .padding(32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(24.dp)
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
                 ) {
                     ProfileItem(label = "Name", value = displayName)
                     // Display user's statistics.
                     ProfileItem(
                         label = "High Score",
-                        value = user?.bestScore?.toString() ?: "0"
+                        value = user?.bestScore?.toString() ?: "0",
                     )
 
                     ProfileItem(
                         label = "Games Played",
-                        value = user?.gamesPlayed?.toString() ?: "0"
+                        value = user?.gamesPlayed?.toString() ?: "0",
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -121,7 +127,7 @@ fun ProfilePageScreen(
                     Text(
                         text = "Keep exploring and unlocking new cultural adventures!",
                         style = MaterialTheme.typography.bodyLarge,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
 
                     Spacer(modifier = Modifier.height(32.dp))
@@ -134,29 +140,28 @@ fun ProfilePageScreen(
     }
 }
 
-
 @Composable
 fun ProfileHeaderCircle(
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier.height(250.dp),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
-        //icons at the very top
+        // icons at the very top
         Row(
             modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter).padding(horizontal = 8.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             IconButton(
-                onClick = onBackClick
+                onClick = onBackClick,
             ) {
                 Icon(
                     painter = painterResource(R.drawable.backbutton),
                     contentDescription = "Back",
                     modifier = Modifier.size(50.dp),
-                    tint = MaterialTheme.colorScheme.onPrimary
+                    tint = MaterialTheme.colorScheme.onPrimary,
                 )
             }
         }
@@ -167,34 +172,37 @@ fun ProfileHeaderCircle(
             style = MaterialTheme.typography.displayLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onPrimary,
             textAlign = TextAlign.Center,
-            modifier = Modifier.align(Alignment.Center) // Center in the Box
+            modifier = Modifier.align(Alignment.Center), // Center in the Box
         )
     }
 }
 
 // A reusable composable to display a labeled piece of user information.
 @Composable
-private fun ProfileItem(label: String, value: String) {
+private fun ProfileItem(
+    label: String,
+    value: String,
+) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
         )
         Text(
             text = value,
             style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Medium,
         )
         Divider(thickness = 1.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
     }
 }
-
 
 // A helper function to extract a user's name from their email address.
 private fun nameFromEmail(email: String): String {
@@ -216,45 +224,47 @@ private fun nameFromEmail(email: String): String {
 @Composable
 private fun LeaderboardSection(leaders: List<LeaderboardEntry>) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
             text = "Top Players",
             style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
         )
 
         if (leaders.isEmpty()) {
             Text(
                 text = "No leaderboard data yet.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         } else {
             leaders.forEachIndexed { index, entry ->
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
                         text = "${index + 1}. ${entry.displayName}",
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
                     )
                     Text(
                         text = entry.bestScore.toString(),
                         style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
                     )
                 }
                 Divider(
                     thickness = 0.5.dp,
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
                 )
             }
         }
