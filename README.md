@@ -58,12 +58,10 @@ If you want help you can click on the bulb to get hints or click "Show more hint
 
 **About window**
 <br/>
-
 Clicking on the info button will open the about page
 <br/>
 
 **login/sign in**
-
 <br/>
 on the first boot of the app you will be greeted on the login page from there you click on the button to get to the page to create an user.
 for creating an user you need to insert your email, password and you have an user!
