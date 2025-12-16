@@ -33,8 +33,6 @@ class GameViewModel : ViewModel() {
 
     // Firestore instance for syncing user stats to the cloud
     private val firestore = FirebaseFirestore.getInstance()
-
-    private val db = MyApp.instance.database
     private val userRepository = UserRepository()
     private val gameRepository = GameRepository()
 
@@ -79,7 +77,7 @@ class GameViewModel : ViewModel() {
                 // now that countries are loaded, we can safely prepare questions and hints
                 viewModelScope.launch(Dispatchers.IO) {
                     preloadQuestionsIfNeeded()
-                    val allQuestions = db.questionDao().getAllQuestions()
+                    val allQuestions = gameRepository.getAllQuestions()
                     _questions.value = allQuestions.shuffled()
 
                     prepareHintsForCurrent()
@@ -253,7 +251,7 @@ class GameViewModel : ViewModel() {
                     gamesPlayed = currentUser.gamesPlayed + 1
                 )
                 viewModelScope.launch {
-                    db.userDao().insertUser(updatedUser)
+                    userRepository.saveLocalProgress(updatedUser)
                     _user.value = updatedUser
 
                     // sync updated stats to Firestore
@@ -274,14 +272,14 @@ class GameViewModel : ViewModel() {
             if (resetUserScore) {
                 _user.value?.let { user ->
                     val resetUser = user.copy(score = 0)
-                    db.userDao().insertUser(resetUser)
+                    userRepository.saveLocalProgress(resetUser)
                     _user.value = resetUser
 
                     // sync reset stats to Firestore
                     syncUserToFirestore(resetUser)
                 }
             }
-            _questions.value = db.questionDao().getAllQuestions().shuffled()
+            _questions.value = gameRepository.getAllQuestions().shuffled()
             fetchRandomLocationForCurrentQuestion()
             resetHints()
             prepareHintsForCurrent()
