@@ -12,7 +12,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 class HomeViewModel : ViewModel() {
 
-    private val userRepository = UserRepository(MyApp.instance.database.userDao())
+    private val userRepository = UserRepository()
 
     // Current user score (stateful, observable)
     private val _score = MutableStateFlow(0)

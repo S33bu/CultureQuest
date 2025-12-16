@@ -35,8 +35,8 @@ class GameViewModel : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
 
     private val db = MyApp.instance.database
-    private val userRepository = UserRepository(db.userDao())
-    private val gameRepository = GameRepository(db.questionDao())
+    private val userRepository = UserRepository()
+    private val gameRepository = GameRepository()
 
     // StateFlow holding the list of quiz questions
     private val _questions = MutableStateFlow<List<QuizQuestion>>(emptyList())
