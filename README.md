@@ -32,7 +32,7 @@ Team Members:
 
 For a more detailed overview and upcoming features, visit our [**Wiki Page**](https://github.com/S33bu/CultureQuest/wiki).
 
-###Installation/Build instructions
+### Installation/Build instructions
 1. Download Android Studio
 2. Clone this Repo
 3. Sync the gradle if needed
@@ -45,7 +45,7 @@ For a more detailed overview and upcoming features, visit our [**Wiki Page**](ht
 ### Usage of the app
 
 In CultureQuest you can just click with your mouse or touch (depends if you have a touchpad or not) on buttons that seem logical.
-
+<br/>
 **Game window**
 <br/>
 There are multiple places you can click for example just click on "Play now" and it will start a game.
@@ -54,6 +54,7 @@ In the game you can drag to look around and even zoom by pinching or scrolling d
 If you want help you can click on the bulb to get hints or click "Show more hints" to get more hints but be aware you will get less points for finally correcting right
 <br/>
 **About window**
+<br/>
 Clicking on the info button will open the about page
 <br/>
 **login/sign in**
