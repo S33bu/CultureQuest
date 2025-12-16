@@ -65,11 +65,30 @@ Clicking on the info button will open the about page
 **login/sign in**
 
 <br/>
-
-
+on the first boot of the app you will be greeted on the login page from there you click on the button to get to the page to create an user.
+for creating an user you need to insert your email, password and you have an user!
+<br/>
 
 ### Project Structure
 
+- **assets**: Contains raw files (images, fonts, etc.) bundled with the app. These files are not compiled.
+
+- **java/com/example/culturequest**: Main source code for the app.
+  - **data**: Handles data-related classes such as models, repositories, and API services.
+  - **ui**: All UI components, split into:
+    - **screens**: Represents the app's different UI screens or fragments.
+    - **theme**: Defines the app's theme, colors, typography, and styles.
+    - **viewmodel**: Contains ViewModels to manage UI data and handle lifecycle-related concerns.
+
+- **res**: Non-code resources for the app.
+  - **drawable**: Images and vector graphics used in the UI.
+  - **drawable-night**: Night mode (dark theme) resources.
+  - **mipmap**: App icons for different screen densities and Android versions.
+    - `mipmap-anydpi-v26`: Adaptive icons for Android 8.0+.
+    - Other mipmap folders (`hdpi`, `mdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`) for different screen resolutions.
+  - **values**: XML files for colors, strings, dimensions, and styles.
+  - **values-night**: Resources for the night theme.
+  - **xml**: Configuration files like preferences or custom XML layouts.
 
 ## Tools & Frameworks:
 <br/>
