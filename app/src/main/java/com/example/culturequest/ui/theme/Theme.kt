@@ -6,7 +6,12 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
-// Color scheme for dark mode
+/**
+ * Dark color scheme for the CultureQuest application.
+ *
+ * Defines the full Material 3 color palette used when dark mode is enabled.
+ * All colors are sourced from theme-specific color definitions.
+ */
 private val DarkColorScheme = darkColorScheme(
     primary = md_theme_dark_primary,
     onPrimary = md_theme_dark_onPrimary,
@@ -28,7 +33,12 @@ private val DarkColorScheme = darkColorScheme(
     onSurface = md_theme_dark_onSurface
 )
 
-// Color scheme for light mode
+/**
+ * Light color scheme for the CultureQuest application.
+ *
+ * Defines the full Material 3 color palette used when light mode is enabled.
+ * All colors are sourced from theme-specific color definitions.
+ */
 private val LightColorScheme = lightColorScheme(
     primary = md_theme_light_primary,
     onPrimary = md_theme_light_onPrimary,
@@ -50,20 +60,27 @@ private val LightColorScheme = lightColorScheme(
     onSurface = md_theme_light_onSurface
 )
 
-// The main theme for the CultureQuest app
+/**
+ * Main theme composable for the CultureQuest application.
+ *
+ * Applies the appropriate color scheme, typography, and shape definitions
+ * to all composables within its [content] scope.
+ *
+ * @param darkTheme Determines whether the dark color scheme should be used.
+ * Defaults to the system's current theme setting.
+ * @param content The composable content to which the theme will be applied.
+ */
 @Composable
 fun CultureQuestTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    // Selects the appropriate color scheme based on whether dark theme is enabled
     val colorScheme = if (darkTheme) {
         DarkColorScheme
     } else {
         LightColorScheme
     }
 
-    // Applies the selected color scheme, typography, and shapes to the MaterialTheme
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
