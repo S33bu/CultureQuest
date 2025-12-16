@@ -47,17 +47,24 @@ For a more detailed overview and upcoming features, visit our [**Wiki Page**](ht
 In CultureQuest you can just click with your mouse or touch (depends if you have a touchpad or not) on buttons that seem logical.
 <br/>
 **Game window**
+
 <br/>
+
 There are multiple places you can click for example just click on "Play now" and it will start a game.
 From there the game will generate a random google street view and you have to type in the box of the country you think it is and click "submit" or just enter on the keyboard.
 In the game you can drag to look around and even zoom by pinching or scrolling depending on the device and its inputs.
 If you want help you can click on the bulb to get hints or click "Show more hints" to get more hints but be aware you will get less points for finally correcting right
+
 <br/>
+
 **About window**
 <br/>
+
 Clicking on the info button will open the about page
 <br/>
+
 **login/sign in**
+
 <br/>
 
 
