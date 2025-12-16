@@ -67,6 +67,10 @@ Clicking on the info button will open the about page
 <br/>
 
 
+
+### Project Structure
+
+
 ## Tools & Frameworks:
 <br/>
 <ul>
