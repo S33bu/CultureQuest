@@ -3,9 +3,8 @@ package com.example.culturequest.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.Room
 import com.example.culturequest.MyApp
-import com.example.culturequest.data.AppDatabase
+import com.example.culturequest.data.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -13,12 +12,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 class HomeViewModel : ViewModel() {
 
-    // Build Room database instance
-    private val db = Room.databaseBuilder(
-        MyApp.context,
-        AppDatabase::class.java,
-        "culturequest-db"
-    ).build()
+    private val userRepository = UserRepository(MyApp.instance.database.userDao())
 
     // Current user score (stateful, observable)
     private val _score = MutableStateFlow(0)
@@ -35,7 +29,7 @@ class HomeViewModel : ViewModel() {
 
             // Collect the user profile Flow from the database
             // Updates _score whenever user's score changes
-            db.userDao().getUserFlow(uid).collect { user ->
+            userRepository.getUserProfile(uid).collect { user ->
                 _score.value = user?.score ?: 0
                 _bestScore.value = user?.bestScore ?: 0
             }

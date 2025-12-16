@@ -34,14 +34,18 @@ class ExampleUnitTest {
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         //Initialize Firebase manually for this test run
+
         FirebaseApp.initializeApp(context)
+
+
+        val app = context as MyApp
+        app.onCreate()
 
         viewModel = GameViewModel()
     }
 
     @After
     fun tearDown() {
-        viewModel.closeDataBase()
         Dispatchers.resetMain()
     }
 
