@@ -21,7 +21,6 @@ Team Members:
 - **Sebastian Mais** — Developer, Presenter   
   [GitHub Profile](https://github.com/S33bu)
 
-<br/>
 
 ### Goals
 - Deliver an engaging geography quiz experience
@@ -75,6 +74,16 @@ For a more detailed overview and upcoming features, visit our [**Wiki Page**](ht
 #### External Services & APIs
 - Google Maps Platform (Street View, Geocoding)
 - Firebase (Authentication, Firestore)
+
+### Project Structure
+The project follows the **MVVM (Model–View–ViewModel)** architectural pattern:
+
+- **data/**: Data layer containing Room-based local persistence, repository implementations, and external data sources (Firebase, Google Maps APIs).
+- **ui/screens/**: Stateless Jetpack Compose UI components and screen layouts.
+- **ui/viewmodel/**: ViewModels that manage UI state, handle user interactions, and expose state via `StateFlow`.
+- **ui/theme/**: Material 3 design system configuration (colors, typography, and shapes).
+- **assets/**: Bundled static resources, including the predefined country dataset used for hint generation.
+- **res/**: Android resources including drawables, strings for localization, and app icons.
 
 
 ### Usage Guide
@@ -165,14 +174,3 @@ Points are awarded based on hint usage, and the game continues automatically wit
 
 If the answer is incorrect, the correct country is displayed.  
 No points are awarded, and the game proceeds to the next location until the session ends.
-
-
-### Project Structure
-The project follows the **MVVM (Model–View–ViewModel)** architectural pattern:
-
-- **data/**: Data layer containing Room-based local persistence, repository implementations, and external data sources (Firebase, Google Maps APIs).
-- **ui/screens/**: Stateless Jetpack Compose UI components and screen layouts.
-- **ui/viewmodel/**: ViewModels that manage UI state, handle user interactions, and expose state via `StateFlow`.
-- **ui/theme/**: Material 3 design system configuration (colors, typography, and shapes).
-- **assets/**: Bundled static resources, including the predefined country dataset used for hint generation.
-- **res/**: Android resources including drawables, strings for localization, and app icons.
