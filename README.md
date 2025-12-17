@@ -44,14 +44,7 @@ For a more detailed overview and upcoming features, visit our [**Wiki Page**](ht
 6. Run application: select a physical device or emulator and click the green play button
 
 ### Key Project Dependencies
-The following core libaries are required and will be resolved automatically via Gradle: 
-Category,Libraries,Purpose
-UI Framework,Jetpack Compose (Material 3),Declarative UI and modern theme implementation.
-Backend / Auth,Firebase Auth & Firestore,User authentication and global leaderboard data.
-Database,Room Persistence Library,Local SQLite abstraction for offline score caching.
-Maps / Location,Google Maps SDK & Street View,Panoramic gameplay and location rendering.
-Concurrency,Kotlin Coroutines & Flow,Asynchronous programming and reactive data streams.
-Quality Control,Ktlint (Static Analysis),Enforcement of official Kotlin Style Guide standards.
+.
 
 
 
