@@ -25,6 +25,12 @@ import com.example.culturequest.data.Theme
 import com.example.culturequest.ui.viewmodel.SettingsViewModel
 import java.util.Locale
 
+/**
+ * Displays the About page, providing information about the app and allowing theme selection.
+ *
+ * @param onBackClick Callback invoked when the back button is clicked.
+ * @param settingsViewModel The [SettingsViewModel] used to manage theme settings.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutPageScreen(
@@ -38,14 +44,15 @@ fun AboutPageScreen(
 
     Scaffold { padding ->
         // Main container Box
-        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)) {
             Image(
                 painter = painterResource(id = R.drawable.maa),
                 contentDescription = null, // decorative
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .alpha(0.15f),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(0.15f),
             )
 
             // top circle
@@ -63,11 +70,10 @@ fun AboutPageScreen(
                 // HEADER INSIDE TOP CIRCLE
                 PageHeader(
                     onBackClick = onBackClick,
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(top = 40.dp)
-                            .offset(y = (-40).dp), // Move title further up
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 40.dp)
+                        .offset(y = (-40).dp), // Move title further up
                 )
 
                 Spacer(modifier = Modifier.height(100.dp))
@@ -101,13 +107,13 @@ fun AboutPageScreen(
                     Text(
                         text =
                             "CultureQuest drops you into real Google Maps panoramas from anywhere in the world — \n" +
-                                "quiet villages, busy streets, beaches, or even parks where people are doing yoga.\n" +
-                                "\n" +
-                                "Some places are easy to recognise; others look so familiar that guessing feels impossible. \n" +
-                                "That’s why you get tiered hints: area and landlocked status, then region, borders, currency, \n" +
-                                "and finally subregion and capital." + "\n" +
-                                "You have 1 minute to guess as many countries as you can. Your best score appears on the \n" +
-                                "global leaderboard, so you can see how you rank against players worldwide.",
+                                    "quiet villages, busy streets, beaches, or even parks where people are doing yoga.\n" +
+                                    "\n" +
+                                    "Some places are easy to recognise; others look so familiar that guessing feels impossible. \n" +
+                                    "That’s why you get tiered hints: area and landlocked status, then region, borders, currency, \n" +
+                                    "and finally subregion and capital." + "\n" +
+                                    "You have 1 minute to guess as many countries as you can. Your best score appears on the \n" +
+                                    "global leaderboard, so you can see how you rank against players worldwide.",
                         style = MaterialTheme.typography.bodyLarge,
                         textAlign = TextAlign.Center,
                     )
@@ -142,6 +148,12 @@ fun AboutPageScreen(
     }
 }
 
+/**
+ * Displays the header for the About page.
+ *
+ * @param onBackClick Callback invoked when the back button is clicked.
+ * @param modifier The [Modifier] to be applied to the header.
+ */
 @Composable
 fun PageHeader(
     onBackClick: () -> Unit,
@@ -153,7 +165,10 @@ fun PageHeader(
     ) {
         // icons at the very top
         Row(
-            modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter).padding(horizontal = 8.dp, vertical = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.TopCenter)
+                .padding(horizontal = 8.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             IconButton(
@@ -177,7 +192,11 @@ fun PageHeader(
     }
 }
 
-// Composable for displaying a single feature item with a bullet point.
+/**
+ * Displays a single feature item with a bullet point.
+ *
+ * @param text The feature description to display.
+ */
 @Composable
 private fun FeatureItem(text: String) {
     Row(
@@ -199,7 +218,12 @@ private fun FeatureItem(text: String) {
     }
 }
 
-// Composable that allows the user to select between Light and Dark themes.
+/**
+ * A composable that allows the user to select between Light and Dark themes.
+ *
+ * @param selectedTheme The currently selected [Theme].
+ * @param onThemeSelected Callback invoked when a new theme is selected.
+ */
 @Composable
 fun ThemeSelector(
     selectedTheme: Theme,
@@ -225,8 +249,10 @@ fun ThemeSelector(
             themes.forEach { theme ->
                 val isSelected = theme == selectedTheme
                 // Determine colors based on whether the theme is selected
-                val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
-                val textColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onBackground
+                val backgroundColor =
+                    if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+                val textColor =
+                    if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onBackground
 
                 Box(
                     // Styling for the theme option button
@@ -237,10 +263,13 @@ fun ThemeSelector(
                             .selectable(
                                 selected = isSelected,
                                 onClick = { onThemeSelected(theme) },
-                            ).padding(horizontal = 32.dp, vertical = 16.dp), // Bigger buttons
+                            )
+                            .padding(horizontal = 32.dp, vertical = 16.dp),
+                    // Bigger buttons
                 ) {
                     Text(
-                        text = theme.name.lowercase(Locale.getDefault()).replaceFirstChar { it.uppercase() },
+                        text = theme.name.lowercase(Locale.getDefault())
+                            .replaceFirstChar { it.uppercase() },
                         style = MaterialTheme.typography.titleLarge, // Adjusted size
                         color = textColor,
                     )
