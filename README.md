@@ -25,13 +25,9 @@ Team Members:
 
 ### Goals
 - Deliver an engaging geography quiz experience
-
 - Integrate modern Android technologies seamlessly
-
 - Establish a clean, maintainable MVVM architecture
-
 - Demonstrate professional development workflows
-
 - Build a scalable foundation for future features
 
 ### Main Features
@@ -54,30 +50,30 @@ For a more detailed overview and upcoming features, visit our [**Wiki Page**](ht
 ### Development Stack
 
 #### Tools & Environment
-IDE: Android Studio
-Version Control: GitHub (with Projects & Wiki)
-Project Management: Jira
-Design: Figma
+- IDE: Android Studio
+- Version Control: GitHub (with Projects & Wiki)
+- Project Management: Jira
+- Design: Figma
 
 #### Languages & Core SDKs
-Language: Kotlin
-Concurrency: Kotlin Coroutines
-UI Framework: Jetpack Compose
-Design System: Material 3
-Navigation: Compose Navigation
+- Language: Kotlin
+- Concurrency: Kotlin Coroutines
+- UI Framework: Jetpack Compose
+- Design System: Material 3
+- Navigation: Compose Navigation
 
 #### Key Libraries & Dependencies
-Architecture: AndroidX Lifecycle, ViewModel
-Local Storage: Room Database (with KSP)
-Data Serialization: kotlinx-serialization
-Authentication: Firebase Authentication
-Mapping: Google Maps SDK, Maps Compose
-Geocoding: Google Geocoding API
-Local Data: mledoze/countries dataset (embedded in assets)
+- Architecture: AndroidX Lifecycle, ViewModel
+- Local Storage: Room Database (with KSP)
+- Data Serialization: kotlinx-serialization
+- Authentication: Firebase Authentication
+- Mapping: Google Maps SDK, Maps Compose
+- Geocoding: Google Geocoding API
+- Local Data: mledoze/countries dataset (embedded in assets)
 
 #### External Services & APIs
-Google Maps Platform (Street View, Geocoding)
-Firebase (Authentication, Firestore)
+- Google Maps Platform (Street View, Geocoding)
+- Firebase (Authentication, Firestore)
 
 
 ### Usage of the app
