@@ -44,8 +44,9 @@ For a more detailed overview and upcoming features, visit our [**Wiki Page**](ht
 2. Clone Repository: git clone https://github.com/S33bu/CultureQuest.git
 3. Open Project: Launch Android Studio and select Open, then navigate to the cloned folder.
 4. Firebase Configuration: Ensure the google-services.json file is present in the app/directory
-5. Gradle sync: Click File > Sync Project with Gradle Files. Wait for "Build Successful" message.
-6. Run application: select a physical device or emulator and click the green play button
+5. (For the API keys) Look for instructions in the local.properties.template file
+6. Gradle sync: Click File > Sync Project with Gradle Files. Wait for "Build Successful" message.
+7. Run application: select a physical device or emulator and click the green play button
 
 ### Development Stack
 
