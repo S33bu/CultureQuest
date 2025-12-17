@@ -51,8 +51,8 @@
 #
 # The "local.properties" file is ignored by Git and will not be committed to version control.
 
-# ### Step 5: (new addition and optional) create new key for Google Geocoding API
-        alongside the MAPS_API_KEY or configure MAPS_API_KEY from Google Cloud Terminal and enable both Maps and Geocoding API
+# ### Step 5: (new addition ) create a new key for Google Geocoding API
+        alongside the MAPS_API_KEY named GEOLOCATION_API_KEY from Google Cloud Terminal and enable both Maps and Geocoding API for that key
 
 MAPS_API_KEY=ENTER_YOUR_API_KEY_HERE
-GEOLOCATION_KEY=ENTER_YOUR_GEOCODE_API_KEY_HERE
+GEOLOCATION_API_KEY=ENTER_YOUR_GEOCODE_API_KEY_HERE
