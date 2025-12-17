@@ -108,20 +108,25 @@ By entering an email and password and tapping “Sign Up”, a new account is cr
 After successful registration, the user is logged in automatically and redirected to the Home screen.
 
 #### Home Screen – Starting the Game
-<img width="267" height="612" alt="image" src="https://github.com/user-attachments/assets/df03fada-ec46-4013-bbd0-6ce4a4cc07f3" />
+<img width="300" height="612" alt="image" src="https://github.com/user-attachments/assets/df03fada-ec46-4013-bbd0-6ce4a4cc07f3" />
 
 
 The Home screen displays the player’s last game score and best score.  
 Tapping “Play now” starts a new one-minute game session.
 
 #### About Page – App Information & Theme
-<img src="assets/screenshots/About.jpg" width="300">
+<img width="300" height="920" alt="image" src="https://github.com/user-attachments/assets/793e43ee-a2eb-444b-b486-84df22f641a5" />
+<img width="300" height="910" alt="image" src="https://github.com/user-attachments/assets/5383a388-2626-4663-995a-18cdbd608c6e" />
+
 
 From the Home screen, the user can navigate to the About page.  
 This page explains the concept behind CultureQuest and allows switching between Light and Dark themes, which are applied instantly across the app.
 
 #### Profile Page – Player Statistics
-<img src="assets/screenshots/Profile.jpg" width="300">
+<img width="300" height="917" alt="image" src="https://github.com/user-attachments/assets/43688564-86b9-4447-9ada-818fe7a09fbd" />
+<img width="300" height="912" alt="image" src="https://github.com/user-attachments/assets/746732bd-6d39-419b-90c4-8bb6f1d40ba5" />
+
+
 
 The Profile page shows the player’s name, high score, and number of games played, helping track personal progress.
 
