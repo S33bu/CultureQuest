@@ -51,12 +51,48 @@ For a more detailed overview and upcoming features, visit our [**Wiki Page**](ht
 5. Gradle sync: Click File > Sync Project with Gradle Files. Wait for "Build Successful" message.
 6. Run application: select a physical device or emulator and click the green play button
 
-### Key Project Dependencies
-.
+### Development Stack
 
+#### Tools & Environment
+IDE: Android Studio
 
+Version Control: GitHub (with Projects & Wiki)
 
-<br/>
+Project Management: Jira
+
+Design: Figma
+
+#### Languages & Core SDKs
+Language: Kotlin
+
+Concurrency: Kotlin Coroutines
+
+UI Framework: Jetpack Compose
+
+Design System: Material 3
+
+Navigation: Compose Navigation
+
+#### Key Libraries & Dependencies
+Architecture: AndroidX Lifecycle, ViewModel
+
+Local Storage: Room Database (with KSP)
+
+Data Serialization: kotlinx-serialization
+
+Authentication: Firebase Authentication
+
+Mapping: Google Maps SDK, Maps Compose
+
+Geocoding: Google Geocoding API
+
+Local Data: mledoze/countries dataset (embedded in assets)
+
+#### External Services & APIs
+Google Maps Platform (Street View, Geocoding)
+
+Firebase (Authentication, Firestore)
+
 
 ### Usage of the app
 
@@ -104,21 +140,4 @@ for creating an user you need to insert your email, password and you have an use
   - **values-night**: Resources for the night theme.
   - **xml**: Configuration files like preferences or custom XML layouts.
 
-## Tools & Frameworks:
-<br/>
-<ul>
-  <li>Android Studio</li>
-  <li>Kotlin + Kotlin Coroutines</li>
-  <li>GitHub (version control and collaboration)</li>
-  <li>Jetpack Compose (UI), Material 3, Navigation</li>
-  <li>Figma (UI/UX design)</li>
-  <li>Jira (project management)</li>
-  <li>Google Maps SDK for Android & Maps Compose</li>
-  <li>Google Geocoding API</li>
-  <li>Firebase Authentication </li>
-  <li>AndroidX Lifecycle & ViewModel</li>
-  <li>Room Database (with KSP)</li>
-  <li>kotlinx-serialization (JSON)</li>
-  <li>mledoze/countries dataset (embedded in assets for local hints)</li>
- 
-</ul>
+
