@@ -23,6 +23,9 @@ Team Members:
 
 <br/>
 
+### Goals
+
+
 ### Main Features
 - **Game Page:** Core experience powered by **Google Street View**  
 - **Hint System:** Tier-based hints (Easy, Medium, Hard) available during gameplay  
@@ -33,12 +36,30 @@ Team Members:
 For a more detailed overview and upcoming features, visit our [**Wiki Page**](https://github.com/S33bu/CultureQuest/wiki).
 
 ### Installation/Build instructions
+1. Prerequisites: Install [Android Studio](https://developer.android.com/studio)
+2. Clone Repository: git clone https://github.com/S33bu/CultureQuest.git
+3. Open Project: Launch Android Studio and select Open, then navigate to the cloned folder.
+4. Firebase Configuration: Ensure the google-services.json file is present in the app/directory
+5. Gradle sync: Click File > Sync Project with Gradle Files. Wait for "Build Successful" message.
+6. Run application: select a physical device or emulator and click the green play button
+
+### Key Project Dependencies
+The following core libaries are required and will be resolved automatically via Gradle: 
+Category,Libraries
+UI Framework,Jetpack Compose (Material 3)
+Backend/Auth,"Firebase Auth, Firestore"
+Database,Room Persistence Library
+Maps/Location,"Google Maps SDK, Street View API"
+Concurrency,Kotlin Coroutines & Flow
+Quality,Ktlint (Static Analysis)
+
 1. Download Android Studio
 2. Clone this Repo
 3. Sync the gradle if needed
 4. Boot up a virtual android phone if needed
 5. Android Studio should show "app" top middle of screen and click the green start button
 6. All of the dependencies should be applied/installed automatically
+
 
 <br/>
 
