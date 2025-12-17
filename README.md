@@ -55,42 +55,28 @@ For a more detailed overview and upcoming features, visit our [**Wiki Page**](ht
 
 #### Tools & Environment
 IDE: Android Studio
-
 Version Control: GitHub (with Projects & Wiki)
-
 Project Management: Jira
-
 Design: Figma
 
 #### Languages & Core SDKs
 Language: Kotlin
-
 Concurrency: Kotlin Coroutines
-
 UI Framework: Jetpack Compose
-
 Design System: Material 3
-
 Navigation: Compose Navigation
 
 #### Key Libraries & Dependencies
 Architecture: AndroidX Lifecycle, ViewModel
-
 Local Storage: Room Database (with KSP)
-
 Data Serialization: kotlinx-serialization
-
 Authentication: Firebase Authentication
-
 Mapping: Google Maps SDK, Maps Compose
-
 Geocoding: Google Geocoding API
-
 Local Data: mledoze/countries dataset (embedded in assets)
 
 #### External Services & APIs
 Google Maps Platform (Street View, Geocoding)
-
 Firebase (Authentication, Firestore)
 
 
