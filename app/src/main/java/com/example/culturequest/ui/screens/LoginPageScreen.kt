@@ -38,23 +38,37 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
+/**
+ * Screen responsible for user authentication.
+ *
+ * Provides a form for existing users to sign in using their email and password,
+ * as well as a navigation path to the signup screen for new users.
+ *
+ * @param onSignUpClick Callback to navigate to the registration screen.
+ * @param onSignInClick Callback to trigger authentication with provided credentials.
+ * @param isLoading State indicating if an authentication request is currently active.
+ * @param errorMessage Optional error message to display in case of login failure.
+ * @param onClearError Callback to reset the error state when user input changes.
+ */
 @Composable
 fun LoginPageScreen(
-    onSignUpClick: () -> Unit, // what happens when "sign up" is clicked
-    onSignInClick: (String, String) -> Unit, // what happens when "login" is clicked
+    onSignUpClick: () -> Unit,
+    onSignInClick: (String, String) -> Unit,
     isLoading: Boolean,
     errorMessage: String?,
     onClearError: () -> Unit,
 ) {
-    // this page idea gotten from: https://www.oversimplifiedcoding.com/2024/03/Jetpack-Compose-Login-Screen-Example.html
-    // UI state for the form inputs
     val formScroll = rememberScrollState()
     val email = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
 
-// root container
-    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-// upper circle decorative
+    Box(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+    ) {
+        // upper circle decorative
         Box(
             modifier =
                 Modifier
@@ -76,11 +90,14 @@ fun LoginPageScreen(
                     ),
         )
 
-// header text
         LoginHeader(
-            modifier = Modifier.align(Alignment.TopStart).padding(top = 120.dp, start = 16.dp),
+            modifier =
+                Modifier
+                    .align(Alignment.TopStart)
+                    .padding(top = 120.dp, start = 16.dp),
         )
-// the form part which is in a box, so if text is long only this part enlargens
+
+        // central login form container
         Box(
             modifier =
                 Modifier
@@ -88,7 +105,10 @@ fun LoginPageScreen(
                         Alignment.Center,
                     ).padding(
                         horizontal = 32.dp,
-                    ).background(color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f), shape = RoundedCornerShape(16.dp)),
+                    ).background(
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                        shape = RoundedCornerShape(16.dp),
+                    ),
         ) {
             Column(
                 modifier =
@@ -99,7 +119,6 @@ fun LoginPageScreen(
                 verticalArrangement = Arrangement.Center,
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
-                // email + password fields
                 LoginFields(
                     email.value,
                     password.value,
@@ -116,7 +135,7 @@ fun LoginPageScreen(
                     },
                 )
                 Spacer(modifier = Modifier.height(20.dp))
-                // dont have account sign up
+
                 SignUpFooter(
                     onSignUpClick = onSignUpClick,
                 )
@@ -131,7 +150,7 @@ fun LoginPageScreen(
                 }
             }
         }
-        // sign in button on the bottom right
+
         SignInFooter(
             onSignInClick = { onSignInClick(email.value, password.value) },
             modifier =
@@ -143,18 +162,36 @@ fun LoginPageScreen(
     }
 }
 
-// login header text
+/**
+ * Header section of the Login screen containing the greeting text.
+ *
+ * @param modifier Modifier for positioning and layout.
+ */
 @Composable
 fun LoginHeader(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Start,
     ) {
-        Text(text = "Welcome Back", style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onPrimary)
+        Text(
+            text = "Welcome Back",
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onPrimary,
+        )
     }
 }
 
-// all of the fields in the form (email + password)
+/**
+ * Component containing the input fields for email and password.
+ *
+ * Manages focus movement and keyboard actions for the login form.
+ *
+ * @param email The current value of the email field.
+ * @param password The current value of the password field.
+ * @param onEmailChange Callback for changes in the email field.
+ * @param onPasswordChange Callback for changes in the password field.
+ * @param onSubmit Callback triggered when the user finishes the password field.
+ */
 @Composable
 fun LoginFields(
     email: String,
@@ -162,11 +199,9 @@ fun LoginFields(
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onSubmit: () -> Unit,
-    // onForgotPasswordClick: () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
     Column {
-        // email input
         TextField(
             value = email,
             label = "Email",
@@ -191,7 +226,6 @@ fun LoginFields(
         Spacer(modifier = Modifier.height(10.dp))
 
         TextField(
-            // password input
             value = password,
             label = "Password",
             placeholder = "Enter your password",
@@ -212,15 +246,17 @@ fun LoginFields(
             labelStyle = MaterialTheme.typography.titleMedium,
             placeholderStyle = MaterialTheme.typography.titleMedium,
         )
-/* Might have functionality for now, right now the main flows are creation of a new account,
-and logging in wiht user who has existing account
-        TextButton(onClick = onForgotPasswordClick, modifier = Modifier.align(Alignment.End)) {
-           Text(text = "Forgot Password?", style = MaterialTheme.typography.bodyLarge)
-        }*/
     }
 }
 
-// button style so the button would be used across screens for same UI
+/**
+ * Standardized button used throughout the application.
+ *
+ * @param text The text to display inside the button.
+ * @param onClick The callback to trigger when clicked.
+ * @param modifier Modifier for customization.
+ * @param enabled Whether the button is interactive.
+ */
 @Composable
 fun PrimaryButton(
     text: String,
@@ -247,17 +283,31 @@ fun PrimaryButton(
     }
 }
 
-// the singing up part of the form
+/**
+ * Section prompting users to sign up if they do not have an account.
+ *
+ * @param onSignUpClick Callback for the signup action.
+ */
 @Composable
 fun SignUpFooter(onSignUpClick: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = "Don't have an account?", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
+        Text(
+            text = "Don't have an account?",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
         Spacer(modifier = Modifier.height(12.dp))
         PrimaryButton(text = "Sign Up", onClick = onSignUpClick)
     }
 }
 
-// the sign in button on the bottom right
+/**
+ * Footer providing the primary sign-in action button.
+ *
+ * @param onSignInClick Callback to trigger login.
+ * @param modifier Layout modifiers.
+ * @param isLoading Whether to show a loading text state.
+ */
 @Composable
 fun SignInFooter(
     onSignInClick: () -> Unit,
@@ -277,8 +327,9 @@ fun SignInFooter(
     }
 }
 
-// custom textfield wrapper adding theme colors
-
+/**
+ * Custom wrapper around [OutlinedTextField] for consistent branding.
+ */
 @Composable
 fun TextField(
     value: String,

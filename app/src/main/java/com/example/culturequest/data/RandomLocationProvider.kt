@@ -22,7 +22,8 @@ object RandomLocationProvider {
     private suspend fun hasStreetViewImagery(point: LatLng): Boolean =
         withContext(Dispatchers.IO) {
             try {
-                val url = "https://maps.googleapis.com/maps/api/streetview/metadata?location=${point.latitude},${point.longitude}&radius=5000&key=${BuildConfig.MAPS_API_KEY}"
+                val url =
+                    "https://maps.googleapis.com/maps/api/streetview/metadata?location=${point.latitude},${point.longitude}&radius=5000&key=${BuildConfig.MAPS_API_KEY}"
                 val json = URL(url).readText()
                 val response = jsonParser.decodeFromString<StreetViewMetaDataResponse>(json)
 
@@ -69,7 +70,10 @@ object RandomLocationProvider {
                         Log.d("RLP_DEBUG", "Valid candidate found on attempt $attempt: $candidate")
                         return@withContext candidate
                     } else {
-                        Log.d("RLP_DEBUG", "Attempt $attempt: $candidate has no Street View imagery")
+                        Log.d(
+                            "RLP_DEBUG",
+                            "Attempt $attempt: $candidate has no Street View imagery",
+                        )
                     }
                 }
 
@@ -123,9 +127,9 @@ object RandomLocationProvider {
                 val found =
                     response.results
                         .firstOrNull()
-                        ?.address_components
+                        ?.addressComponents
                         ?.firstOrNull { "country" in it.types }
-                        ?.long_name
+                        ?.longName
 
                 Log.d("RLP_DEBUG", "Reverse geocode for $point returned country: $found")
                 found?.equals(expected, ignoreCase = true) == true
@@ -150,7 +154,7 @@ object RandomLocationProvider {
     data class GeocodingResult(
         val geometry: Geometry,
         @SerialName("address_components")
-        val address_components: List<AddressComponent>,
+        val addressComponents: List<AddressComponent>,
     )
 
     @Serializable
@@ -175,7 +179,7 @@ object RandomLocationProvider {
     @Serializable
     data class AddressComponent(
         @SerialName("long_name")
-        val long_name: String,
+        val longName: String,
         val types: List<String>,
     )
 }

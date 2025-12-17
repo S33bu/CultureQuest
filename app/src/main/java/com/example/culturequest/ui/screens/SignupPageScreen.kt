@@ -1,4 +1,3 @@
-
 package com.example.culturequest.ui.screens
 
 import androidx.compose.foundation.background
@@ -36,6 +35,18 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.culturequest.R
 
+/**
+ * Screen that handles new user registration.
+ *
+ * Provides fields for email and password entry, decorative background elements,
+ * and integration with authentication state for error handling and loading states.
+ *
+ * @param onBackClick Callback to return to the previous screen (typically Login).
+ * @param onSignupClick Callback to trigger the registration with user credentials.
+ * @param isLoading Boolean state representing if a registration request is in progress.
+ * @param errorMessage An optional string containing error messages from the auth service.
+ * @param onClearError Callback to reset the error state when the user resumes typing.
+ */
 @Composable
 fun SignupPageScreen(
     onBackClick: () -> Unit,
@@ -44,16 +55,19 @@ fun SignupPageScreen(
     errorMessage: String?,
     onClearError: () -> Unit,
 ) {
-    // form state
     val email = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
 
     val topRingColor = MaterialTheme.colorScheme.primary
     val bottomRingColor = MaterialTheme.colorScheme.secondaryContainer
 
-    // root container
-    Box(modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.background)) {
-// upper circle decorative but now only the thick line part
+    Box(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.background),
+    ) {
+        // upper decorative ring element
         Box(
             modifier =
                 Modifier
@@ -66,7 +80,7 @@ fun SignupPageScreen(
                         )
                     },
         )
-        // bottom circle decorative but now only the thick line aprt
+        // bottom decorative ring element
         Box(
             modifier =
                 Modifier
@@ -80,14 +94,14 @@ fun SignupPageScreen(
                         )
                     },
         )
-
-        // create account text + back icon
         SignUpHeader(
             onBackClick = onBackClick,
-            modifier = Modifier.align(Alignment.TopStart).padding(top = 50.dp, start = 16.dp),
+            modifier =
+                Modifier
+                    .align(Alignment.TopStart)
+                    .padding(top = 50.dp, start = 16.dp),
         )
-
-        // the same box as in login page but now without dont have account part
+        // central container for input fields
         Box(
             modifier =
                 Modifier
@@ -95,7 +109,10 @@ fun SignupPageScreen(
                         Alignment.Center,
                     ).padding(
                         horizontal = 32.dp,
-                    ).background(color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f), shape = RoundedCornerShape(16.dp)),
+                    ).background(
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                        shape = RoundedCornerShape(16.dp),
+                    ),
         ) {
             Column(
                 modifier =
@@ -105,7 +122,6 @@ fun SignupPageScreen(
                 verticalArrangement = Arrangement.Center,
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
-                // email + password fields
                 SignupFields(
                     email.value,
                     password.value,
@@ -132,7 +148,6 @@ fun SignupPageScreen(
                 }
             }
         }
-        // sign in button on the bottom right
         SignupFooter(
             onSignupClick = { onSignupClick(email.value, password.value) },
             modifier =
@@ -144,6 +159,12 @@ fun SignupPageScreen(
     }
 }
 
+/**
+ * Navigation and title header for the Signup screen.
+ *
+ * @param onBackClick Callback for the back navigation button.
+ * @param modifier Layout modifiers for positioning.
+ */
 @Composable
 fun SignUpHeader(
     onBackClick: () -> Unit,
@@ -155,18 +176,32 @@ fun SignUpHeader(
         horizontalAlignment = Alignment.Start,
     ) {
         IconButton(onClick = onBackClick) {
-            Icon( // back icon
+            Icon(
                 painter = painterResource(id = R.drawable.backbutton),
                 contentDescription = "Back",
                 tint = MaterialTheme.colorScheme.primary,
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "Create account", style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.primary)
+        Text(
+            text = "Create account",
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.primary,
+        )
     }
 }
 
-// basically the same fieldsa as in lgin but without sign up
+/**
+ * Input fields for the signup form.
+ *
+ * Includes keyboard management to move focus between email and password inputs.
+ *
+ * @param email Current email input value.
+ * @param password Current password input value.
+ * @param onEmailChange Callback for email text changes.
+ * @param onPasswordChange Callback for password text changes.
+ * @param onSubmit Callback triggered by the IME 'Done' action.
+ */
 @Composable
 fun SignupFields(
     email: String,
@@ -174,11 +209,9 @@ fun SignupFields(
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onSubmit: () -> Unit,
-    // onForgotPasswordClick: () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
     Column {
-        // email input
         TextField(
             value = email,
             label = "Email",
@@ -203,7 +236,6 @@ fun SignupFields(
         Spacer(modifier = Modifier.height(10.dp))
 
         TextField(
-            // password input
             value = password,
             label = "Create your password",
             placeholder = "Enter your wanted password",
@@ -227,7 +259,13 @@ fun SignupFields(
     }
 }
 
-// the sign in button on the bottom right
+/**
+ * Footer for the signup screen containing the action button.
+ *
+ * @param onSignupClick Callback to initiate signup.
+ * @param modifier Layout modifiers for alignment.
+ * @param isLoading Whether the screen should display a loading state.
+ */
 @Composable
 fun SignupFooter(
     onSignupClick: () -> Unit,
