@@ -24,13 +24,15 @@ Team Members:
 <br/>
 
 ### Goals
-The primary goal of CultureQuest is to create an engaging and educational mobile game that challenges and enhances players' knowledge of world geography through interactive exploration. 
+- Deliver an engaging geography quiz experience
 
-* Build a seamless, time-pressured experience where players guess countries from authentic Street View imagery, supported by a dynamic, tiered hint system.
-* Successfully integrate and utilize key technologies, including Jetpack Compose for a reactive UI, the Google Maps SDK & Geocoding API for core gameplay, Firebase Authentication for user management, and Room Database for local data persistence.
-* Structure the application using the MVVM pattern with a clear separation of concerns (UI, ViewModel, Repository, Data Sources) to ensure the codebase is testable, maintainable, and ready for future feature expansion.
-* Utilize industry-standard tools like GitHub (for version control and project Wiki), Jira (for agile task tracking), and Figma (for UI/UX design) to manage a full development lifecycle from planning to release.
-* Create a functional prototype that demonstrates not only a viable product concept but also a codebase structured to support potential future enhancements such as global leaderboards, social features, and expanded educational content.
+- Integrate modern Android technologies seamlessly
+
+- Establish a clean, maintainable MVVM architecture
+
+- Demonstrate professional development workflows
+
+- Build a scalable foundation for future features
 
 ### Main Features
 - **Game Page:** Core experience powered by **Google Street View**  
