@@ -124,8 +124,6 @@ This page explains the concept behind CultureQuest and allows switching between 
 
 #### Profile Page – Player Statistics
 <img width="300" height="917" alt="image" src="https://github.com/user-attachments/assets/43688564-86b9-4447-9ada-818fe7a09fbd" />
-<img width="300" height="912" alt="image" src="https://github.com/user-attachments/assets/746732bd-6d39-419b-90c4-8bb6f1d40ba5" />
-
 
 
 The Profile page shows the player’s name, high score, and number of games played, helping track personal progress.
