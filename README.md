@@ -108,7 +108,6 @@ By entering an email and password and tapping “Sign Up”, a new account is cr
 After successful registration, the user is logged in automatically and redirected to the Home screen.
 
 #### Home Screen – Starting the Game
-<img src="assets/screenshots/Home.jpg" width="300">
 <img width="267" height="612" alt="image" src="https://github.com/user-attachments/assets/df03fada-ec46-4013-bbd0-6ce4a4cc07f3" />
 
 
