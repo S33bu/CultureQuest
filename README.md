@@ -88,86 +88,66 @@ The project follows the **MVVM (Model–View–ViewModel)** architectural patter
 
 ### Usage Guide
 
-### App Launch & Authentication
+#### App Launch & Authentication
 When the app is launched, it first checks whether the user is already authenticated.
 
-- If the user has previously logged in and the session is still valid, the app **automatically navigates to the Home screen**.
+- If the user has previously logged in and the session is still valid, the app automatically navigates to the Home screen.
 - If no active session exists, the user is shown the authentication screens, where they can either sign in or create a new account.
-
----
 
 #### Sign In – Existing Users
 <img src="assets/screenshots/SignIn.jpg" width="300">
 
-Existing users can enter their **email** and **password** and tap **“Sign In”**.  
+Existing users can enter their email and password and tap “Sign In”.  
 After successful authentication, the user is redirected to the Home screen.
-
----
 
 #### Sign Up – Creating a New Account
 <img src="assets/screenshots/SignUp.jpg" width="300">
 
-Users without an existing account can navigate to the **Create Account / Sign Up** screen.  
-By entering an **email** and **password** and tapping **“Sign Up”**, a new account is created.  
+Users without an existing account can navigate to the Create Account / Sign Up screen.  
+By entering an email and password and tapping “Sign Up”, a new account is created.  
 After successful registration, the user is logged in automatically and redirected to the Home screen.
-
----
 
 #### Home Screen – Starting the Game
 <img src="assets/screenshots/Home.jpg" width="300">
 
-The Home screen displays the player’s **last game score** and **best score**.  
-Tapping **“Play now”** starts a new one-minute game session.
-
----
+The Home screen displays the player’s last game score and best score.  
+Tapping “Play now” starts a new one-minute game session.
 
 #### About Page – App Information & Theme
 <img src="assets/screenshots/About.jpg" width="300">
 
-From the Home screen, the user can navigate to the **About page**.  
-This page explains the concept behind CultureQuest and allows switching between **Light** and **Dark** themes, which are applied instantly across the app.
-
----
+From the Home screen, the user can navigate to the About page.  
+This page explains the concept behind CultureQuest and allows switching between Light and Dark themes, which are applied instantly across the app.
 
 #### Profile Page – Player Statistics
 <img src="assets/screenshots/Profile.jpg" width="300">
 
-The Profile page shows the player’s **name**, **high score**, and **number of games played**, helping track personal progress.
+The Profile page shows the player’s name, high score, and number of games played, helping track personal progress.
 
----
-
-### Leaderboard – Top Players
+#### Leaderboard – Top Players
 <img src="assets/screenshots/Leaderboard.jpg" width="300">
 
-Within the Profile section, the user can view the **leaderboard**, which ranks players based on their scores and adds a competitive element to the game.
-
----
+Within the Profile section, the user can view the leaderboard, which ranks players based on their scores and adds a competitive element to the game.
 
 #### Gameplay – Guessing the Country
 <img src="assets/screenshots/Game.jpg" width="300">
 
-During gameplay, the user is shown a **real Google Street View panorama** from a random location.  
+During gameplay, the user is shown a real Google Street View panorama from a random location.  
 The remaining time and current score are displayed at the top of the screen.  
 The player types a country name and submits the guess before the timer expires.
-
----
 
 #### Hints – Assisted Guessing
 <img src="assets/screenshots/Hint.jpg" width="300">
 
-If assistance is needed, the player can open the **hint panel**.  
-Hints are revealed in increasing difficulty levels (**Easy, Medium, Hard**) and provide geographical or cultural clues.  
-Using hints helps identify the country but **reduces the score** for a correct answer.
-
----
+If assistance is needed, the player can open the hint panel.  
+Hints are revealed in increasing difficulty levels (Easy, Medium, Hard) and provide geographical or cultural clues.  
+Using hints helps identify the country but reduces the score for a correct answer.
 
 #### Correct Answer Feedback
 <img src="assets/screenshots/Correct.jpg" width="300">
 
 When a correct answer is submitted, a confirmation dialog is shown.  
 Points are awarded based on hint usage, and the game continues automatically with the next location.
-
----
 
 #### Incorrect Answer Feedback
 <img src="assets/screenshots/Incorrect.jpg" width="300">
