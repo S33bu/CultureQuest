@@ -8,7 +8,7 @@
 # 1.  Go to the Google Cloud Console: https://console.cloud.google.com/
 # 2.  Create a new project (or select an existing one).
 # 3.  In the navigation menu, go to "APIs & Services" > "Library".
-# 4.  Search for "Maps SDK for Android" and enable it for your project.
+# 4.  Search for "Maps SDK for Android" and "Street View Static API" and enable it for your project.
 # 5.  Go to "APIs & Services" > "Credentials".
 # 6.  Click "Create Credentials" > "API key".
 # 7.  Copy the new API key. You will need it in Step 4.
