@@ -24,7 +24,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-// ViewModel to manage the game state
+/**
+ * ViewModel to manage the game state and logic.
+ *
+ * It handles the lifecycle of a game session, including question preloading,
+ * hint generation, score calculation, and cloud synchronization.
+ */
 class GameViewModel : ViewModel() {
     private val _currentLocation = MutableStateFlow<LatLng?>(null)
     val currentLocation: StateFlow<LatLng?> = _currentLocation.asStateFlow()
@@ -56,7 +61,6 @@ class GameViewModel : ViewModel() {
 
     // holds generated hints for the current country
     private val _hints = MutableStateFlow<List<Hint>>(emptyList())
-    val hints: StateFlow<List<Hint>> = _hints
 
     // 0 = none, 1 = hard, 2 = medium, 3 = easy (all)
     private val _tierShown = MutableStateFlow(0)
@@ -233,11 +237,11 @@ class GameViewModel : ViewModel() {
             .replace(Regex("\\s+"), " ")
 
     /** Normalizes a country name from the question data to match the name used in the CountryRepository.
-    * This is necessary to handle minor inconsistencies between data sources (e.g., "United States" vs. "USA").
-    *
-    * @param raw The raw country name from a [QuizQuestion].
-    * @return The normalized country name recognized by the repository.
-    */
+     * This is necessary to handle minor inconsistencies between data sources (e.g., "United States" vs. "USA").
+     *
+     * @param raw The raw country name from a [QuizQuestion].
+     * @return The normalized country name recognized by the repository.
+     */
     private fun normalizeToRepoName(raw: String): String {
         val k = key(raw)
         // direct alias hit
@@ -258,7 +262,7 @@ class GameViewModel : ViewModel() {
     fun moveToNextQuestion() {
         // stop the api calls after game ends
         if (_isGameFinished.value) {
-            android.util.Log.d("GameViewModel", "Game is already finished!")
+            Log.d("GameViewModel", "Game is already finished!")
             return
         }
         val nextIndex = _currentIndex.value + 1
@@ -354,9 +358,9 @@ class GameViewModel : ViewModel() {
      */
     fun revealNextTierAndPenalize() {
         if (_tierShown.value >= 3) return
-        android.util.Log.d("HintDebug", "Initial _tierShown: ${_tierShown.value}")
+        Log.d("HintDebug", "Initial _tierShown: ${_tierShown.value}")
         _tierShown.value = _tierShown.value + 1
-        android.util.Log.d("Hints", "tierShown=${_tierShown.value}")
+        Log.d("Hints", "tierShown=${_tierShown.value}")
     }
 
     /**
@@ -411,7 +415,7 @@ class GameViewModel : ViewModel() {
      */
     private fun capitalPrefix(
         capital: String,
-        letters: Int,
+        letters: Int = 2,
     ): String = capital.take(letters).uppercase()
 
     /**
@@ -424,7 +428,7 @@ class GameViewModel : ViewModel() {
      * @return A consolidated list of all generated [Hint] objects.
      */
     private fun buildHints(country: Country): List<Hint> {
-        android.util.Log.d("HintBuild", "--- Building hints for: ${country.name.common} ---")
+        Log.d("HintBuild", "--- Building hints for: ${country.name.common} ---")
         // HARD level - least revealing
         val hard =
             buildList {
@@ -433,7 +437,7 @@ class GameViewModel : ViewModel() {
                 }
                 country.landlocked?.let { add(Hint("Landlocked: $it", HintTier.HARD)) }
             }
-        android.util.Log.d("HintBuild", "Generated ${hard.size} HARD hints: ${hard.map { it.text }}")
+        Log.d("HintBuild", "Generated ${hard.size} HARD hints: ${hard.map { it.text }}")
         // added logs to each of them, because I wanted to know if I'm still getting the right data
         // MEDIUM LEVEL - medium revealing not too easy not too hard
         val medium =
@@ -455,7 +459,7 @@ class GameViewModel : ViewModel() {
                     add(Hint("Currencies: $currencyList", HintTier.MEDIUM))
                 }
             }
-        android.util.Log.d("HintBuild", "Generated ${medium.size} MEDIUM hints: ${medium.map { it.text }}")
+        Log.d("HintBuild", "Generated ${medium.size} MEDIUM hints: ${medium.map { it.text }}")
 
         // EASY LEVEL - very revealing
         val easy =
@@ -465,10 +469,10 @@ class GameViewModel : ViewModel() {
                     add(Hint("Capital starts with '${capitalPrefix(cap ?: "", 2)}'", HintTier.EASY))
                 }
             }
-        android.util.Log.d("HintBuild", "Generated ${easy.size} EASY hints: ${easy.map { it.text }}")
+        Log.d("HintBuild", "Generated ${easy.size} EASY hints: ${easy.map { it.text }}")
 
         val allHints = hard + medium + easy
-        android.util.Log.i("HintBuild", "Total hints generated: ${allHints.size}. Tiers: ${allHints.map { it.tier }}")
+        Log.i("HintBuild", "Total hints generated: ${allHints.size}. Tiers: ${allHints.map { it.tier }}")
 
         // Order: HARD → MEDIUM → EASY
         return allHints
@@ -621,7 +625,6 @@ class GameViewModel : ViewModel() {
             _user.value = user
         }
     }
-
 
     /**
      * Fetches a random Street View location for the country of the current question.

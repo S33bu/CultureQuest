@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 data class LeaderboardEntry(
     val displayName: String,
     val bestScore: Int,
+    val gamesPlayed: Int = 0,
 )
 
 // ViewModel responsible for loading and exposing the global leaderboard.
@@ -48,7 +49,8 @@ class LeaderboardViewModel : ViewModel() {
                     snapshot.documents.mapNotNull { doc ->
                         val name = doc.getString("displayName") ?: "Player"
                         val score = doc.getLong("bestScore")?.toInt() ?: 0
-                        LeaderboardEntry(name, score)
+                        val played = doc.getLong("gamesPlayed")?.toInt() ?: 0
+                        LeaderboardEntry(name, score, played)
                     }
 
                 _leaders.value = entries
@@ -72,7 +74,8 @@ class LeaderboardViewModel : ViewModel() {
                     snapshot.documents.mapNotNull { doc ->
                         val name = doc.getString("displayName") ?: "Player"
                         val score = doc.getLong("bestScore")?.toInt() ?: 0
-                        LeaderboardEntry(name, score)
+                        val played = doc.getLong("gamesPlayed")?.toInt() ?: 0
+                        LeaderboardEntry(name, score, played)
                     }
 
                 _leaders.value = entries

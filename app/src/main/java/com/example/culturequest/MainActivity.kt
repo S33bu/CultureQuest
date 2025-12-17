@@ -27,6 +27,7 @@ import com.example.culturequest.ui.screens.SignupPageScreen
 import com.example.culturequest.ui.theme.CultureQuestTheme
 import com.example.culturequest.ui.viewmodel.AuthViewModel
 import com.example.culturequest.ui.viewmodel.GameViewModel
+import com.example.culturequest.ui.viewmodel.HomeViewModel
 import com.example.culturequest.ui.viewmodel.LeaderboardViewModel
 import com.example.culturequest.ui.viewmodel.SettingsViewModel
 
@@ -86,6 +87,7 @@ fun AppNavigation() {
     var currentScreen by remember { mutableStateOf("login") }
 
     // Shared ViewModels used across multiple screens
+    val homeViewModel: HomeViewModel = viewModel()
     val gameViewModel: GameViewModel = viewModel()
     val authViewModel: AuthViewModel = viewModel()
     val leaderboardViewModel: LeaderboardViewModel = viewModel()
@@ -143,7 +145,7 @@ fun AppNavigation() {
             HomeScreen(
                 onAboutClick = { currentScreen = "about" },
                 onProfileClick = { currentScreen = "profile" },
-                gameViewModel = gameViewModel,
+                homeViewModel = homeViewModel,
                 onGameClick = {
                     gameViewModel.resetGame(resetUserScore = true)
                     currentScreen = "game"

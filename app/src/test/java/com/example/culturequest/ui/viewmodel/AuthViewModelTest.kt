@@ -1,12 +1,10 @@
 package com.example.culturequest.ui.viewmodel
 
-// Import necessary testing libraries.
-
 import android.os.Looper.getMainLooper
 import com.example.culturequest.MyApp
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
