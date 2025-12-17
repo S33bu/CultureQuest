@@ -106,6 +106,17 @@ for creating an user you need to insert your email, password and you have an use
 <br/>
 
 ### Project Structure
+The project follows the **MVVM (Model–View–ViewModel)** architectural pattern:
+
+- **data/**: Data layer containing Room-based local persistence, repository implementations, and external data sources (Firebase, Google Maps APIs).
+- **ui/screens/**: Stateless Jetpack Compose UI components and screen layouts.
+- **ui/viewmodel/**: ViewModels that manage UI state, handle user interactions, and expose state via `StateFlow`.
+- **ui/theme/**: Material 3 design system configuration (colors, typography, and shapes).
+- **assets/**: Bundled static resources, including the predefined country dataset used for hint generation.
+- **res/**: Android resources including drawables, strings for localization, and app icons.
+
+
+
 
 - **assets**: Contains raw files (images, fonts, etc.) bundled with the app. These files are not compiled.
 
