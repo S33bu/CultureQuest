@@ -8,35 +8,50 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-// Represents a single leaderboard entry loaded from Firestore.
+/**
+ * Represents a single leaderboard row.
+ *
+ * @property displayName Name shown on the leaderboard.
+ * @property bestScore Highest score achieved by the user.
+ * @property gamesPlayed Total number of games played by the user.
+ */
 data class LeaderboardEntry(
     val displayName: String,
     val bestScore: Int,
     val gamesPlayed: Int = 0,
 )
 
-// ViewModel responsible for loading and exposing the global leaderboard.
+/**
+ * ViewModel responsible for loading and exposing the global leaderboard from Firestore.
+ *
+ * The ViewModel starts listening to Firestore updates immediately on creation and keeps
+ * [leaders] in sync with the latest data.
+ */
 class LeaderboardViewModel : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
 
-    // Backing StateFlow for the list of top players.
     private val _leaders = MutableStateFlow<List<LeaderboardEntry>>(emptyList())
+
+    /**
+     * Current leaderboard entries (top players), ordered by best score descending.
+     */
     val leaders: StateFlow<List<LeaderboardEntry>> = _leaders.asStateFlow()
 
     init {
-        // Start listening to top players as soon as the ViewModel is created.
         listenToTopPlayers()
     }
 
-    // Subscribes to Firestore changes and keeps the leaderboard in sync.
+    /**
+     * Subscribes to Firestore changes and keeps the leaderboard state updated in real-time.
+     */
     private fun listenToTopPlayers() {
         firestore
             .collection("users")
             .orderBy("bestScore", Query.Direction.DESCENDING)
-            .limit(10) // top 10 players
+            .limit(10)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    Log.e("LeaderboardViewModel", "Failed to load leaderboard", error)
+                    Log.e(TAG, "Failed to load leaderboard", error)
                     return@addSnapshotListener
                 }
 
@@ -45,19 +60,15 @@ class LeaderboardViewModel : ViewModel() {
                     return@addSnapshotListener
                 }
 
-                val entries =
-                    snapshot.documents.mapNotNull { doc ->
-                        val name = doc.getString("displayName") ?: "Player"
-                        val score = doc.getLong("bestScore")?.toInt() ?: 0
-                        val played = doc.getLong("gamesPlayed")?.toInt() ?: 0
-                        LeaderboardEntry(name, score, played)
-                    }
-
-                _leaders.value = entries
+                _leaders.value = snapshot.toLeaderboardEntries()
             }
     }
 
-    // One–shot refresh used when Profile screen is opened
+    /**
+     * Performs a one-shot fetch of the leaderboard.
+     *
+     * Intended to be called when the Profile screen is opened to ensure the list is fresh.
+     */
     fun refreshLeaderboard() {
         firestore
             .collection("users")
@@ -70,17 +81,33 @@ class LeaderboardViewModel : ViewModel() {
                     return@addOnSuccessListener
                 }
 
-                val entries =
-                    snapshot.documents.mapNotNull { doc ->
-                        val name = doc.getString("displayName") ?: "Player"
-                        val score = doc.getLong("bestScore")?.toInt() ?: 0
-                        val played = doc.getLong("gamesPlayed")?.toInt() ?: 0
-                        LeaderboardEntry(name, score, played)
-                    }
-
-                _leaders.value = entries
-            }.addOnFailureListener { e ->
-                Log.e("LeaderboardViewModel", "Failed to refresh leaderboard", e)
+                _leaders.value = snapshot.toLeaderboardEntries()
             }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Failed to refresh leaderboard", e)
+            }
+    }
+
+    private companion object {
+        private const val TAG = "LeaderboardViewModel"
+    }
+}
+
+/**
+ * Maps a Firestore snapshot into a list of [LeaderboardEntry].
+ *
+ * Missing fields fall back to safe defaults:
+ * - displayName -> "Player"
+ * - bestScore -> 0
+ * - gamesPlayed -> 0
+ *
+ * @return List of leaderboard entries derived from the snapshot documents.
+ */
+private fun com.google.firebase.firestore.QuerySnapshot.toLeaderboardEntries(): List<LeaderboardEntry> {
+    return documents.mapNotNull { doc ->
+        val name = doc.getString("displayName") ?: "Player"
+        val score = doc.getLong("bestScore")?.toInt() ?: 0
+        val played = doc.getLong("gamesPlayed")?.toInt() ?: 0
+        LeaderboardEntry(name, score, played)
     }
 }

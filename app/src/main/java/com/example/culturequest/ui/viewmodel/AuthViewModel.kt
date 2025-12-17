@@ -5,25 +5,55 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 
+/**
+ * Represents the authentication-related UI state.
+ *
+ * @property isLoading Indicates whether an authentication request is in progress.
+ * @property isLoggedIn Indicates whether the user is currently authenticated.
+ * @property errorMessage Optional error message to display to the user.
+ */
 data class AuthState(
     val isLoading: Boolean = false,
     val isLoggedIn: Boolean = false,
     val errorMessage: String? = null,
 )
 
+/**
+ * ViewModel responsible for handling user authentication logic.
+ *
+ * Uses Firebase Authentication to support:
+ * - sign in
+ * - sign up
+ * - sign out
+ *
+ * Exposes the current authentication state via [authState].
+ */
 class AuthViewModel(
     private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
 ) : ViewModel() {
+
     private val _authState =
         mutableStateOf(
             AuthState(
                 isLoading = false,
-                isLoggedIn = auth.currentUser != null, // kui juba sisse logitud, märgime ära
+                isLoggedIn = auth.currentUser != null,
                 errorMessage = null,
             ),
         )
+
+    /**
+     * Publicly exposed authentication state.
+     */
     val authState: State<AuthState> = _authState
 
+    /**
+     * Signs in an existing user using email and password.
+     *
+     * Updates [authState] to reflect loading, success, or error states.
+     *
+     * @param email User email address.
+     * @param password User password.
+     */
     fun signIn(
         email: String,
         password: String,
@@ -63,6 +93,14 @@ class AuthViewModel(
             }
     }
 
+    /**
+     * Creates a new user account using email and password.
+     *
+     * The password must be at least 6 characters long.
+     *
+     * @param email User email address.
+     * @param password User password.
+     */
     fun signUp(
         email: String,
         password: String,
@@ -102,6 +140,9 @@ class AuthViewModel(
             }
     }
 
+    /**
+     * Signs out the currently authenticated user and resets the authentication state.
+     */
     fun signOut() {
         auth.signOut()
         _authState.value =
@@ -112,6 +153,11 @@ class AuthViewModel(
             )
     }
 
+    /**
+     * Clears the current authentication error message.
+     *
+     * Useful after the error has been shown to the user.
+     */
     fun clearError() {
         _authState.value = _authState.value.copy(errorMessage = null)
     }

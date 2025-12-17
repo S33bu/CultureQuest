@@ -2,10 +2,28 @@ package com.example.culturequest.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -27,7 +45,20 @@ import com.example.culturequest.ui.viewmodel.LeaderboardViewModel
 import com.google.firebase.auth.FirebaseAuth
 import java.util.Locale
 
-// The main composable for the Profile Page.
+/**
+ * Profile screen composable.
+ *
+ * Shows:
+ * - user display name (derived from Firebase email or local username)
+ * - user stats (high score, games played)
+ * - leaderboard (top players)
+ *
+ * The leaderboard is refreshed when the screen is opened.
+ *
+ * @param onBackClick Callback invoked when the user taps the back button.
+ * @param gameViewModel ViewModel that provides local user state (bestScore, gamesPlayed, username).
+ * @param leaderboardViewModel ViewModel that provides leaderboard entries. Defaults to [viewModel].
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfilePageScreen(
@@ -38,89 +69,65 @@ fun ProfilePageScreen(
     val scrollState = rememberScrollState()
     val user by gameViewModel.user.collectAsState()
     val leaders by leaderboardViewModel.leaders.collectAsState()
-    // Ensure leaderboard is refreshed whenever the Profile screen is opened
+
     LaunchedEffect(Unit) {
         leaderboardViewModel.refreshLeaderboard()
     }
 
-    val firebaseUser = FirebaseAuth.getInstance().currentUser
-    // Retrieve user's email from Firebase Authentication.
-    val email = firebaseUser?.email
-
-    val displayName =
-        remember(email, user) {
-            email?.let { nameFromEmail(it) }
-                ?: user?.username
-                ?: "Player"
-            // Determine the display name, prioritizing email parsing, then stored username.
-        }
+    val email = FirebaseAuth.getInstance().currentUser?.email
+    val displayName = remember(email, user) {
+        email?.let { nameFromEmail(it) } ?: user?.username ?: "Player"
+    }
 
     Scaffold { padding ->
         Box(
-            // The root container for the screen.
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(padding),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
         ) {
             Image(
                 painter = painterResource(id = R.drawable.maa),
                 contentDescription = null,
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .alpha(0.15f),
-            )
-            // top circle
-            Box(
-                modifier =
-                    Modifier
-                        .size(600.dp)
-                        .offset(y = (-320).dp) // Move bubble down
-                        .clip(androidx.compose.foundation.shape.CircleShape)
-                        .background(MaterialTheme.colorScheme.primary),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(0.15f),
             )
 
-            // Main content layout.
+            Box(
+                modifier = Modifier
+                    .size(600.dp)
+                    .offset(y = (-320).dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary),
+            )
+
             Column(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp, vertical = 24.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp, vertical = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 ProfileHeaderCircle(
                     onBackClick = onBackClick,
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(top = 40.dp)
-                            .offset(y = (-40).dp), // Move title further up
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 40.dp)
+                        .offset(y = (-40).dp),
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Column(
-                    modifier =
-                        Modifier
-                            // Offset to overlap with the header.
-                            .offset(y = (-90).dp)
-                            .verticalScroll(scrollState)
-                            .padding(32.dp),
+                    modifier = Modifier
+                        .offset(y = (-90).dp)
+                        .verticalScroll(scrollState)
+                        .padding(32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(24.dp),
                 ) {
                     ProfileItem(label = "Name", value = displayName)
-                    // Display user's statistics.
-                    ProfileItem(
-                        label = "High Score",
-                        value = user?.bestScore?.toString() ?: "0",
-                    )
-
-                    ProfileItem(
-                        label = "Games Played",
-                        value = user?.gamesPlayed?.toString() ?: "0",
-                    )
+                    ProfileItem(label = "High Score", value = user?.bestScore?.toString() ?: "0")
+                    ProfileItem(label = "Games Played", value = user?.gamesPlayed?.toString() ?: "0")
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -132,7 +139,6 @@ fun ProfilePageScreen(
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    // Leaderboard section showing top players from Firestore.
                     LeaderboardSection(leaders = leaders)
                 }
             }
@@ -140,6 +146,14 @@ fun ProfilePageScreen(
     }
 }
 
+/**
+ * Header block for the profile screen.
+ *
+ * Contains a back button and the "Profile" title.
+ *
+ * @param onBackClick Callback invoked when the user taps the back button.
+ * @param modifier Optional modifier used to position the header in the layout.
+ */
 @Composable
 fun ProfileHeaderCircle(
     onBackClick: () -> Unit,
@@ -149,14 +163,14 @@ fun ProfileHeaderCircle(
         modifier = modifier.height(250.dp),
         contentAlignment = Alignment.Center,
     ) {
-        // icons at the very top
         Row(
-            modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter).padding(horizontal = 8.dp, vertical = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.TopCenter)
+                .padding(horizontal = 8.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            IconButton(
-                onClick = onBackClick,
-            ) {
+            IconButton(onClick = onBackClick) {
                 Icon(
                     painter = painterResource(R.drawable.backbutton),
                     contentDescription = "Back",
@@ -166,28 +180,30 @@ fun ProfileHeaderCircle(
             }
         }
 
-        // Title text
         Text(
             text = "Profile",
             style = MaterialTheme.typography.displayLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onPrimary,
             textAlign = TextAlign.Center,
-            modifier = Modifier.align(Alignment.Center), // Center in the Box
         )
     }
 }
 
-// A reusable composable to display a labeled piece of user information.
+/**
+ * Displays a labeled value in the profile screen.
+ *
+ * @param label Label shown above the value.
+ * @param value Value shown below the label.
+ */
 @Composable
 private fun ProfileItem(
     label: String,
     value: String,
 ) {
     Column(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Text(
@@ -204,30 +220,38 @@ private fun ProfileItem(
     }
 }
 
-// A helper function to extract a user's name from their email address.
+/**
+ * Extracts a simple display name from an email address.
+ *
+ * Uses the substring before the first '.' or '@' and capitalizes the first character.
+ *
+ * @param email Email address to parse.
+ * @return A best-effort readable name derived from the email.
+ */
 private fun nameFromEmail(email: String): String {
     val dotIndex = email.indexOf('.')
     val atIndex = email.indexOf('@')
 
     val candidates = listOf(dotIndex, atIndex).filter { it > 0 }
-    val endIndex = if (candidates.isEmpty()) email.length else candidates.min()
+    val endIndex = candidates.minOrNull() ?: email.length
 
-    // Get the part of the email before the first '.' or '@'.
     val raw = email.substring(0, endIndex).ifEmpty { email }
-    // Capitalize the first letter of the extracted name.
     return raw.replaceFirstChar { ch ->
         if (ch.isLowerCase()) ch.titlecase(Locale.getDefault()) else ch.toString()
     }
 }
 
-// Leaderboard UI section that shows the top players list.
+/**
+ * Renders the leaderboard section listing top players and their best scores.
+ *
+ * @param leaders List of leaderboard entries to display.
+ */
 @Composable
 private fun LeaderboardSection(leaders: List<LeaderboardEntry>) {
     Column(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
@@ -245,10 +269,9 @@ private fun LeaderboardSection(leaders: List<LeaderboardEntry>) {
         } else {
             leaders.forEachIndexed { index, entry ->
                 Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -262,9 +285,9 @@ private fun LeaderboardSection(leaders: List<LeaderboardEntry>) {
                         fontWeight = FontWeight.Bold,
                     )
                 }
-                Divider(
+                HorizontalDivider(
                     thickness = 0.5.dp,
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
                 )
             }
         }
