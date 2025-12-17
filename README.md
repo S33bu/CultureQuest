@@ -45,20 +45,14 @@ For a more detailed overview and upcoming features, visit our [**Wiki Page**](ht
 
 ### Key Project Dependencies
 The following core libaries are required and will be resolved automatically via Gradle: 
-Category,Libraries
-UI Framework,Jetpack Compose (Material 3)
-Backend/Auth,"Firebase Auth, Firestore"
-Database,Room Persistence Library
-Maps/Location,"Google Maps SDK, Street View API"
-Concurrency,Kotlin Coroutines & Flow
-Quality,Ktlint (Static Analysis)
+Category,Libraries,Purpose
+UI Framework,Jetpack Compose (Material 3),Declarative UI and modern theme implementation.
+Backend / Auth,Firebase Auth & Firestore,User authentication and global leaderboard data.
+Database,Room Persistence Library,Local SQLite abstraction for offline score caching.
+Maps / Location,Google Maps SDK & Street View,Panoramic gameplay and location rendering.
+Concurrency,Kotlin Coroutines & Flow,Asynchronous programming and reactive data streams.
+Quality Control,Ktlint (Static Analysis),Enforcement of official Kotlin Style Guide standards.
 
-1. Download Android Studio
-2. Clone this Repo
-3. Sync the gradle if needed
-4. Boot up a virtual android phone if needed
-5. Android Studio should show "app" top middle of screen and click the green start button
-6. All of the dependencies should be applied/installed automatically
 
 
 <br/>
