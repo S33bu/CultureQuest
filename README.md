@@ -36,7 +36,7 @@ For a more detailed overview and upcoming features, visit our [**Wiki Page**](ht
 1. Download Android Studio
 2. Clone this Repo
 3. Sync the gradle if needed
-4. Boot up a virutal android phone if needed
+4. Boot up a virtual android phone if needed
 5. Android Studio should show "app" top middle of screen and click the green start button
 6. All of the dependencies should be applied/installed automatically
 
